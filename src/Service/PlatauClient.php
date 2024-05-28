@@ -13,12 +13,12 @@ namespace App\Service;
 class PlatauClient extends PlatauAbstract
 {
     private static array $class_map = [
-        'acteurs'       => PlatauActeur::class,
+        'acteurs' => PlatauActeur::class,
         'consultations' => PlatauConsultation::class,
-        'healthcheck'   => PlatauHealthcheck::class,
+        'healthcheck' => PlatauHealthcheck::class,
         'notifications' => PlatauNotification::class,
-        'pieces'        => PlatauPiece::class,
-        'avis'          => PlatauAvis::class,
+        'pieces' => PlatauPiece::class,
+        'avis' => PlatauAvis::class,
     ];
 
     /**

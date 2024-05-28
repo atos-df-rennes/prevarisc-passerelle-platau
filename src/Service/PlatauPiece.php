@@ -27,13 +27,13 @@ final class PlatauPiece extends PlatauAbstract
         $syncplicity_folder_id = (string) $file['VirtualFolderId'];
 
         $document = [
-            'fileId'               => $syncplicity_file_id,
-            'folderId'             => $syncplicity_folder_id,
-            'dtProduction'         => (new \DateTime())->format('Y-m-d'),
-            'idActeurProducteur'   => (string) $this->getConfig()['PLATAU_ID_ACTEUR_APPELANT'],
-            'algoHash'             => 'SHA-512',
-            'hash'                 => hash('sha512', $file_contents),
-            'nomTypeDocument'      => $type_document,  // Nomenclature TYPE_DOCUMENT
+            'fileId' => $syncplicity_file_id,
+            'folderId' => $syncplicity_folder_id,
+            'dtProduction' => (new \DateTime())->format('Y-m-d'),
+            'idActeurProducteur' => (string) $this->getConfig()['PLATAU_ID_ACTEUR_APPELANT'],
+            'algoHash' => 'SHA-512',
+            'hash' => hash('sha512', $file_contents),
+            'nomTypeDocument' => $type_document,  // Nomenclature TYPE_DOCUMENT
             'nomTypeProducteurDoc' => 1,  // Nomenclature NATURE_PIECE. Toujours à 1 : "Personne jouant un rôle dans un dossier"
         ];
 
