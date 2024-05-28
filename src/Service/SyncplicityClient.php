@@ -59,16 +59,16 @@ class SyncplicityClient
 
         // Middleware : OAuth2 auth (https://developer.aife.economie.gouv.fr)
         $stack->push(new OAuth2Middleware(new ClientCredentials(new HttpClient(['base_uri' => $this->getConfig()['PISTE_ACCESS_TOKEN_URL']]), [
-            'client_id'     => $this->getConfig()['PISTE_CLIENT_ID'],
+            'client_id' => $this->getConfig()['PISTE_CLIENT_ID'],
             'client_secret' => $this->getConfig()['PISTE_CLIENT_SECRET'],
         ])));
 
         // Création du client HTTP servant à communiquer avec Syncplicity
         $this->http_client = new HttpClient([
             'base_uri' => $this->getConfig()['SYNCPLICITY_URL'],
-            'timeout'  => 30.0,
-            'handler'  => $stack,
-            'auth'     => 'oauth',
+            'timeout' => 30.0,
+            'handler' => $stack,
+            'auth' => 'oauth',
         ]);
     }
 
@@ -102,7 +102,7 @@ class SyncplicityClient
             $response = $this->request('POST', 'upload', [
                 'multipart' => [
                     [
-                        'name'     => 'fileData',
+                        'name' => 'fileData',
                         'contents' => $file_contents,
                         'filename' => $file_name,
                     ],
@@ -148,29 +148,29 @@ class SyncplicityClient
                 'filepath' => (string) $ticket_pre_upload['Folder_Name'].'/'.urlencode($file_name),
             ],
             'headers' => [
-                'AppKey'        => $ticket_pre_upload['AppKey'],
+                'AppKey' => $ticket_pre_upload['AppKey'],
                 'Authorization' => $ticket_pre_upload['Authorization_for_upload'],
             ],
             'multipart' => [
                 [
-                    'name'     => 'fileData',
+                    'name' => 'fileData',
                     'contents' => $file_contents,
                     'filename' => $file_name,
                 ],
                 [
-                    'name'     => 'virtualFolderId',
+                    'name' => 'virtualFolderId',
                     'contents' => $ticket_pre_upload['VirtualFolderId'],
                 ],
                 [
-                    'name'     => 'SHA-256',
+                    'name' => 'SHA-256',
                     'contents' => hash('sha256', $file_contents),
                 ],
                 [
-                    'name'     => 'sessionKey',
+                    'name' => 'sessionKey',
                     'contents' => $ticket_pre_upload['Authorization_for_upload'],
                 ],
                 [
-                    'name'     => 'filename',
+                    'name' => 'filename',
                     'contents' => $file_name,
                 ],
             ],

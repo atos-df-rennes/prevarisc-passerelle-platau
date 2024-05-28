@@ -40,13 +40,13 @@ final class Prevarisc implements ServiceProvider
     {
         // Récupération d'une connexion via le driver de la base de données cible
         $connection = DriverManager::getConnection([
-            'dbname'   => (string) $this->config['PREVARISC_DB_NAME'],
-            'user'     => (string) $this->config['PREVARISC_DB_USER'],
+            'dbname' => (string) $this->config['PREVARISC_DB_NAME'],
+            'user' => (string) $this->config['PREVARISC_DB_USER'],
             'password' => (string) $this->config['PREVARISC_DB_PASSWORD'],
-            'host'     => (string) $this->config['PREVARISC_DB_HOST'],
-            'driver'   => (string) $this->config['PREVARISC_DB_DRIVER'],
-            'charset'  => (string) $this->config['PREVARISC_DB_CHARSET'],
-            'port'     => (int) $this->config['PREVARISC_DB_PORT'],
+            'host' => (string) $this->config['PREVARISC_DB_HOST'],
+            'driver' => (string) $this->config['PREVARISC_DB_DRIVER'],
+            'charset' => (string) $this->config['PREVARISC_DB_CHARSET'],
+            'port' => (int) $this->config['PREVARISC_DB_PORT'],
         ]);
 
         // Création d'une instance FlySystem pour stocker les pièces jointes

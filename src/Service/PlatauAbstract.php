@@ -52,8 +52,8 @@ abstract class PlatauAbstract
         /** @var callable(callable): callable $retry_middleware */
         $retry_middleware = GuzzleRetryMiddleware::factory([
             'max_retry_attempts' => 5,
-            'retry_on_status'    => [429, 503, 500],
-            'on_retry_callback'  => function (int $attemptNumber, float $delay, RequestInterface &$request, array &$_options, ?ResponseInterface $response) {
+            'retry_on_status' => [429, 503, 500],
+            'on_retry_callback' => function (int $attemptNumber, float $delay, RequestInterface &$request, array &$_options, ?ResponseInterface $response) {
                 $message = sprintf(
                     "Un problème est survenu lors de la requête à %s : Plat'AU a répondu avec un code %s. Nous allons attendre %s secondes avant de réessayer. Ceci est l'essai numéro %s.",
                     $request->getUri()->getPath(),
@@ -82,7 +82,7 @@ abstract class PlatauAbstract
 
         // Middleware : OAuth2 auth (https://developer.aife.economie.gouv.fr)
         $stack->push(new OAuth2Middleware(new ClientCredentials(new HttpClient(['base_uri' => $this->getConfig()['PISTE_ACCESS_TOKEN_URL']]), [
-            'client_id'     => $this->getConfig()['PISTE_CLIENT_ID'],
+            'client_id' => $this->getConfig()['PISTE_CLIENT_ID'],
             'client_secret' => $this->getConfig()['PISTE_CLIENT_SECRET'],
         ])));
 
@@ -95,10 +95,10 @@ abstract class PlatauAbstract
         // Création du client HTTP servant à communiquer avec Plat'AU
         $this->http_client = new HttpClient([
             'base_uri' => $this->getConfig()['PLATAU_URL'],
-            'timeout'  => 30.0,
-            'handler'  => $stack,
-            'auth'     => 'oauth',
-            'headers'  => $headers,
+            'timeout' => 30.0,
+            'handler' => $stack,
+            'auth' => 'oauth',
+            'headers' => $headers,
         ]);
     }
 

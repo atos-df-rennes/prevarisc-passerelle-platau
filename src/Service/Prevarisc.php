@@ -166,7 +166,7 @@ class Prevarisc
     /**
      * Versement d'une consultation Plat'AU dans Prevarisc.
      */
-    public function importConsultation(array $consultation, array $demandeur = null, array $service_instructeur = null) : void
+    public function importConsultation(array $consultation, ?array $demandeur = null, ?array $service_instructeur = null) : void
     {
         // On démarre une transaction SQL. Si jamais les choses se passent mal, on pourra revenir en arrière.
         $this->db->beginTransaction();
@@ -257,13 +257,13 @@ class Prevarisc
                 $query_builder_docurba = $this->db->createQueryBuilder()->insert('dossierdocurba');
                 $query_builder_docurba->values([
                     'NUM_DOCURBA' => $query_builder_docurba->createPositionalParameter($num_doc_urba),
-                    'ID_DOSSIER'  => $dossier_id,
+                    'ID_DOSSIER' => $dossier_id,
                 ])->executeStatement();
             }
 
             // On lie la nature du dossier Plat'AU avec celui de Prevarisc (avec l'aide d'une table de correspondance)
             $this->db->createQueryBuilder()->insert('dossiernature')->values([
-                'ID_NATURE'  => $this->correspondanceNaturePrevarisc($consultation['dossier']['nomTypeDossier']['idNom']),
+                'ID_NATURE' => $this->correspondanceNaturePrevarisc($consultation['dossier']['nomTypeDossier']['idNom']),
                 'ID_DOSSIER' => $dossier_id,
             ])->executeStatement();
 
@@ -303,10 +303,10 @@ class Prevarisc
         // On parse les prescriptions
         $prescriptions = array_map(function ($prescription) {
             return [
-                'type'    => $prescription['TYPE_PRESCRIPTION_DOSSIER'], // 1 = Rappels Réglementaires, 2 = Exploitation, 3 = Recommandations
+                'type' => $prescription['TYPE_PRESCRIPTION_DOSSIER'], // 1 = Rappels Réglementaires, 2 = Exploitation, 3 = Recommandations
                 'libelle' => $prescription['LIBELLE_PRESCRIPTION_DOSSIER'] ?? $prescription['PRESCRIPTIONTYPE_LIBELLE'],
                 'article' => $prescription['ARTICLE'] ?? $prescription['TYPE_ARTICLE'],
-                'texte'   => $prescription['TEXTE'] ?? $prescription['TYPE_TEXTE'],
+                'texte' => $prescription['TEXTE'] ?? $prescription['TYPE_TEXTE'],
             ];
         }, $prescriptions);
 
@@ -348,7 +348,7 @@ class Prevarisc
     public function creerPieceJointe(int $dossier_id, array $piece, string $extension, string $file_contents) : void
     {
         // Génération du nom du fichier
-        $filename = vsprintf('PLATAU-%s-%s-v%d', [$piece['idPiece'], $piece['noPiece'], $piece['noVersion']]);
+        $filename = $piece['txFileName'];
 
         // Si le fichier existe déjà, on ne l'importe pas
         if ($this->pieceJointeExisteDansDossier($dossier_id, $filename)) {
@@ -356,8 +356,9 @@ class Prevarisc
         }
 
         // Génération de la description
-        $description = vsprintf('%s v%s (Pièce %s avec un état %s. Elle a été déposée le %s et produite le %s.)', [
-            (string) $piece['nomTypePiece']['libNom'].' '.(string) $piece['libAutreTypePiece'],
+        $description = vsprintf('Pièce de type "%s" (%s) en version %s (Pièce de nature %s avec un état %s. Elle a été déposée le %s et produite le %s.)', [
+            (string) $piece['nomTypePiece']['libNom'],
+            (string) $piece['libAutreTypePiece'],
             $piece['noVersion'],
             $piece['nomNaturePiece']['libNom'],
             $piece['nomEtatPiece']['libNom'],
@@ -375,9 +376,9 @@ class Prevarisc
             // Création de l'item pièce jointe
             $query_builder = $this->db->createQueryBuilder();
             $query_builder->insert('piecejointe')->values([
-                'NOM_PIECEJOINTE'         => $query_builder->createPositionalParameter($filename),
-                'EXTENSION_PIECEJOINTE'   => $query_builder->createPositionalParameter($extension),
-                'DATE_PIECEJOINTE'        => $query_builder->createPositionalParameter((new \DateTime())->format('Y-m-d')),
+                'NOM_PIECEJOINTE' => $query_builder->createPositionalParameter($filename),
+                'EXTENSION_PIECEJOINTE' => $query_builder->createPositionalParameter($extension),
+                'DATE_PIECEJOINTE' => $query_builder->createPositionalParameter((new \DateTime())->format('Y-m-d')),
                 'DESCRIPTION_PIECEJOINTE' => $query_builder->createPositionalParameter($description),
             ])->executeStatement();
 
@@ -386,8 +387,8 @@ class Prevarisc
             // Création de la liaison avec la pièce jointe et le dossier
             $this->db->createQueryBuilder()->insert('dossierpj')->values([
                 'ID_PIECEJOINTE' => $piece_jointe_id,
-                'ID_DOSSIER'     => $dossier_id,
-                'PJ_COMMISSION'  => 0,
+                'ID_DOSSIER' => $dossier_id,
+                'PJ_COMMISSION' => 0,
             ])->executeStatement();
 
             // Stockage de la pièce jointe

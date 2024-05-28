@@ -26,8 +26,8 @@ final class Platau implements ServiceProvider
     {
         $client = new Service\PlatauClient($this->config);
 
-        if ($c->has(Service\SyncplicityClient::class)) {
-            $syncplicity = $c->get(Service\SyncplicityClient::class);
+        if ($c->has(SyncplicityClient::class)) {
+            $syncplicity = $c->get(SyncplicityClient::class);
             \assert($syncplicity instanceof SyncplicityClient);
             $client->enableSyncplicity($syncplicity);
         }

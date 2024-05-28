@@ -18,8 +18,8 @@ final class PlatauActeur extends PlatauAbstract
                 'servicesConsultables' => [
                     [
                         'designationActeur' => $designation,
-                        'mail'              => $mail,
-                        'siren'             => $siren,
+                        'mail' => $mail,
+                        'siren' => $siren,
                     ],
                 ],
             ],
