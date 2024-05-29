@@ -348,7 +348,7 @@ class Prevarisc
     public function creerPieceJointe(int $dossier_id, array $piece, string $extension, string $file_contents) : void
     {
         // Génération du nom du fichier
-        $filename = $piece['txFileName'];
+        $filename = vsprintf('%s-v%d', [$piece['txFileName'], $piece['noVersion']]);
 
         // Si le fichier existe déjà, on ne l'importe pas
         if ($this->pieceJointeExisteDansDossier($dossier_id, $filename)) {
