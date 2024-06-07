@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\ValueObjects\DateReponse;
 use Exception;
 use League\Flysystem;
 use Doctrine\DBAL\Connection;
@@ -171,6 +172,11 @@ class Prevarisc
                 && \in_array('DATE_AVIS', array_map(function (Column $column) {
                     return $column->getName();
                 }, $this->db->createSchemaManager()->listTableColumns('platauconsultation')))
+            // Colonne 'DATE_REPONSE_ATTENDUE' dans la table 'platauconsultation'
+
+                && \in_array('DATE_REPONSE_ATTENDUE', array_map(function (Column $column) {
+                    return $column->getName();
+                }, $this->db->createSchemaManager()->listTableColumns('platauconsultation')))
             // Présence de la table 'piecejointestatut'
             && \in_array('piecejointestatut', $this->db->createSchemaManager()->listTableNames())
             // Présence de la table 'platauconsultation'
@@ -280,6 +286,17 @@ class Prevarisc
             $this->db->createQueryBuilder()->insert('dossiernature')->values([
                 'ID_NATURE' => $this->correspondanceNaturePrevarisc($consultation['dossier']['nomTypeDossier']['idNom']),
                 'ID_DOSSIER' => $dossier_id,
+            ])->executeStatement();
+
+            $date_emission = $consultation['dtEmission'];
+            $delai_reponse = $consultation['delaiDeReponse'];
+            $type_date_limite_reponse = $consultation['nomTypeDelai']['libNom'];
+            $date_reponse = new DateReponse($date_emission,$delai_reponse,$type_date_limite_reponse);
+
+            $query_builder_consultation = $this->db->createQueryBuilder()->insert('platauconsultation');
+            $query_builder_consultation->values([
+                'ID_PLATAU' => $query_builder_consultation->createPositionalParameter($consultation['idConsultation']),
+                'DATE_REPONSE_ATTENDUE' => $query_builder_consultation->createPositionalParameter($date_reponse->date()),
             ])->executeStatement();
 
             // On commit les changements
