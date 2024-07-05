@@ -2,11 +2,11 @@
 
 namespace App\Service;
 
-use App\ValueObjects\DateReponse;
 use Exception;
 use League\Flysystem;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Schema\Column;
+use App\ValueObjects\DateReponse;
 use Doctrine\DBAL\Query\QueryBuilder;
 
 class Prevarisc
@@ -288,10 +288,11 @@ class Prevarisc
                 'ID_DOSSIER' => $dossier_id,
             ])->executeStatement();
 
-            $date_emission = $consultation['dtEmission'];
-            $delai_reponse = $consultation['delaiDeReponse'];
-            $type_date_limite_reponse = $consultation['nomTypeDelai']['libNom'];
-            $date_reponse = new DateReponse($date_emission,$delai_reponse,$type_date_limite_reponse);
+            $date_reponse = new DateReponse(
+                $consultation['dtEmission'],
+                $consultation['delaiDeReponse'],
+                $consultation['nomTypeDelai']['libNom']
+            );
 
             $query_builder_consultation = $this->db->createQueryBuilder()->insert('platauconsultation');
             $query_builder_consultation->values([
