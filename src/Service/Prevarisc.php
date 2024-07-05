@@ -108,12 +108,12 @@ class Prevarisc
             ->where('dossier.ID_DOSSIER = ?')
             ->setParameter(0, $dossier_id)
             ->executeQuery();
-    
+
         $documentManquant = $results->fetchOne();
-        
+
         return $documentManquant;
     }
-    
+
     /**
      * Vérifie que la consultation existe dans Prevarisc.
      */
