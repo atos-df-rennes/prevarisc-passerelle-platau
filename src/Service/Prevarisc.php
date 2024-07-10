@@ -381,10 +381,14 @@ class Prevarisc
     public function creerPieceJointe(int $dossier_id, array $piece, string $extension, string $file_contents) : void
     {
         // Génération du nom du fichier
-        $filename = vsprintf('%s-v%d', [$piece['txFileName'], $piece['noVersion']]);
+        $legacy_filename = vsprintf('PLATAU-%s-%s-v%d', [$piece['idPiece'], $piece['noPiece'], $piece['noVersion']]);
+        $filename        = vsprintf('%s-v%d', [$piece['txFileName'], $piece['noVersion']]);
 
         // Si le fichier existe déjà, on ne l'importe pas
-        if ($this->pieceJointeExisteDansDossier($dossier_id, $filename)) {
+        if (
+            $this->pieceJointeExisteDansDossier($dossier_id, $filename)
+            || $this->pieceJointeExisteDansDossier($dossier_id, $legacy_filename)
+        ) {
             return;
         }
 
