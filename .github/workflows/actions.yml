@@ -14,10 +14,11 @@ jobs:
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.1'
-          extensions: mbstring, xml, dom
-          tools: composer
+          coverage: none
+
       - name: Validate composer.json and composer.lock
         run: composer validate --strict
+             composer update --lock
 
   psalm:
     needs: validate-composer
@@ -31,8 +32,7 @@ jobs:
       - uses: ramsey/composer-install@v3
         with:
           composer-options: "--prefer-dist"
-      - name: Installer les dépendances
-        run: composer install --prefer-dist --no-progress 
+
       - name: Exécuter Psalm
         run: vendor/bin/psalm
 
@@ -48,8 +48,7 @@ jobs:
     - uses: ramsey/composer-install@v3
       with:
           composer-options: "--prefer-dist"
-    - name: Installer les dépendances
-      run: composer install --prefer-dist --no-progress 
+    
     - name: Exécuter PHPUnit
       run: vendor/bin/phpunit
 
@@ -65,8 +64,7 @@ jobs:
     - uses: ramsey/composer-install@v3
       with:
         composer-options: "--prefer-dist"    
-    - name: Installer les dépendances
-      run: composer install --prefer-dist --no-progress 
+     
     - name: Exécuter PHP CS Fixer
       run: vendor/bin/php-cs-fixer check --diff --config=vendor/kdubuc/php-cs-fixer-rules/php-cs-fixer.php
 
