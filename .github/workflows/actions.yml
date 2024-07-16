@@ -17,8 +17,9 @@ jobs:
           coverage: none
 
       - name: Validate composer.json and composer.lock
-        run: composer validate --strict
-             composer update --lock
+        run: |
+          composer validate --strict
+          composer update --lock
 
   psalm:
     needs: validate-composer
