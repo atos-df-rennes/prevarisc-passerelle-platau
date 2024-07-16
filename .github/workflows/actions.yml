@@ -19,7 +19,7 @@ jobs:
       - name: Installer les dépendances
         run: composer install --prefer-dist --no-progress --no-suggest
 
- psalm:
+  psalm:
     needs: validate-composer
     runs-on: ubuntu-latest
     steps:
@@ -59,7 +59,7 @@ jobs:
     - name: Installer les dépendances
         run: composer install --prefer-dist --no-progress --no-suggest
     - name: Exécuter PHP CS Fixer
-        run: vendor/bin/php-cs-fixer fix --dry-run --diff
+        run: vendor/bin/php-cs-fixer check --diff --config=vendor/kdubuc/php-cs-fixer-rules/php-cs-fixer.php
 
 
 
