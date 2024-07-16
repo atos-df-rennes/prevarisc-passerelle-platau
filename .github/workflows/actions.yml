@@ -16,8 +16,6 @@ jobs:
           php-version: '8.1'
           extensions: mbstring, xml, dom
           tools: composer
-      - name: Installer les dépendances
-        run: composer install --prefer-dist --no-progress 
       - name: Validate composer.json and composer.lock
         run: composer validate --strict
 
@@ -31,6 +29,8 @@ jobs:
           php-version: 8.1 
           extensions: mbstring, xml, dom
       - uses: ramsey/composer-install@v3
+        with:
+          composer-options: "--prefer-dist"
       - name: Installer les dépendances
         run: composer install --prefer-dist --no-progress 
       - name: Exécuter Psalm
@@ -46,6 +46,8 @@ jobs:
         php-version: '8.1'
         coverage: none
     - uses: ramsey/composer-install@v3
+      with:
+          composer-options: "--prefer-dist"
     - name: Installer les dépendances
       run: composer install --prefer-dist --no-progress 
     - name: Exécuter PHPUnit
@@ -61,6 +63,8 @@ jobs:
         php-version: '8.1'
         coverage: none
     - uses: ramsey/composer-install@v3
+      with:
+        composer-options: "--prefer-dist"    
     - name: Installer les dépendances
       run: composer install --prefer-dist --no-progress 
     - name: Exécuter PHP CS Fixer
