@@ -17,7 +17,7 @@ jobs:
           extensions: mbstring, xml, dom
           tools: composer
       - name: Installer les dépendances
-        run: composer install --prefer-dist --no-progress --no-suggest
+        run: composer install --prefer-dist --no-progress 
 
   psalm:
     needs: validate-composer
@@ -29,7 +29,7 @@ jobs:
           php-version: 8.1 
           extensions: mbstring, xml, dom
       - name: Installer les dépendances
-        run: composer install --prefer-dist --no-progress --no-suggest
+        run: composer install --prefer-dist --no-progress 
       - name: Exécuter Psalm
         run: vendor/bin/psalm
 
@@ -43,7 +43,7 @@ jobs:
         php-version: '8.1'
         coverage: none
     - name: Installer les dépendances
-      run: composer install --prefer-dist --no-progress --no-suggest
+      run: composer install --prefer-dist --no-progress 
     - name: Exécuter PHPUnit
       run: vendor/bin/phpunit
 
@@ -57,7 +57,7 @@ jobs:
         php-version: '8.1'
         coverage: none
     - name: Installer les dépendances
-      run: composer install --prefer-dist --no-progress --no-suggest
+      run: composer install --prefer-dist --no-progress 
     - name: Exécuter PHP CS Fixer
       run: vendor/bin/php-cs-fixer check --diff --config=vendor/kdubuc/php-cs-fixer-rules/php-cs-fixer.php
 
