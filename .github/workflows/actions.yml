@@ -23,12 +23,12 @@ jobs:
     needs: validate-composer
     runs-on: ubuntu-latest
     steps:
-      uses: actions/checkout@v4
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: 8.1 
-        extensions: mbstring, xml, dom
-       - name: Installer les dépendances
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.1 
+          extensions: mbstring, xml, dom
+      - name: Installer les dépendances
         run: composer install --prefer-dist --no-progress --no-suggest
       - name: Exécuter Psalm
         run: vendor/bin/psalm
@@ -43,9 +43,9 @@ jobs:
         php-version: '8.1'
         coverage: none
     - name: Installer les dépendances
-        run: composer install --prefer-dist --no-progress --no-suggest
+      run: composer install --prefer-dist --no-progress --no-suggest
     - name: Exécuter PHPUnit
-        run: vendor/bin/phpunit
+      run: vendor/bin/phpunit
 
   php-cs-fixer-rules:
     needs: validate-composer
@@ -57,9 +57,9 @@ jobs:
         php-version: '8.1'
         coverage: none
     - name: Installer les dépendances
-        run: composer install --prefer-dist --no-progress --no-suggest
+      run: composer install --prefer-dist --no-progress --no-suggest
     - name: Exécuter PHP CS Fixer
-        run: vendor/bin/php-cs-fixer check --diff --config=vendor/kdubuc/php-cs-fixer-rules/php-cs-fixer.php
+      run: vendor/bin/php-cs-fixer check --diff --config=vendor/kdubuc/php-cs-fixer-rules/php-cs-fixer.php
 
 
 
