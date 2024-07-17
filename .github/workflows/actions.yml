@@ -15,7 +15,7 @@ jobs:
         with:
           php-version: '8.1'
           coverage: none
-      - name: Composer update
+      - name: Composer Update
         run: 
           composer update
       - name: Validate composer.json and composer.lock
