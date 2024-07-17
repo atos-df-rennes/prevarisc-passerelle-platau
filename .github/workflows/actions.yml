@@ -34,7 +34,7 @@ jobs:
           composer-options: "--prefer-dist"
 
       - name: Exécuter Psalm
-        run: vendor/bin/psalm --alter --dry-run
+        run: vendor/bin/psalm --alter --issues=InvalidFalsableReturnType --dry-run
 
 
   php-cs-fixer-rules:
