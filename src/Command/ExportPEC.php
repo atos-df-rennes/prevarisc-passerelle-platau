@@ -93,11 +93,11 @@ final class ExportPEC extends Command
                         }
                     }
                 }
-                $documentsManquants = $this->prevarisc_service->recupererDocumentsManquants($dossier['ID_DOSSIER']);
 
                 // Si le dossier est déclaré incomplet, on envoie une PEC négative
                 if ('1' === (string) $dossier['INCOMPLET_DOSSIER']) {
                     $output->writeln("Notification de la Prise En Compte Négative de la consultation $consultation_id au service instructeur ...");
+                    $documentsManquants = $this->prevarisc_service->recupererDocumentsManquants($dossier['ID_DOSSIER']);
 
                     // Si cela concerne un premier envoi de PEC alors on place la date de la PEC Prevarisc, sinon la date du lancement de la commande
                     $this->consultation_service->envoiPEC(

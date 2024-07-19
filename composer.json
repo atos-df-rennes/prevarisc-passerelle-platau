@@ -20,6 +20,7 @@
         "vimeo/psalm": "^5.0",
         "phpunit/phpunit": "^9.0"
     },
+    "license": "proprietary",
     "autoload": {
         "psr-4": {
             "App\\": "src/"

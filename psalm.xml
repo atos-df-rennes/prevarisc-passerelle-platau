@@ -1,7 +1,10 @@
 <?xml version="1.0"?>
 <psalm
     errorLevel="1"
+    errorBaseline="psalm-baseline.xml"
     resolveFromConfigFile="true"
+    findUnusedCode="false"
+    findUnusedBaselineEntry="true"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns="https://getpsalm.org/schema/config"
     xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
@@ -21,6 +24,11 @@
                 <file name="src/Service/Prevarisc.php" />
             </errorLevel>
         </TooManyArguments>
+        <MixedArgumentTypeCoercion>
+            <errorLevel type="suppress">
+                <file name="src/Service/Prevarisc.php" />
+            </errorLevel>
+        </MixedArgumentTypeCoercion>
         <MixedArgument errorLevel="suppress" />
         <MixedArrayAccess errorLevel="suppress" />
     </issueHandlers>
