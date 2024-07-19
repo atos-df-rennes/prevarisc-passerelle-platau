@@ -75,7 +75,12 @@ class Prevarisc
         return $dossier;
     }
 
-    public function recupererDossierAuteur(string $dossier_id) : array
+    /**
+     * @return array|false
+     *
+     * @psalm-return array<string, mixed>|false
+     */
+    public function recupererDossierAuteur(string $dossier_id) 
     {
         $results = $this->db->createQueryBuilder()
             ->select(
@@ -118,7 +123,9 @@ class Prevarisc
     public function estDisponible() : bool
     {
         try {
-            /* @psalm-suppress InternalMethod */
+            /** 
+            * @psalm-suppress InternalMethod 
+            */
             return $this->db->connect();
         } catch (\Exception $e) {
             return false;
@@ -198,6 +205,7 @@ class Prevarisc
             // On place des dates importantes dans Prevarisc
             $query_builder->setValue('DATESDIS_DOSSIER', $query_builder->createPositionalParameter((new \DateTime())->format('Y-m-d H:i:s')));
 
+            /** @var string $date_insertion */
             $date_insertion = $consultation['dtEmission'] ?? $consultation['dtConsultation'] ?? 'now';
             $query_builder->setValue('DATEINSERT_DOSSIER', $query_builder->createPositionalParameter((new \DateTime($date_insertion))->format('Y-m-d H:i:s')));
 
@@ -248,10 +256,10 @@ class Prevarisc
 
             // Insertion des numéros de document d'urbanisme (PC, AT ...)
             if (null !== $consultation['dossier']['noLocal']) {
-                $num_doc_urba = $consultation['dossier']['noLocal'];
+                $num_doc_urba = (string) $consultation['dossier']['noLocal'];
 
                 if (null !== $consultation['dossier']['suffixeNoLocal']) {
-                    $num_doc_urba .= $consultation['dossier']['suffixeNoLocal'];
+                    $num_doc_urba .= (string) $consultation['dossier']['suffixeNoLocal'];
                 }
 
                 $query_builder_docurba = $this->db->createQueryBuilder()->insert('dossierdocurba');
