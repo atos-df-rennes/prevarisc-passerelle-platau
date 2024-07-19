@@ -3289,16 +3289,16 @@
         },
         {
             "name": "kdubuc/php-cs-fixer-rules",
-            "version": "1.2.0",
+            "version": "1.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/kdubuc/php-cs-fixer-rules.git",
-                "reference": "3feb93f928ea06da3174f73bf1e3104d3c378f51"
+                "reference": "0ef33a1202ad1d499650dc62bc79150f8a01de0b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/kdubuc/php-cs-fixer-rules/zipball/3feb93f928ea06da3174f73bf1e3104d3c378f51",
-                "reference": "3feb93f928ea06da3174f73bf1e3104d3c378f51",
+                "url": "https://api.github.com/repos/kdubuc/php-cs-fixer-rules/zipball/0ef33a1202ad1d499650dc62bc79150f8a01de0b",
+                "reference": "0ef33a1202ad1d499650dc62bc79150f8a01de0b",
                 "shasum": ""
             },
             "require": {
@@ -3310,9 +3310,9 @@
             "description": "PHP Coding Standards Rules",
             "support": {
                 "issues": "https://github.com/kdubuc/php-cs-fixer-rules/issues",
-                "source": "https://github.com/kdubuc/php-cs-fixer-rules/tree/1.2.0"
+                "source": "https://github.com/kdubuc/php-cs-fixer-rules/tree/1.4.0"
             },
-            "time": "2022-12-27T09:37:22+00:00"
+            "time": "2024-02-26T13:02:07+00:00"
         },
         {
             "name": "myclabs/deep-copy",

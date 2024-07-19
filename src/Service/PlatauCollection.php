@@ -17,7 +17,6 @@ class PlatauCollection extends Pagerfanta
     public function autoPagingIterator() : \Generator
     {
         while (true) {
-            /* @psalm-suppress MixedAssignment */
             foreach ($this->getCurrentPageResults() as $item) {
                 yield $item;
             }

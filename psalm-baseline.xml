@@ -4,5 +4,8 @@
     <InternalMethod>
       <code><![CDATA[connect]]></code>
     </InternalMethod>
+    <MixedAssignment>
+      <code><![CDATA[$documents_manquants]]></code>
+    </MixedAssignment>
   </file>
 </files>
