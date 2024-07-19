@@ -68,7 +68,7 @@ class Prevarisc
         $dossier = $results->fetchAssociative();
 
         // Si la requête vers la base de donnée n'a rien donné, alors on lève une exception.
-        if (empty($dossier)) {
+        if (false === $dossier) {
             throw new \Exception("La consultation $consultation_id n'existe pas dans Prevarisc.");
         }
 
@@ -76,11 +76,9 @@ class Prevarisc
     }
 
     /**
-     * @return array|false
-     *
      * @psalm-return array<string, mixed>|false
      */
-    public function recupererDossierAuteur(string $dossier_id) 
+    public function recupererDossierAuteur(string $dossier_id)
     {
         $results = $this->db->createQueryBuilder()
             ->select(
@@ -123,9 +121,6 @@ class Prevarisc
     public function estDisponible() : bool
     {
         try {
-            /** 
-            * @psalm-suppress InternalMethod 
-            */
             return $this->db->connect();
         } catch (\Exception $e) {
             return false;
