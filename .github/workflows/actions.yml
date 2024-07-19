@@ -6,6 +6,7 @@ on:
     branches:
       - master
       - feature/github-Actions
+
 jobs:
   validate-composer:
     runs-on: ubuntu-latest
@@ -15,6 +16,7 @@ jobs:
         with:
           php-version: '8.1'
           coverage: none
+
       - name: Validate composer.json and composer.lock
         run: 
           composer validate --strict
@@ -27,15 +29,16 @@ jobs:
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.1'
-          extensions: mbstring, xml, dom
+          extensions: mbstring, xml, dom, opcache
+          coverage: none
       - uses: ramsey/composer-install@v3
         with:
           composer-options: "--prefer-dist"
 
       - name: Exécuter Psalm
-        run: vendor/bin/psalm --alter --issues=InvalidFalsableReturnType --dry-run
+        run: vendor/bin/psalm
   
-  php-cs-fixer-rules:
+  php-cs-fixer:
     needs: validate-composer
     runs-on: ubuntu-latest
     steps: 
@@ -50,9 +53,3 @@ jobs:
      
     - name: Exécuter PHP CS Fixer
       run: vendor/bin/php-cs-fixer fix --dry-run --diff --config=vendor/kdubuc/php-cs-fixer-rules/php-cs-fixer.php
-
-
-
-
-
-
