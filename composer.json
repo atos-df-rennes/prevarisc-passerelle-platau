@@ -20,7 +20,7 @@
         "vimeo/psalm": "^5.0",
         "phpunit/phpunit": "^9.0"
     },
-    "license": "proprietary",
+    "license": "CeCILL-B",
     "autoload": {
         "psr-4": {
             "App\\": "src/"
@@ -28,5 +28,11 @@
     },
     "bin": [
         "bin/platau"
-    ]
+    ],
+    "scripts": {
+        "analyse": "/usr/bin/php81 vendor/bin/psalm",
+        "cs-check": "@cs-fix --dry-run",
+        "cs-fix": "/usr/bin/php81 vendor/bin/php-cs-fixer fix --config=vendor/kdubuc/php-cs-fixer-rules/php-cs-fixer.php",
+        "generate-baseline": "@analyse --set-baseline=psalm-baseline.xml"
+    }
 }
