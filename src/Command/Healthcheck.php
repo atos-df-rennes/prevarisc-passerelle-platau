@@ -41,6 +41,7 @@ final class Healthcheck extends Command
     {
         // Affichage des metadata de la passerelle
         $output->writeln($this->getApplication()->getName().' - '.$this->getApplication()->getVersion());
+        $output->writeln("Version de Plat'AU : 11");
         $output->writeln('Identifiant du client : '.$this->healthcheck_service->getConfig()['PISTE_CLIENT_ID']);
         $output->writeln("ID Acteur Plat'AU : ".$this->healthcheck_service->getConfig()['PLATAU_ID_ACTEUR_APPELANT']);
         $output->writeln('Syncplicity : '.($this->healthcheck_service->getSyncplicity() ? 'Activé' : 'Non activé'));
