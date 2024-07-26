@@ -102,10 +102,7 @@ class Prevarisc
         return $auteur;
     }
 
-    /**
-     * @return mixed
-     */
-    public function recupererDocumentsManquants(string $dossier_id)
+    public function recupererDocumentsManquants(string $dossier_id) : ?string
     {
         $results = $this->db->createQueryBuilder()
             ->select('dossierdocmanquant.DOCMANQUANT')
@@ -115,6 +112,7 @@ class Prevarisc
             ->setParameter(0, $dossier_id)
             ->executeQuery();
 
+        /** @var string|false $documents_manquants */
         $documents_manquants = $results->fetchOne();
 
         if (false === $documents_manquants) {
