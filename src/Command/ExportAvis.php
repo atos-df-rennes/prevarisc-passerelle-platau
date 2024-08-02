@@ -11,6 +11,8 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use App\Service\PlatauConsultation as PlatauConsultationService;
+use App\Service\PlatauNotification;
+
 
 final class ExportAvis extends Command
 {
@@ -18,16 +20,20 @@ final class ExportAvis extends Command
     private PlatauConsultationService $consultation_service;
     private PlatauPiece $piece_service;
     private PlatauAvis $avis_service;
+    private PlatauNotification $notification_service;
+
 
     /**
      * Initialisation de la commande.
      */
-    public function __construct(PrevariscService $prevarisc_service, PlatauConsultationService $consultation_service, PlatauPiece $piece_service, PlatauAvis $avis_service)
+    public function __construct(PrevariscService $prevarisc_service, PlatauConsultationService $consultation_service, PlatauPiece $piece_service, PlatauAvis $avis_service, PlatauNotification $notification_service)
+    
     {
         $this->prevarisc_service    = $prevarisc_service;
         $this->consultation_service = $consultation_service;
         $this->piece_service        = $piece_service;
         $this->avis_service         = $avis_service;
+        $this->notification_service = $notification_service;
         parent::__construct();
     }
 
@@ -88,13 +94,21 @@ final class ExportAvis extends Command
                 // On recherche les pièces jointes en attente d'envoi vers Plat'AU associées au dossier Prevarisc
                 if ($this->piece_service->getSyncplicity()) {
                     $pieces_to_export = $this->prevarisc_service->recupererPiecesAvecStatut($dossier['ID_DOSSIER'], 'to_be_exported');
+                    $notifications = $this->notification_service->rechercheNotifications();  
+
                     foreach ($pieces_to_export as $piece_jointe) {
                         $filename = $piece_jointe['NOM_PIECEJOINTE'].$piece_jointe['EXTENSION_PIECEJOINTE'];
                         $contents = $this->prevarisc_service->recupererFichierPhysique($piece_jointe['ID_PIECEJOINTE'], $piece_jointe['EXTENSION_PIECEJOINTE']);
 
                         try {
-                            $pieces[] = $this->piece_service->uploadDocument($filename, $contents, 9); // Type de document 9 = Document lié à un avis
-                            $this->prevarisc_service->changerStatutPiece($piece_jointe['ID_PIECEJOINTE'], 'exported');
+                            $pieces[] = $this->piece_service->uploadDocument($filename, $contents, 9); 
+                            foreach ($notifications as $notification) {
+                               if ( ($notification['idTypeEvenement'] == 59)|| ($notification['idTypeObjetMetier'] == 31 && $notification['idTypeEvenement'] == 84)) {   
+                                    $this->prevarisc_service->changerStatutPiece($piece_jointe['ID_PIECEJOINTE'], 'exported');
+                                } else {
+                                    $this->prevarisc_service->changerStatutPiece($piece_jointe['ID_PIECEJOINTE'], 'on_error');    
+                                }
+                            }
                         } catch (\Exception $e) {
                             $this->prevarisc_service->changerStatutPiece($piece_jointe['ID_PIECEJOINTE'], 'on_error');
                         }
