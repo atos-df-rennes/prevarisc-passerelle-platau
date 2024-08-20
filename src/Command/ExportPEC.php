@@ -4,7 +4,6 @@ namespace App\Command;
 
 use App\Service\PlatauPiece;
 use App\ValueObjects\Auteur;
-use App\Service\PlatauNotification;
 use App\Service\Prevarisc as PrevariscService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputOption;
@@ -17,17 +16,15 @@ final class ExportPEC extends Command
     private PrevariscService $prevarisc_service;
     private PlatauConsultationService $consultation_service;
     private PlatauPiece $piece_service;
-    private PlatauNotification $notification_service;
 
     /**
      * Initialisation de la commande.
      */
-    public function __construct(PrevariscService $prevarisc_service, PlatauConsultationService $consultation_service, PlatauPiece $piece_service, PlatauNotification $notification_service)
+    public function __construct(PrevariscService $prevarisc_service, PlatauConsultationService $consultation_service, PlatauPiece $piece_service)
     {
         $this->prevarisc_service    = $prevarisc_service;
         $this->consultation_service = $consultation_service;
         $this->piece_service        = $piece_service;
-        $this->notification_service = $notification_service;
         parent::__construct();
     }
 
@@ -77,6 +74,7 @@ final class ExportPEC extends Command
                 $dossier = $this->prevarisc_service->recupererDossierDeConsultation($consultation_id);
                 $auteur  = $this->prevarisc_service->recupererDossierAuteur($dossier['ID_DOSSIER']);
 
+                // Nom état consultation 2 = Consultation refusée
                 if (2 === $consultation['nomEtatConsultation']['idNom'] && !\in_array($dossier['STATUT_PEC'], ['to_export', 'in_error'])) {
                     continue;
                 }
@@ -84,20 +82,15 @@ final class ExportPEC extends Command
                 // On recherche les pièces jointes en attente d'envoi vers Plat'AU associées au dossier Prevarisc
                 if ($this->piece_service->getSyncplicity()) {
                     $pieces_to_export = $this->prevarisc_service->recupererPiecesAvecStatut($dossier['ID_DOSSIER'], 'to_be_exported');
-                    $notifications    = $this->notification_service->rechercheNotifications();
+
                     foreach ($pieces_to_export as $piece_jointe) {
                         $filename = $piece_jointe['NOM_PIECEJOINTE'].$piece_jointe['EXTENSION_PIECEJOINTE'];
                         $contents = $this->prevarisc_service->recupererFichierPhysique($piece_jointe['ID_PIECEJOINTE'], $piece_jointe['EXTENSION_PIECEJOINTE']);
 
                         try {
                             $pieces[] = $this->piece_service->uploadDocument($filename, $contents, 47); // Type document 47 = Document lié à une prise en compte métier
-                            foreach ($notifications as $notification) {
-                                if ((59 == $notification['idTypeEvenement']) || (31 == $notification['idTypeObjetMetier'] && 84 == $notification['idTypeEvenement'])) {
-                                    $this->prevarisc_service->changerStatutPiece($piece_jointe['ID_PIECEJOINTE'], 'exported');
-                                } else {
-                                    $this->prevarisc_service->changerStatutPiece($piece_jointe['ID_PIECEJOINTE'], 'on_error');
-                                }
-                            }
+                            // @todo: Modifier ce statut par le nouveau statut "Vérification du statut Plat'AU"
+                            $this->prevarisc_service->changerStatutPiece($piece_jointe['ID_PIECEJOINTE'], 'exported');
                         } catch (\Exception $e) {
                             $this->prevarisc_service->changerStatutPiece($piece_jointe['ID_PIECEJOINTE'], 'on_error');
                         }
@@ -145,7 +138,7 @@ final class ExportPEC extends Command
                 }
             } catch (\Exception $e) {
                 // On passe les pièces jointes en attente de versement
-                foreach ($pieces as $piece) {
+                foreach ($pieces_to_export as $piece) {
                     if ('on_error' !== $piece['NOM_STATUT']) {
                         $this->prevarisc_service->changerStatutPiece($piece['ID_PIECEJOINTE'], 'to_be_exported');
                     }
