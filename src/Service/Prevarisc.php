@@ -159,6 +159,16 @@ class Prevarisc
                 \in_array('ID_PLATAU', array_map(function (Column $column) {
                     return $column->getName();
                 }, $this->db->createSchemaManager()->listTableColumns('dossier')))
+            // Colonne 'ID_PLATAU' dans la table 'piecejointe'
+
+                && \in_array('ID_PLATAU', array_map(function (Column $column) {
+                    return $column->getName();
+                }, $this->db->createSchemaManager()->listTableColumns('piecejointe')))
+            // Colonne 'MESSAGE_ERREUR' dans la table 'piecejointe'
+
+                && \in_array('MESSAGE_ERREUR', array_map(function (Column $column) {
+                    return $column->getName();
+                }, $this->db->createSchemaManager()->listTableColumns('piecejointe')))
             // Colonne 'STATUT_PEC' dans la table 'platauconsultation'
 
                 && \in_array('STATUT_PEC', array_map(function (Column $column) {
@@ -485,9 +495,11 @@ class Prevarisc
 
     /**
      * Modifie le statut d'envoi vers Plat'AU de la pièce.
-     * Le statut peut être : on_error ; not_exported ; to_be_exported ; exported.
+     * Le statut peut être : on_error ; not_exported ; to_be_exported ; exported ; awaiting_status.
+     *
+     * @param int|string $piece_jointe_id
      */
-    public function changerStatutPiece(int $piece_jointe_id, string $statut) : void
+    public function changerStatutPiece($piece_jointe_id, string $statut, string $id_column = 'ID_PIECEJOINTE') : void
     {
         $query_builder = $this->db->createQueryBuilder();
 
@@ -511,9 +523,41 @@ class Prevarisc
             ->update('piecejointe', 'pj')
             ->set('ID_PIECEJOINTESTATUT', $id_statut)
             ->where(
-                $query_builder->expr()->eq('ID_PIECEJOINTE', '?')
+                $query_builder->expr()->eq($id_column, '?')
             )
             ->setParameter(0, $piece_jointe_id)
+            ->executeStatement()
+        ;
+    }
+
+    public function ajouterMessageErreurPiece(string $id_platau, string $message) : void
+    {
+        $query_builder = $this->db->createQueryBuilder();
+
+        $query_builder
+            ->update('piecejointe', 'pj')
+            ->set('MESSAGE_ERREUR', ':message')
+            ->where(
+                $query_builder->expr()->eq('ID_PLATAU', ':id_platau')
+            )
+            ->setParameter('message', $message)
+            ->setParameter('id_platau', $id_platau)
+            ->executeStatement()
+        ;
+    }
+
+    public function setPieceIdPlatau(int $piece_jointe_id, string $id_platau) : void
+    {
+        $query_builder = $this->db->createQueryBuilder();
+
+        $query_builder
+            ->update('piecejointe', 'pj')
+            ->set('ID_PLATAU', ':id_platau')
+            ->where(
+                $query_builder->expr()->eq('ID_PIECEJOINTE', ':id_pj')
+            )
+            ->setParameter('id_platau', $id_platau)
+            ->setParameter('id_pj', $piece_jointe_id)
             ->executeStatement()
         ;
     }

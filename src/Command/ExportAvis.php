@@ -72,12 +72,14 @@ final class ExportAvis extends Command
 
             // On essaie d'envoyer l'avis sur Plat'AU
             try {
-                $pieces = [];
+                $pieces_to_export = [];
+                $pieces           = [];
 
                 // Récupération du dossier dans Prevarisc
                 $dossier = $this->prevarisc_service->recupererDossierDeConsultation($consultation_id);
                 $auteur  = $this->prevarisc_service->recupererDossierAuteur($dossier['ID_DOSSIER']);
 
+                // Nom état consultation 6 = Consultation traitée
                 if (6 === $consultation['nomEtatConsultation']['idNom'] && !\in_array($dossier['STATUT_AVIS'], ['to_export', 'in_error'])) {
                     continue;
                 }
@@ -88,13 +90,14 @@ final class ExportAvis extends Command
                 // On recherche les pièces jointes en attente d'envoi vers Plat'AU associées au dossier Prevarisc
                 if ($this->piece_service->getSyncplicity()) {
                     $pieces_to_export = $this->prevarisc_service->recupererPiecesAvecStatut($dossier['ID_DOSSIER'], 'to_be_exported');
+
                     foreach ($pieces_to_export as $piece_jointe) {
                         $filename = $piece_jointe['NOM_PIECEJOINTE'].$piece_jointe['EXTENSION_PIECEJOINTE'];
                         $contents = $this->prevarisc_service->recupererFichierPhysique($piece_jointe['ID_PIECEJOINTE'], $piece_jointe['EXTENSION_PIECEJOINTE']);
 
                         try {
-                            $pieces[] = $this->piece_service->uploadDocument($filename, $contents, 9); // Type de document 9 = Document lié à un avis
-                            $this->prevarisc_service->changerStatutPiece($piece_jointe['ID_PIECEJOINTE'], 'exported');
+                            $pieces[] = $this->piece_service->uploadDocument($filename, $contents, 9); // Type document 9 = Document lié à un avis
+                            $this->prevarisc_service->changerStatutPiece($piece_jointe['ID_PIECEJOINTE'], 'awaiting_status');
                         } catch (\Exception $e) {
                             $this->prevarisc_service->changerStatutPiece($piece_jointe['ID_PIECEJOINTE'], 'on_error');
                         }
@@ -115,7 +118,7 @@ final class ExportAvis extends Command
                         $date_envoi = null !== $dossier['DATE_AVIS'] ? \DateTime::createFromFormat('Y-m-d', $dossier['DATE_AVIS']) : \DateTime::createFromFormat('Y-m-d', $avis['dtAvis']);
                     }
 
-                    $this->consultation_service->versementAvis(
+                    $avis_verse = $this->consultation_service->versementAvis(
                         $consultation_id,
                         $est_favorable,
                         $prescriptions,
@@ -123,6 +126,15 @@ final class ExportAvis extends Command
                         $date_envoi,
                         new Auteur($auteur['PRENOM_UTILISATEURINFORMATIONS'], $auteur['NOM_UTILISATEURINFORMATIONS'], $auteur['MAIL_UTILISATEURINFORMATIONS'], $auteur['TELFIXE_UTILISATEURINFORMATIONS'], $auteur['TELPORTABLE_UTILISATEURINFORMATIONS']),
                     );
+                    $avis_verse_data = json_decode($avis_verse->getBody()->getContents(), true, 512, \JSON_THROW_ON_ERROR);
+                    $avis_documents  = $avis_verse_data[array_key_first($avis_verse_data)]['avis'][0]['documents'];
+
+                    foreach ($pieces_to_export as $index_piece => $piece_to_map) {
+                        $id_document = $avis_documents[$index_piece]['idDocument'];
+
+                        $this->prevarisc_service->setPieceIdPlatau($piece_to_map['ID_PIECEJOINTE'], $id_document);
+                    }
+
                     $this->prevarisc_service->setMetadonneesEnvoi($consultation_id, 'AVIS', 'treated')->set('DATE_AVIS', ':date_avis')->setParameter('date_avis', date('Y-m-d'))->executeStatement();
                     $output->writeln('Avis envoyé !');
                 } else {
@@ -130,7 +142,7 @@ final class ExportAvis extends Command
                 }
             } catch (\Exception $e) {
                 // On passe toutes les pièces en attente de versement
-                foreach ($pieces as $piece) {
+                foreach ($pieces_to_export as $piece) {
                     if ('on_error' !== $piece['NOM_STATUT']) {
                         $this->prevarisc_service->changerStatutPiece($piece['ID_PIECEJOINTE'], 'to_be_exported');
                     }
