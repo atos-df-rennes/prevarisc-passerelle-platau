@@ -496,8 +496,10 @@ class Prevarisc
     /**
      * Modifie le statut d'envoi vers Plat'AU de la pièce.
      * Le statut peut être : on_error ; not_exported ; to_be_exported ; exported ; awaiting_status.
+     *
+     * @param int|string $piece_jointe_id
      */
-    public function changerStatutPiece(int|string $piece_jointe_id, string $statut, string $id_column = 'ID_PIECEJOINTE') : void
+    public function changerStatutPiece($piece_jointe_id, string $statut, string $id_column = 'ID_PIECEJOINTE') : void
     {
         $query_builder = $this->db->createQueryBuilder();
 

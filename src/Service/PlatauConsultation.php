@@ -92,7 +92,7 @@ final class PlatauConsultation extends PlatauAbstract
     /**
      * Envoi d'une PEC sur une consultation.
      */
-    public function envoiPEC(string $consultation_id, bool $est_positive = true, ?\DateInterval $date_limite_reponse_interval = null, ?string $observations = null, array $documents = [], ?\DateTime $date_envoi = null, ?Auteur $auteur = null) : void
+    public function envoiPEC(string $consultation_id, bool $est_positive = true, ?\DateInterval $date_limite_reponse_interval = null, ?string $observations = null, array $documents = [], ?\DateTime $date_envoi = null, ?Auteur $auteur = null) : ResponseInterface
     {
         // On recherche dans Plat'AU les détails de la consultation liée à la PEC
         $consultation = $this->getConsultation($consultation_id);
@@ -133,7 +133,7 @@ final class PlatauConsultation extends PlatauAbstract
         }
 
         // Envoie de la PEC dans Plat'AU
-        $this->request('post', 'pecMetier/consultations', [
+        return $this->request('post', 'pecMetier/consultations', [
             'json' => [
                 [
                     'consultations' => [

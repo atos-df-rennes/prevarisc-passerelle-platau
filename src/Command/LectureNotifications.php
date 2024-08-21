@@ -2,11 +2,11 @@
 
 namespace App\Command;
 
-use App\Service\PlatauNotification;
 use App\Service\Prevarisc;
+use App\Service\PlatauNotification;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 final class LectureNotifications extends Command
@@ -17,7 +17,7 @@ final class LectureNotifications extends Command
     public function __construct(PlatauNotification $notification_service, Prevarisc $prevarisc_service)
     {
         $this->notification_service = $notification_service;
-        $this->prevarisc_service = $prevarisc_service;
+        $this->prevarisc_service    = $prevarisc_service;
         parent::__construct();
     }
 
@@ -34,34 +34,34 @@ final class LectureNotifications extends Command
         $offset = $input->getOption('offset');
         $params = [];
 
-        if ($offset !== null) {
-            if (filter_var($offset, FILTER_VALIDATE_INT) === false) {
+        if (null !== $offset) {
+            if (false === filter_var($offset, \FILTER_VALIDATE_INT)) {
                 throw new \Exception(sprintf("La valeur de l'option offset doit être un entier. \"%s\" donné.", $offset));
             }
 
             $params = ['offset' => $offset];
         }
 
-        $output->writeln("Lecture des nouvelles notifications ...");
+        $output->writeln('Lecture des nouvelles notifications ...');
         $notifications = $this->notification_service->rechercheNotifications($params);
 
-        if (count($notifications) === 0) {
-            $output->writeln("Aucune nouvelle notification.");
+        if (0 === \count($notifications)) {
+            $output->writeln('Aucune nouvelle notification.');
 
             return Command::SUCCESS;
         }
 
         foreach ($notifications as $notification) {
-            if ($notification['idTypeObjetMetier'] !== 31) { // Type objet métier 31 = Document
+            if (31 !== $notification['idTypeObjetMetier']) { // Type objet métier 31 = Document
                 continue;
             }
 
             $output->writeln(sprintf("Traitement de la notification pour le document d'identifiant %s", $notification['idElementConcerne']));
-            
-            if ($notification['idTypeEvenement'] === 84) {
+
+            if (84 === $notification['idTypeEvenement']) {
                 $this->prevarisc_service->changerStatutPiece($notification['idElementConcerne'], 'exported', 'ID_PLATAU');
             }
-            if ($notification['idTypeEvenement'] === 85) {
+            if (85 === $notification['idTypeEvenement']) {
                 $this->prevarisc_service->changerStatutPiece($notification['idElementConcerne'], 'on_error', 'ID_PLATAU');
                 $this->prevarisc_service->ajouterMessageErreurPiece($notification['idElementConcerne'], $notification['txErreur']);
             }

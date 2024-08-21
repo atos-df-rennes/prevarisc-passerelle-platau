@@ -72,7 +72,8 @@ final class ExportAvis extends Command
 
             // On essaie d'envoyer l'avis sur Plat'AU
             try {
-                $pieces = [];
+                $pieces_to_export = [];
+                $pieces           = [];
 
                 // Récupération du dossier dans Prevarisc
                 $dossier = $this->prevarisc_service->recupererDossierDeConsultation($consultation_id);
@@ -126,13 +127,14 @@ final class ExportAvis extends Command
                         new Auteur($auteur['PRENOM_UTILISATEURINFORMATIONS'], $auteur['NOM_UTILISATEURINFORMATIONS'], $auteur['MAIL_UTILISATEURINFORMATIONS'], $auteur['TELFIXE_UTILISATEURINFORMATIONS'], $auteur['TELPORTABLE_UTILISATEURINFORMATIONS']),
                     );
                     $avis_verse_data = json_decode($avis_verse->getBody()->getContents(), true, 512, \JSON_THROW_ON_ERROR);
-                    $avis_documents = $avis_verse_data[array_key_first($avis_verse_data)]['avis'][0]['documents'];
+                    $avis_documents  = $avis_verse_data[array_key_first($avis_verse_data)]['avis'][0]['documents'];
 
                     foreach ($pieces_to_export as $index_piece => $piece_to_map) {
                         $id_document = $avis_documents[$index_piece]['idDocument'];
-                        
+
                         $this->prevarisc_service->setPieceIdPlatau($piece_to_map['ID_PIECEJOINTE'], $id_document);
                     }
+
                     $this->prevarisc_service->setMetadonneesEnvoi($consultation_id, 'AVIS', 'treated')->set('DATE_AVIS', ':date_avis')->setParameter('date_avis', date('Y-m-d'))->executeStatement();
                     $output->writeln('Avis envoyé !');
                 } else {
