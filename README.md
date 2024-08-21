@@ -14,7 +14,8 @@ Cette connexion est matérialisée par une passerelle permettant d'automatiser l
 
 * Récupération automatique des dossiers liés à une demande de consultation par un service instructeur ;
 * Envoi de notifications à Plat'AU de la bonne prise en compte de la consultation ;
-* Communique les avis de la commission de sécurité automatiquement vers Plat'AU.
+* Communique les avis de la commission de sécurité automatiquement vers Plat'AU ;
+* Consomme les notifications concernant les documents joints aux objets métiers ;
 
 ### Compatibilité avec les versions Plat'AU
 
@@ -134,3 +135,16 @@ L'option facultative "champ" ordonne à la commande de ne retourner qu'un champ 
 ```
 $ php bin/platau --config=CHEMIN_RELATIF_VERS_LE_FICHIER_DE_CONFIGURATION.json details-consultation [--champ=xxx.xxx.xxx] xxx-xxx-xxx
 ```
+
+#### Lecture des notifications
+
+Des notifications sont mises à disposition par Plat'AU pour informer de l'état de certains éléments.
+
+Pour lire les notifications non consommées concernant votre service, vous pouvez utiliser la commande :
+```
+$ php bin/platau --config=CHEMIN_RELATIF_VERS_LE_FICHIER_DE_CONFIGURATION.json lecture-notifications [--offset=x]
+```
+
+L'option facultative "offset" permet de rejouer les notifications à partir d'un certain élément. Cette option peut être utile à des fins de debug mais devrait être rarement utilisée.
+
+>Actuellement, seules les notifications concernant les documents joints aux prises en compte métier et aux avis sont traitées par la passerelle.
