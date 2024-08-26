@@ -74,6 +74,12 @@ final class ExportAvis extends Command
             try {
                 $pieces = [];
 
+                // Vérification de l'existence de la consultation dans Prevarisc ? Si non, on ignore complètement la consultation
+                if (!$this->prevarisc_service->consultationExiste($consultation_id)) {
+                    $output->writeln("La consultation $consultation_id n'existe pas dans Prevarisc. Importez là d'abord avec la commande <import>.");
+                    continue;
+                }
+
                 // Récupération du dossier dans Prevarisc
                 $dossier = $this->prevarisc_service->recupererDossierDeConsultation($consultation_id);
                 $auteur  = $this->prevarisc_service->recupererDossierAuteur($dossier['ID_DOSSIER']);
