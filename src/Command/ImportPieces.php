@@ -10,6 +10,10 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use App\Service\PlatauConsultation as PlatauConsultationService;
 
+/**
+ * @deprecated Cette commande ne traite que les états de consultation `Versée` et `Prise en compte - en cours de traitement`.
+ * Utilisez plutôt la commande `lecture-notifications` qui se base sur les notifications Plat'AU, indépendamment de l'état de la consultation.
+ */
 final class ImportPieces extends Command
 {
     private PrevariscService $prevarisc_service;
