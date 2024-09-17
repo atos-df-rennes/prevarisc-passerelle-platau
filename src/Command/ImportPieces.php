@@ -73,11 +73,13 @@ final class ImportPieces extends Command
                     continue;
                 }
 
+                $dossier_id = $consultation['dossier']['idDossier'];
+
                 // Récupération du dossier Prevarisc lié à cette consultation
                 $dossier_prevarisc = $this->prevarisc_service->recupererDossierDeConsultation($consultation_id);
 
                 // Récupération des pièces jointes liées à la consultation
-                foreach ($this->consultation_service->getPieces($consultation_id) as $piece) {
+                foreach ($this->consultation_service->getPieces($dossier_id) as $piece) {
                     // Téléchargement de la pièce
                     $http_response = $this->piece_service->download($piece);
 
