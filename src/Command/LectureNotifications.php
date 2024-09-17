@@ -3,9 +3,9 @@
 namespace App\Command;
 
 use App\Service\Prevarisc;
+use App\Service\PlatauPiece;
 use App\Service\PlatauConsultation;
 use App\Service\PlatauNotification;
-use App\Service\PlatauPiece;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputInterface;
@@ -58,20 +58,21 @@ final class LectureNotifications extends Command
         }
 
         foreach ($notifications as $notification) {
+            /* 5 - Pièce
+               31 - Document */
             switch ($notification['idTypeObjetMetier']) {
-                // Pièce
                 case 5:
+                    /* 15 - Complémentaire
+                       17 - Modificative
+                       71 - Initiale */
                     switch ($notification['idTypeEvenement']) {
-                        // Pièce complémentaire
                         case 15:
-                        // Pièce modificative
                         case 17:
-                        // Pièce initiale
                         case 71:
                             $output->writeln(sprintf("Traitement de la notification pour la pièce d'identifiant %s", $notification['idElementConcerne']));
 
                             try {
-                                $pieces = $this->consultation_service->getPieces($notification['idDossier']);
+                                $pieces             = $this->consultation_service->getPieces($notification['idDossier']);
                                 $piece_notification = array_filter($pieces, fn ($piece) => $piece['idPiece'] === $notification['idElementConcerne']);
                                 $piece_notification = $piece_notification[array_key_first($piece_notification)];
 
@@ -89,7 +90,7 @@ final class LectureNotifications extends Command
                                 $consultations = $this->consultation_service->rechercheConsultationsAvecCriteresDossier(['idDossier' => $notification['idDossier']]);
                                 foreach ($consultations as $consultation) {
                                     if (!$this->prevarisc_service->consultationExiste($consultation['idConsultation'])) {
-                                       continue; 
+                                        continue;
                                     }
 
                                     // Récupération du dossier Prevarisc lié à cette consultation
@@ -110,21 +111,20 @@ final class LectureNotifications extends Command
                     }
 
                     break;
-                // Document
                 case 31:
                     $output->writeln(sprintf("Traitement de la notification pour le document d'identifiant %s", $notification['idElementConcerne']));
 
+                    /* 84 - Succès
+                       85 - Echec */
                     switch ($notification['idTypeEvenement']) {
-                        // Succès
                         case 84:
-                            $output->writeln("Document versé avec succès.");
+                            $output->writeln('Document versé avec succès.');
 
                             $this->prevarisc_service->changerStatutPiece($notification['idElementConcerne'], 'exported', 'ID_PLATAU');
 
                             break;
-                        // Echec
                         case 85:
-                            $output->writeln("Echec du versement du document.");
+                            $output->writeln('Echec du versement du document.');
 
                             $this->prevarisc_service->changerStatutPiece($notification['idElementConcerne'], 'on_error', 'ID_PLATAU');
                             $this->prevarisc_service->ajouterMessageErreurPiece($notification['idElementConcerne'], $notification['txErreur']);

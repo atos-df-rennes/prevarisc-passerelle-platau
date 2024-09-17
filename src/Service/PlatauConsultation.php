@@ -51,9 +51,10 @@ final class PlatauConsultation extends PlatauAbstract
 
         $consultations = [];
 
+        /** @var array $result */
         foreach ($paginator->autoPagingIterator() as $result) {
+            /** @var array $consultation */
             foreach ($result['dossier']['consultations'] as $consultation) {
-                \assert(\is_array($consultation));
                 $consultations[] = $consultation;
             }
         }
