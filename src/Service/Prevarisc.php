@@ -15,11 +15,6 @@ class Prevarisc
     private int $user_platau_id;
     private Flysystem\Filesystem $filesystem;
 
-    public const NECESSARY_TABLES = [
-        'piecejointestatut',
-        'platauconsultation',
-    ];
-
     /**
      * Construction du service Prevarisc en lui donnant une connexion SQL.
      */
@@ -203,6 +198,8 @@ class Prevarisc
 
     /**
      * Versement d'une consultation Plat'AU dans Prevarisc.
+     * 
+     * @throws \Exception
      */
     public function importConsultation(array $consultation, ?array $demandeur = null, ?array $service_instructeur = null) : void
     {

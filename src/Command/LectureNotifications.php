@@ -2,6 +2,7 @@
 
 namespace App\Command;
 
+use App\Service\PlatauActeur;
 use App\Service\Prevarisc;
 use App\Service\PlatauPiece;
 use App\Service\PlatauConsultation;
@@ -17,13 +18,20 @@ final class LectureNotifications extends Command
     private Prevarisc $prevarisc_service;
     private PlatauConsultation $consultation_service;
     private PlatauPiece $piece_service;
+    private PlatauActeur $acteur_service;
 
-    public function __construct(PlatauNotification $notification_service, Prevarisc $prevarisc_service, PlatauConsultation $consultation_service, PlatauPiece $piece_service)
-    {
+    public function __construct(
+        PlatauNotification $notification_service,
+        Prevarisc $prevarisc_service,
+        PlatauConsultation $consultation_service,
+        PlatauPiece $piece_service,
+        PlatauActeur $acteur_service,
+    ) {
         $this->notification_service = $notification_service;
         $this->prevarisc_service    = $prevarisc_service;
         $this->consultation_service = $consultation_service;
         $this->piece_service        = $piece_service;
+        $this->acteur_service       = $acteur_service;
         parent::__construct();
     }
 
@@ -59,6 +67,7 @@ final class LectureNotifications extends Command
 
         foreach ($notifications as $notification) {
             /* 5 - Pièce
+               6 - Consultation
                31 - Document */
             switch ($notification['idTypeObjetMetier']) {
                 case 5:
@@ -99,15 +108,65 @@ final class LectureNotifications extends Command
                                     // Insertion dans Prevarisc
                                     $this->prevarisc_service->creerPieceJointe($dossier_prevarisc['ID_DOSSIER'], $piece_notification, $extension, $file_contents);
                                 }
+
+                                $output->writeln('La pièce a été téléchargée.');
                             } catch (\Exception $e) {
                                 $output->writeln(sprintf("La pièce n'a pas pu être téléchargée : %s", $e->getMessage()));
                             }
 
                             break;
                         default:
-                            $output->writeln("La notification de l'événement d'identifiant %d n'est pas prise en compte par la passerelle actuellement.", $notification['idTypeEvenement']);
+                            $output->writeln(sprintf("La notification de l'événement d'identifiant %d n'est pas prise en compte par la passerelle actuellement.", $notification['idTypeEvenement']));
 
                             break;
+                    }
+
+                    break;
+                case 6:
+                    if (19 !== $notification['idTypeEvenement']) {
+                        $output->writeln(sprintf("La notification de l'événement d'identifiant %d n'est pas prise en compte par la passerelle actuellement.", $notification['idTypeEvenement']));
+
+                        break;
+                    }
+
+                    $output->writeln(sprintf("Traitement de la notification pour la consultation d'identifiant %s", $notification['idElementConcerne']));
+
+                    try {
+                        $consultation_id = $notification['idElementConcerne'];
+                        $consultation = $this->consultation_service->rechercheConsultations(['idConsultation' => $consultation_id]);
+                        $consultation = $consultation[array_key_first($consultation)];
+
+                        if ($this->prevarisc_service->consultationExiste($consultation_id)) {
+                            $output->writeln(sprintf("Consultation %s déjà existante dans Prevarisc", $consultation_id));
+
+                            break;
+                        }
+
+                        $service_instructeur = null !== $consultation['dossier']['idServiceInstructeur'] ? $this->acteur_service->recuperationActeur($consultation['dossier']['idServiceInstructeur']) : null;
+                        $demandeur           = null !== $consultation['idServiceConsultant'] ? $this->acteur_service->recuperationActeur($consultation['idServiceConsultant']) : null;
+
+                        // Versement de la consultation dans Prevarisc et on passe l'état de sa PEC à 'awaiting'
+                        $this->prevarisc_service->importConsultation($consultation, $demandeur, $service_instructeur);
+                        $this->prevarisc_service->setMetadonneesEnvoi($consultation_id, 'PEC', 'awaiting')->executeStatement();
+
+                        $output->writeln(sprintf("Consultation %s récupérée et stockée dans Prevarisc !", $consultation_id));
+
+                        // Récupération du dossier Prevarisc nouvellement créé
+                        $dossier_prevarisc = $this->prevarisc_service->recupererDossierDeConsultation($consultation_id);
+                        
+                        // Téléchargement des pièces initiales
+                        $pieces = $this->consultation_service->getPieces($notification['idDossier']);
+                        foreach ($pieces as $piece) {
+                            $http_response = $this->piece_service->download($piece);
+                            $extension = $this->piece_service->getExtensionFromHttpResponse($http_response) ?? '???';
+                            $file_contents = $http_response->getBody()->getContents();
+
+                            $this->prevarisc_service->creerPieceJointe($dossier_prevarisc['ID_DOSSIER'], $piece, $extension, $file_contents);
+                        }
+
+                        $output->writeln(sprintf("Pièces initiales importées pour la consultation %s", $consultation_id));
+                    } catch (\Exception $e) {
+                        $output->writeln(sprintf("Problème lors du traitement de la consultation : %s", $e->getMessage()));
                     }
 
                     break;
@@ -131,7 +190,7 @@ final class LectureNotifications extends Command
 
                             break;
                         default:
-                            $output->writeln("La notification de l'événement d'identifiant %d n'est pas prise en compte par la passerelle actuellement.", $notification['idTypeEvenement']);
+                            $output->writeln(sprintf("La notification de l'événement d'identifiant %d n'est pas prise en compte par la passerelle actuellement.", $notification['idTypeEvenement']));
 
                             break;
                     }
