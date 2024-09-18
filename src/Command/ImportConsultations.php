@@ -10,6 +10,11 @@ use App\Service\PlatauActeur as PlatauActeurService;
 use Symfony\Component\Console\Output\OutputInterface;
 use App\Service\PlatauConsultation as PlatauConsultationService;
 
+/**
+ * @deprecated Cette commande va chercher toutes les consultations `Versée`.
+ * Utilisez plutôt la commande `lecture-notifications` qui se base sur les notifications Plat'AU et va chercher uniquement la consultation concernée.
+ * @see lecture-notifications
+ */
 final class ImportConsultations extends Command
 {
     private PrevariscService $prevarisc_service;

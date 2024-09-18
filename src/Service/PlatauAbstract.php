@@ -54,7 +54,7 @@ abstract class PlatauAbstract
             'max_retry_attempts' => 5,
             'retry_on_status' => [429, 503, 500],
             'on_retry_callback' => function (int $attemptNumber, float $delay, RequestInterface &$request, array &$_options, ?ResponseInterface $response) {
-                $message = sprintf(
+                $message = \sprintf(
                     "Un problème est survenu lors de la requête à %s : Plat'AU a répondu avec un code %s. Nous allons attendre %s secondes avant de réessayer. Ceci est l'essai numéro %s.",
                     $request->getUri()->getPath(),
                     $response ? $response->getStatusCode() : 'xxx',

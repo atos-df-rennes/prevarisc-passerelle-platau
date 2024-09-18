@@ -15,11 +15,6 @@ class Prevarisc
     private int $user_platau_id;
     private Flysystem\Filesystem $filesystem;
 
-    public const NECESSARY_TABLES = [
-        'piecejointestatut',
-        'platauconsultation',
-    ];
-
     /**
      * Construction du service Prevarisc en lui donnant une connexion SQL.
      */
@@ -203,6 +198,8 @@ class Prevarisc
 
     /**
      * Versement d'une consultation Plat'AU dans Prevarisc.
+     *
+     * @throws \Exception
      */
     public function importConsultation(array $consultation, ?array $demandeur = null, ?array $service_instructeur = null) : void
     {
@@ -586,7 +583,7 @@ class Prevarisc
             $query_builder
                 ->insert('platauconsultation')
                 ->setValue('ID_PLATAU', ':id')
-                ->setValue(sprintf('STATUT_%s', $objet_metier), ':statut')
+                ->setValue(\sprintf('STATUT_%s', $objet_metier), ':statut')
                 ->setParameter('id', $consultation_id)
                 ->setParameter('statut', $statut)
             ;
@@ -614,7 +611,7 @@ class Prevarisc
 
         $query_builder
             ->update('platauconsultation')
-            ->set(sprintf('STATUT_%s', $objet_metier), ':statut')
+            ->set(\sprintf('STATUT_%s', $objet_metier), ':statut')
             ->where('ID_PLATAU = :id')
             ->setParameter('statut', $statut)
             ->setParameter('id', $consultation_id)
