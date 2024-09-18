@@ -67,9 +67,9 @@ final class ImportPieces extends Command
 
             // Avec la consultation Platau, on va tenter de récupérer l'ensemble des pièces du dossier concerné
             try {
-                // Vérification de l'existence de la consultation existe dans Prevarisc ? Si non, on ignore complètement la consultation
+                // Vérification de l'existence de la consultation dans Prevarisc ? Si non, on ignore complètement la consultation
                 if (!$this->prevarisc_service->consultationExiste($consultation_id)) {
-                    $output->writeln("La consultation $consultation_id n'existe pas dans Prevarisc. Importez là d'abord avec la command <import>.");
+                    $output->writeln("La consultation $consultation_id n'existe pas dans Prevarisc. Importez là d'abord avec la commande <import>.");
                     continue;
                 }
 
