@@ -2,9 +2,9 @@
 
 namespace App\Command;
 
-use App\Service\PlatauActeur;
 use App\Service\Prevarisc;
 use App\Service\PlatauPiece;
+use App\Service\PlatauActeur;
 use App\Service\PlatauConsultation;
 use App\Service\PlatauNotification;
 use Symfony\Component\Console\Command\Command;
@@ -50,7 +50,7 @@ final class LectureNotifications extends Command
 
         if (null !== $offset) {
             if (false === filter_var($offset, \FILTER_VALIDATE_INT)) {
-                throw new \Exception(sprintf("La valeur de l'option offset doit être un entier. \"%s\" donné.", $offset));
+                throw new \Exception(\sprintf("La valeur de l'option offset doit être un entier. \"%s\" donné.", $offset));
             }
 
             $params = ['offset' => $offset];
@@ -78,7 +78,7 @@ final class LectureNotifications extends Command
                         case 15:
                         case 17:
                         case 71:
-                            $output->writeln(sprintf("Traitement de la notification pour la pièce d'identifiant %s", $notification['idElementConcerne']));
+                            $output->writeln(\sprintf("Traitement de la notification pour la pièce d'identifiant %s", $notification['idElementConcerne']));
 
                             try {
                                 $pieces             = $this->consultation_service->getPieces($notification['idDossier']);
@@ -111,12 +111,12 @@ final class LectureNotifications extends Command
 
                                 $output->writeln('La pièce a été téléchargée.');
                             } catch (\Exception $e) {
-                                $output->writeln(sprintf("La pièce n'a pas pu être téléchargée : %s", $e->getMessage()));
+                                $output->writeln(\sprintf("La pièce n'a pas pu être téléchargée : %s", $e->getMessage()));
                             }
 
                             break;
                         default:
-                            $output->writeln(sprintf("La notification de l'événement d'identifiant %d n'est pas prise en compte par la passerelle actuellement.", $notification['idTypeEvenement']));
+                            $output->writeln(\sprintf("La notification de l'événement d'identifiant %d n'est pas prise en compte par la passerelle actuellement.", $notification['idTypeEvenement']));
 
                             break;
                     }
@@ -124,20 +124,20 @@ final class LectureNotifications extends Command
                     break;
                 case 6:
                     if (19 !== $notification['idTypeEvenement']) {
-                        $output->writeln(sprintf("La notification de l'événement d'identifiant %d n'est pas prise en compte par la passerelle actuellement.", $notification['idTypeEvenement']));
+                        $output->writeln(\sprintf("La notification de l'événement d'identifiant %d n'est pas prise en compte par la passerelle actuellement.", $notification['idTypeEvenement']));
 
                         break;
                     }
 
-                    $output->writeln(sprintf("Traitement de la notification pour la consultation d'identifiant %s", $notification['idElementConcerne']));
+                    $output->writeln(\sprintf("Traitement de la notification pour la consultation d'identifiant %s", $notification['idElementConcerne']));
 
                     try {
                         $consultation_id = $notification['idElementConcerne'];
-                        $consultation = $this->consultation_service->rechercheConsultations(['idConsultation' => $consultation_id]);
-                        $consultation = $consultation[array_key_first($consultation)];
+                        $consultation    = $this->consultation_service->rechercheConsultations(['idConsultation' => $consultation_id]);
+                        $consultation    = $consultation[array_key_first($consultation)];
 
                         if ($this->prevarisc_service->consultationExiste($consultation_id)) {
-                            $output->writeln(sprintf("Consultation %s déjà existante dans Prevarisc", $consultation_id));
+                            $output->writeln(\sprintf('Consultation %s déjà existante dans Prevarisc', $consultation_id));
 
                             break;
                         }
@@ -149,29 +149,29 @@ final class LectureNotifications extends Command
                         $this->prevarisc_service->importConsultation($consultation, $demandeur, $service_instructeur);
                         $this->prevarisc_service->setMetadonneesEnvoi($consultation_id, 'PEC', 'awaiting')->executeStatement();
 
-                        $output->writeln(sprintf("Consultation %s récupérée et stockée dans Prevarisc !", $consultation_id));
+                        $output->writeln(\sprintf('Consultation %s récupérée et stockée dans Prevarisc !', $consultation_id));
 
                         // Récupération du dossier Prevarisc nouvellement créé
                         $dossier_prevarisc = $this->prevarisc_service->recupererDossierDeConsultation($consultation_id);
-                        
+
                         // Téléchargement des pièces initiales
                         $pieces = $this->consultation_service->getPieces($notification['idDossier']);
                         foreach ($pieces as $piece) {
                             $http_response = $this->piece_service->download($piece);
-                            $extension = $this->piece_service->getExtensionFromHttpResponse($http_response) ?? '???';
+                            $extension     = $this->piece_service->getExtensionFromHttpResponse($http_response) ?? '???';
                             $file_contents = $http_response->getBody()->getContents();
 
                             $this->prevarisc_service->creerPieceJointe($dossier_prevarisc['ID_DOSSIER'], $piece, $extension, $file_contents);
                         }
 
-                        $output->writeln(sprintf("Pièces initiales importées pour la consultation %s", $consultation_id));
+                        $output->writeln(\sprintf('Pièces initiales importées pour la consultation %s', $consultation_id));
                     } catch (\Exception $e) {
-                        $output->writeln(sprintf("Problème lors du traitement de la consultation : %s", $e->getMessage()));
+                        $output->writeln(\sprintf('Problème lors du traitement de la consultation : %s', $e->getMessage()));
                     }
 
                     break;
                 case 31:
-                    $output->writeln(sprintf("Traitement de la notification pour le document d'identifiant %s", $notification['idElementConcerne']));
+                    $output->writeln(\sprintf("Traitement de la notification pour le document d'identifiant %s", $notification['idElementConcerne']));
 
                     /* 84 - Succès
                        85 - Echec */
@@ -190,14 +190,14 @@ final class LectureNotifications extends Command
 
                             break;
                         default:
-                            $output->writeln(sprintf("La notification de l'événement d'identifiant %d n'est pas prise en compte par la passerelle actuellement.", $notification['idTypeEvenement']));
+                            $output->writeln(\sprintf("La notification de l'événement d'identifiant %d n'est pas prise en compte par la passerelle actuellement.", $notification['idTypeEvenement']));
 
                             break;
                     }
 
                     break;
                 default:
-                    $output->writeln(sprintf("La notification de l'objet métier d'identifiant %d n'est pas prise en compte par la passerelle actuellement.", $notification['idTypeObjetMetier']));
+                    $output->writeln(\sprintf("La notification de l'objet métier d'identifiant %d n'est pas prise en compte par la passerelle actuellement.", $notification['idTypeObjetMetier']));
 
                     break;
             }
