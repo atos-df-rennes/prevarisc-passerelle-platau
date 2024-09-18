@@ -13,6 +13,9 @@ use App\Service\PlatauConsultation as PlatauConsultationService;
 /**
  * @deprecated Cette commande ne traite que les états de consultation `Versée` et `Prise en compte - en cours de traitement`.
  * Utilisez plutôt la commande `lecture-notifications` qui se base sur les notifications Plat'AU, indépendamment de l'état de la consultation.
+ * 
+ * Note: L'utilisation de cette commande avec l'option `--force-non-pec` est actuellement toujours nécessaire pour récupérer les pièces initiales.
+ * La commande est cependant vouée à disparaître au profit du traitement de l'import de la consultation et des pièces initiales via la commande `lecture-notifications`.
  */
 final class ImportPieces extends Command
 {
