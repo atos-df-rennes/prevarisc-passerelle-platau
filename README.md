@@ -13,9 +13,9 @@ Cette connexion est matérialisée par une passerelle permettant d'automatiser l
 ### Fonctionnalités
 
 * Récupération automatique des dossiers liés à une demande de consultation par un service instructeur ;
+* Récupération des pièces jointes initiales/complémentaires/modificatives associées à chaque demande de consultation ;
 * Envoi de notifications à Plat'AU de la bonne prise en compte de la consultation ;
-* Communique les avis de la commission de sécurité automatiquement vers Plat'AU ;
-* Consomme les notifications concernant les documents joints aux objets métiers ;
+* Communication des avis de la commission de sécurité automatiquement vers Plat'AU ;
 
 ### Compatibilité avec les versions Plat'AU
 
@@ -91,10 +91,15 @@ $ php bin/platau --config=CHEMIN_RELATIF_VERS_LE_FICHIER_DE_CONFIGURATION.json h
 
 #### Consultations
 
+<strike>
 Pour importer les demandes de consultations en cours dans Prevarisc :
+
 ```
 $ php bin/platau --config=CHEMIN_RELATIF_VERS_LE_FICHIER_DE_CONFIGURATION.json import
 ```
+</strike>
+
+>La commande `import` sera supprimée dans la prochaine version. Pour importer les consultations, voir la commande [`lecture-notifications`](#lecture-des-notifications).
 
 Cela va créer des dossiers d'étude dans Prevarisc correspondant aux demandes de consultation des services consultants.
 Ces dossiers sont pré-remplis avec certaines méta-données présentes dans les consultations.
@@ -102,10 +107,15 @@ Par défaut, il n'y a pas d'indication de complétude du dossier (complet / inco
 
 #### Récupération des pièces jointes
 
+<strike>
 Pour télécharger les pièces jointes liées aux consultations importées dans Prevarisc :
+
 ```
 $ php bin/platau --config=CHEMIN_RELATIF_VERS_LE_FICHIER_DE_CONFIGURATION.json [--force-non-pec] import-pieces
 ```
+</strike>
+
+>La commande `import-pieces` sera supprimée dans la prochaine version. Pour télécharger les pièces, voir la commande [`lecture-notifications`](#lecture-des-notifications).
 
 #### Prises en compte métier
 
@@ -138,7 +148,12 @@ $ php bin/platau --config=CHEMIN_RELATIF_VERS_LE_FICHIER_DE_CONFIGURATION.json d
 
 #### Lecture des notifications
 
-Des notifications sont mises à disposition par Plat'AU pour informer de l'état de certains éléments.
+Des notifications sont mises à disposition par Plat'AU pour informer de l'état de certains éléments. Les éléments traités par la passerelle sont les suivants :
+| Élément | Action déclenchée |
+| --- | --- |
+| Occurrence d'une consultation | Import de la consultation concernée et téléchargement de toutes les pièces initiales associées |
+| Occurrence d'un dépôt de pièce complémentaire/modificative/initiale | Téléchargement de la pièce concernée et ajout sur toutes les consultations du dossier associé |
+| Notification de succès/d'échec de versement d'un document | Mise à jour du statut d'envoi de la pièce sur Prevarisc |
 
 Pour lire les notifications non consommées concernant votre service, vous pouvez utiliser la commande :
 ```
@@ -146,5 +161,3 @@ $ php bin/platau --config=CHEMIN_RELATIF_VERS_LE_FICHIER_DE_CONFIGURATION.json l
 ```
 
 L'option facultative "offset" permet de rejouer les notifications à partir d'un certain élément. Cette option peut être utile à des fins de debug mais devrait être rarement utilisée.
-
->Actuellement, seules les notifications concernant les documents joints aux prises en compte métier et aux avis sont traitées par la passerelle.
