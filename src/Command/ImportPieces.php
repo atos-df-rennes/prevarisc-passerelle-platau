@@ -16,6 +16,8 @@ use App\Service\PlatauConsultation as PlatauConsultationService;
  * 
  * Note: L'utilisation de cette commande avec l'option `--force-non-pec` est actuellement toujours nécessaire pour récupérer les pièces initiales.
  * La commande est cependant vouée à disparaître au profit du traitement de l'import de la consultation et des pièces initiales via la commande `lecture-notifications`.
+ * 
+ * @see lecture-notifications
  */
 final class ImportPieces extends Command
 {

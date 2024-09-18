@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <files psalm-version="5.25.0@01a8eb06b9e9cc6cfb6a320bf9fb14331919d505">
+  <file src="src/Console.php">
+    <DeprecatedClass>
+      <code><![CDATA[new Command\ImportPieces($container->get('service.prevarisc'), $container->get('service.platau.consultation'), $container->get('service.platau.piece'))]]></code>
+    </DeprecatedClass>
+  </file>
   <file src="src/Service/Prevarisc.php">
     <InternalMethod>
       <code><![CDATA[connect]]></code>
