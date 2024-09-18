@@ -106,7 +106,7 @@ final class LectureNotifications extends Command
                                     $dossier_prevarisc = $this->prevarisc_service->recupererDossierDeConsultation($consultation['idConsultation']);
 
                                     // Insertion dans Prevarisc
-                                    $this->prevarisc_service->creerPieceJointe($dossier_prevarisc['ID_DOSSIER'], $piece_notification, $extension, $file_contents);
+                                    $this->prevarisc_service->creerPieceJointe($dossier_prevarisc['ID_DOSSIER'], $piece_notification, $extension, $file_contents, $notification);
                                 }
 
                                 $output->writeln('La pièce a été téléchargée.');
@@ -146,7 +146,7 @@ final class LectureNotifications extends Command
                         $demandeur           = null !== $consultation['idServiceConsultant'] ? $this->acteur_service->recuperationActeur($consultation['idServiceConsultant']) : null;
 
                         // Versement de la consultation dans Prevarisc et on passe l'état de sa PEC à 'awaiting'
-                        $this->prevarisc_service->importConsultation($consultation, $demandeur, $service_instructeur);
+                        $this->prevarisc_service->importConsultation($consultation, $demandeur, $service_instructeur, $notification);
                         $this->prevarisc_service->setMetadonneesEnvoi($consultation_id, 'PEC', 'awaiting')->executeStatement();
 
                         $output->writeln(\sprintf('Consultation %s récupérée et stockée dans Prevarisc !', $consultation_id));
@@ -161,7 +161,7 @@ final class LectureNotifications extends Command
                             $extension     = $this->piece_service->getExtensionFromHttpResponse($http_response) ?? '???';
                             $file_contents = $http_response->getBody()->getContents();
 
-                            $this->prevarisc_service->creerPieceJointe($dossier_prevarisc['ID_DOSSIER'], $piece, $extension, $file_contents);
+                            $this->prevarisc_service->creerPieceJointe($dossier_prevarisc['ID_DOSSIER'], $piece, $extension, $file_contents, $notification);
                         }
 
                         $output->writeln(\sprintf('Pièces initiales importées pour la consultation %s', $consultation_id));
