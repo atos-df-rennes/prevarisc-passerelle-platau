@@ -9,24 +9,21 @@ use Symfony\Component\Console\Input\InputInterface;
 use App\Service\PlatauActeur as PlatauActeurService;
 use Symfony\Component\Console\Output\OutputInterface;
 use App\Service\PlatauConsultation as PlatauConsultationService;
-use App\Service\PlatauNotification as PlatauNotificationService;
 
 final class ImportConsultations extends Command
 {
     private PrevariscService $prevarisc_service;
     private PlatauConsultationService $consultation_service;
     private PlatauActeurService $acteur_service;
-    private PlatauNotificationService $notification_service;
 
     /**
      * Initialisation de la commande.
      */
-    public function __construct(PrevariscService $prevarisc_service, PlatauConsultationService $consultation_service, PlatauNotificationService $notification_service, PlatauActeurService $acteur_service)
+    public function __construct(PrevariscService $prevarisc_service, PlatauConsultationService $consultation_service, PlatauActeurService $acteur_service)
     {
         $this->prevarisc_service    = $prevarisc_service;
         $this->acteur_service       = $acteur_service;
         $this->consultation_service = $consultation_service;
-        $this->notification_service = $notification_service;
         parent::__construct();
     }
 

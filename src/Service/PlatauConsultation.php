@@ -34,6 +34,35 @@ final class PlatauConsultation extends PlatauAbstract
     }
 
     /**
+     * Recherche de plusieurs consultations avec pour critères des éléments du dossier.
+     */
+    public function rechercheConsultationsAvecCriteresDossier(array $params = [], string $order_by = 'DT_DEPOT', string $sort = 'DESC') : array
+    {
+        // On recherche la consultation en fonction des critères de recherche
+        $paginator = $this->pagination('post', 'consultations/recherche', [
+            'json' => [
+                'criteresSurDossiers' => $params,
+            ],
+            'query' => [
+                'colonneTri' => $order_by,
+                'sensTri' => $sort,
+            ],
+        ]);
+
+        $consultations = [];
+
+        /** @var array $result */
+        foreach ($paginator->autoPagingIterator() as $result) {
+            /** @var array $consultation */
+            foreach ($result['dossier']['consultations'] as $consultation) {
+                $consultations[] = $consultation;
+            }
+        }
+
+        return $consultations;
+    }
+
+    /**
      * Récupération d'une consultation.
      */
     public function getConsultation(string $consultation_id, array $params = []) : array
@@ -55,16 +84,11 @@ final class PlatauConsultation extends PlatauAbstract
     }
 
     /**
-     * Récupération des pièces d'une consultation.
+     * Récupération des pièces d'un dossier.
      */
-    public function getPieces(string $consultation_id) : array
+    public function getPieces(string $dossier_id) : array
     {
-        // On recherche la consultation associée pour récupérer le dossier lié
-        $consultation = $this->getConsultation($consultation_id);
-
-        $dossier_id = (string) $consultation['dossier']['idDossier'];
-
-        // On recherche maintenant l'ensemble des pièces liées au dossier
+        // On recherche l'ensemble des pièces liées au dossier
         $response = $this->request('get', 'dossiers/'.$dossier_id.'/pieces');
 
         // On vient récupérer les pièces qui nous interesse dans la réponse des résultats de recherche
