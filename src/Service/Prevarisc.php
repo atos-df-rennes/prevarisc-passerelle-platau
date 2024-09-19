@@ -201,6 +201,7 @@ class Prevarisc
      *
      * @throws \Exception
      */
+    // @fixme Retirer le paramètre $notification une fois la commande `import` supprimée 
     public function importConsultation(array $consultation, ?array $demandeur = null, ?array $service_instructeur = null, ?array $notification = null) : void
     {
         // On démarre une transaction SQL. Si jamais les choses se passent mal, on pourra revenir en arrière.
@@ -241,7 +242,7 @@ class Prevarisc
             $query_builder->setValue('ID_PLATAU', $query_builder->createPositionalParameter($consultation['idConsultation']));
 
             if (null !== $notification) {
-                $query_builder->setValue('DATE_NOTIFICATION', $query_builder->createPositionalParameter((new \DateTime($notification['hdEvenement']))->format('Y-m-d H:i:s')));
+                $query_builder->setValue('DATE_NOTIFICATION', $query_builder->createPositionalParameter((new \DateTime())->format('Y-m-d H:i:s')));
             }
 
             // Objet du dossier (c'est à dire l'objet de la consultation ainsi que le descriptif global du dossier associé)
@@ -397,6 +398,7 @@ class Prevarisc
     /**
      * Importer des pièces jointes dans un dossier.
      */
+    // @fixme Retirer le paramètre $notification une fois la commande `import-pieces` supprimée 
     public function creerPieceJointe(int $dossier_id, array $piece, string $extension, string $file_contents, ?array $notification = null) : void
     {
         // Génération du nom du fichier
@@ -441,7 +443,7 @@ class Prevarisc
             ];
 
             if (null !== $notification) {
-                $values['DATE_NOTIFICATION'] = $query_builder->createPositionalParameter((new \DateTime($notification['hdEvenement']))->format('Y-m-d H:i:s'));
+                $values['DATE_NOTIFICATION'] = $query_builder->createPositionalParameter((new \DateTime())->format('Y-m-d H:i:s'));
             }
 
             $query_builder->insert('piecejointe')->values($values)->executeStatement();
