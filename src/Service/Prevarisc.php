@@ -201,7 +201,7 @@ class Prevarisc
      *
      * @throws \Exception
      */
-    // @fixme Retirer le paramètre $notification une fois la commande `import` supprimée 
+    // @fixme Retirer le paramètre $notification une fois la commande `import` supprimée
     public function importConsultation(array $consultation, ?array $demandeur = null, ?array $service_instructeur = null, ?array $notification = null) : void
     {
         // On démarre une transaction SQL. Si jamais les choses se passent mal, on pourra revenir en arrière.
@@ -398,7 +398,7 @@ class Prevarisc
     /**
      * Importer des pièces jointes dans un dossier.
      */
-    // @fixme Retirer le paramètre $notification une fois la commande `import-pieces` supprimée 
+    // @fixme Retirer le paramètre $notification une fois la commande `import-pieces` supprimée
     public function creerPieceJointe(int $dossier_id, array $piece, string $extension, string $file_contents, ?array $notification = null) : void
     {
         // Génération du nom du fichier
