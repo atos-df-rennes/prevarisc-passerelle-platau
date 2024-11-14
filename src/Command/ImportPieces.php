@@ -10,6 +10,11 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use App\Service\PlatauConsultation as PlatauConsultationService;
 
+/**
+ * @deprecated Cette commande ne traite que les états de consultation `Versée` et `Prise en compte - en cours de traitement`.
+ * Utilisez plutôt la commande `lecture-notifications` qui se base sur les notifications Plat'AU indépendamment de l'état de la consultation.
+ * @see lecture-notifications
+ */
 final class ImportPieces extends Command
 {
     private PrevariscService $prevarisc_service;
@@ -67,17 +72,19 @@ final class ImportPieces extends Command
 
             // Avec la consultation Platau, on va tenter de récupérer l'ensemble des pièces du dossier concerné
             try {
-                // Vérification de l'existence de la consultation existe dans Prevarisc ? Si non, on ignore complètement la consultation
+                // Vérification de l'existence de la consultation dans Prevarisc ? Si non, on ignore complètement la consultation
                 if (!$this->prevarisc_service->consultationExiste($consultation_id)) {
-                    $output->writeln("La consultation $consultation_id n'existe pas dans Prevarisc. Importez là d'abord avec la command <import>.");
+                    $output->writeln("La consultation $consultation_id n'existe pas dans Prevarisc. Importez là d'abord avec la commande <import>.");
                     continue;
                 }
+
+                $dossier_id = $consultation['dossier']['idDossier'];
 
                 // Récupération du dossier Prevarisc lié à cette consultation
                 $dossier_prevarisc = $this->prevarisc_service->recupererDossierDeConsultation($consultation_id);
 
                 // Récupération des pièces jointes liées à la consultation
-                foreach ($this->consultation_service->getPieces($consultation_id) as $piece) {
+                foreach ($this->consultation_service->getPieces($dossier_id) as $piece) {
                     // Téléchargement de la pièce
                     $http_response = $this->piece_service->download($piece);
 
