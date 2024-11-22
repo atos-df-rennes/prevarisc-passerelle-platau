@@ -164,6 +164,26 @@ class Prevarisc
                 && \in_array('MESSAGE_ERREUR', array_map(function (Column $column) {
                     return $column->getName();
                 }, $this->db->createSchemaManager()->listTableColumns('piecejointe')))
+            // Colonne 'TYPE' dans la table 'piecejointe'
+
+                && \in_array('TYPE', array_map(function (Column $column) {
+                    return $column->getName();
+                }, $this->db->createSchemaManager()->listTableColumns('piecejointe')))
+            // Colonne 'SOUS_TYPE' dans la table 'piecejointe'
+
+                && \in_array('SOUS_TYPE', array_map(function (Column $column) {
+                    return $column->getName();
+                }, $this->db->createSchemaManager()->listTableColumns('piecejointe')))
+            // Colonne 'NATURE' dans la table 'piecejointe'
+
+                && \in_array('NATURE', array_map(function (Column $column) {
+                    return $column->getName();
+                }, $this->db->createSchemaManager()->listTableColumns('piecejointe')))
+            // Colonne 'DATE_DEPOT' dans la table 'piecejointe'
+
+                && \in_array('DATE_DEPOT', array_map(function (Column $column) {
+                    return $column->getName();
+                }, $this->db->createSchemaManager()->listTableColumns('piecejointe')))
             // Colonne 'STATUT_PEC' dans la table 'platauconsultation'
 
                 && \in_array('STATUT_PEC', array_map(function (Column $column) {
@@ -438,8 +458,11 @@ class Prevarisc
                 'NOM_PIECEJOINTE' => $query_builder->createPositionalParameter($filename),
                 'EXTENSION_PIECEJOINTE' => $query_builder->createPositionalParameter($extension),
                 'DATE_PIECEJOINTE' => $query_builder->createPositionalParameter((new \DateTime())->format('Y-m-d')),
-                'DESCRIPTION_PIECEJOINTE' => $query_builder->createPositionalParameter($description),
                 'ID_PLATAU' => $query_builder->createPositionalParameter($piece['idPiece']),
+                'TYPE' => $query_builder->createPositionalParameter($piece['nomTypePiece']['libNom']),
+                'SOUS_TYPE' => $query_builder->createPositionalParameter($piece['libAutreTypePiece']),
+                'NATURE' => $query_builder->createPositionalParameter($piece['nomNaturePiece']['libNom']),
+                'DATE_DEPOT' => $query_builder->createPositionalParameter((new \DateTime($piece['dtDepot']))->format('Y-m-d')),
             ];
 
             if (null !== $notification) {
