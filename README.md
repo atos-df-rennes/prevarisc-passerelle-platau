@@ -146,6 +146,16 @@ L'option facultative "champ" ordonne à la commande de ne retourner qu'un champ 
 $ php bin/platau --config=CHEMIN_RELATIF_VERS_LE_FICHIER_DE_CONFIGURATION.json details-consultation [--champ=xxx.xxx.xxx] xxx-xxx-xxx
 ```
 
+#### Détails du dernier avis d'une consultation
+
+Afin de vérifier l'état du dernier avis d'une consultation dans Plat'AU, la passerelle permet de récupérer facilement l'ensemble des données le concernant afin de les lire directement dans la console.
+
+L'option facultative "champ" ordonne à la commande de ne retourner qu'un champ bien spécifique, en utilisant la syntaxe "dot notation" (par exemple, pour accéder au libellé de la nature de l'avis rendu, il faut spécifier "nomNatureAvisRendu.libNom").
+
+```
+$ php bin/platau --config=CHEMIN_RELATIF_VERS_LE_FICHIER_DE_CONFIGURATION.json details-avis [--champ=xxx.xxx.xxx] xxx-xxx-xxx
+```
+
 #### Lecture des notifications
 
 Des notifications sont mises à disposition par Plat'AU pour informer de l'état de certains éléments. Les éléments traités par la passerelle sont les suivants :
