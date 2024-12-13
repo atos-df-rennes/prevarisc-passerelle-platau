@@ -18,10 +18,13 @@ final class PlatauAvis extends PlatauAbstract
 
         $avis = [];
 
-        foreach ($paginator->autoPagingIterator() as $avis_simple) {
-            \assert(\is_array($avis_simple));
+        foreach ($paginator->autoPagingIterator() as $avis_pagines) {
+            \assert(\is_array($avis_pagines));
 
-            $avis[] = $this->parseAvis($avis_simple);
+            /** @var array $avis_simple */
+            foreach ($avis_pagines['dossier']['avis'] as $avis_simple) {
+                $avis[] = $avis_simple;
+            }
         }
 
         return $avis;
@@ -40,25 +43,14 @@ final class PlatauAvis extends PlatauAbstract
             throw new \Exception("l'avis $consultation_id est introuvable selon les critères de recherche");
         }
 
+        // On inverse le tableau pour récupérer l'avis le plus récent
+        $last_avis = array_reverse($avis);
+
         // On vient récupérer l'avis qui nous interesse dans le tableau des résultats
-        $avis_simple = array_shift($avis);
+        $avis_simple = array_shift($last_avis);
 
         \assert(\is_array($avis_simple));
 
         return $avis_simple;
-    }
-
-    /**
-     * Retourne un tableau représentant l'avis.
-     */
-    private function parseAvis(array $avis) : array
-    {
-        // On vient récupérer les détails de l'avis recherché, qui, pour une raison étrange, se trouvent
-        // dans un tableau de avis auxquelles le dossier lié est rattaché.
-        // Pour que ce soit plus logique, on les place au même niveau que 'projet' et 'dossier'.
-        $consultation_id = (string) $avis['dossier']['avis'][0]['idConsultation'];
-        $avis            = array_merge($avis, current(array_filter($avis['dossier']['avis'], fn (array $c) => $c['idConsultation'] === $consultation_id)));
-
-        return $avis;
     }
 }
