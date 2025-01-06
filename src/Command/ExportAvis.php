@@ -106,6 +106,7 @@ final class ExportAvis extends Command
                             $this->prevarisc_service->changerStatutPiece($piece_jointe['ID_PIECEJOINTE'], 'awaiting_status');
                         } catch (\Exception $e) {
                             $this->prevarisc_service->changerStatutPiece($piece_jointe['ID_PIECEJOINTE'], 'on_error');
+                            $this->prevarisc_service->ajouterMessageErreurPiece($piece_jointe['ID_PIECEJOINTE'], $e->getMessage());
                         }
                     }
                 }
