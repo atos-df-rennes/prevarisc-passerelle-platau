@@ -162,7 +162,7 @@ class SyncplicityClient
                     'contents' => $ticket_pre_upload['VirtualFolderId'],
                 ],
                 [
-                    'name' => 'SHA-256',
+                    'name' => 'sha256',
                     'contents' => hash('sha256', $file_contents),
                 ],
                 [
