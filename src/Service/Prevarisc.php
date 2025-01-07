@@ -564,7 +564,7 @@ class Prevarisc
         ;
     }
 
-    public function ajouterMessageErreurPiece(string $id_platau, string $message) : void
+    public function ajouterMessageErreurPiece(string $id_platau, string $message, string $id_column = 'ID_PIECEJOINTE') : void
     {
         $query_builder = $this->db->createQueryBuilder();
 
@@ -572,7 +572,7 @@ class Prevarisc
             ->update('piecejointe', 'pj')
             ->set('MESSAGE_ERREUR', ':message')
             ->where(
-                $query_builder->expr()->eq('ID_PLATAU', ':id_platau')
+                $query_builder->expr()->eq($id_column, ':id_platau')
             )
             ->setParameter('message', $message)
             ->setParameter('id_platau', $id_platau)

@@ -186,7 +186,7 @@ final class LectureNotifications extends Command
                             $output->writeln('Echec du versement du document.');
 
                             $this->prevarisc_service->changerStatutPiece($notification['idElementConcerne'], 'on_error', 'ID_PLATAU');
-                            $this->prevarisc_service->ajouterMessageErreurPiece($notification['idElementConcerne'], $notification['txErreur']);
+                            $this->prevarisc_service->ajouterMessageErreurPiece($notification['idElementConcerne'], $notification['txErreur'], 'ID_PLATAU');
 
                             break;
                         default:
