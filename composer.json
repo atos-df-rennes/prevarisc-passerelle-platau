@@ -30,9 +30,9 @@
         "bin/platau"
     ],
     "scripts": {
-        "analyse": "/usr/bin/php8.1 vendor/bin/psalm",
+        "analyse": "/usr/bin/php8.3 vendor/bin/psalm",
         "cs-check": "@cs-fix --dry-run",
-        "cs-fix": "/usr/bin/php8.1 vendor/bin/php-cs-fixer fix --config=vendor/kdubuc/php-cs-fixer-rules/php-cs-fixer.php",
+        "cs-fix": "/usr/bin/php8.3 vendor/bin/php-cs-fixer fix --config=vendor/kdubuc/php-cs-fixer-rules/php-cs-fixer.php",
         "generate-baseline": "@analyse --set-baseline=psalm-baseline.xml"
     }
 }
