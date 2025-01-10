@@ -78,7 +78,7 @@ final class LectureNotifications extends Command
                         case 15:
                         case 17:
                         case 71:
-                            $idPiece = $notification['idElementConcerne'];
+                            $idPiece   = $notification['idElementConcerne'];
                             $idDossier = $notification['idDossier'];
 
                             $output->writeln(\sprintf("Traitement de la notification pour la pièce d'identifiant %s", $idPiece));
@@ -87,7 +87,7 @@ final class LectureNotifications extends Command
                                 $pieces             = $this->consultation_service->getPieces($idDossier);
 
                                 if ([] === $pieces) {
-                                    throw new \Exception(\sprintf("Aucune pièce trouvée pour le dossier %s", $idDossier));
+                                    throw new \Exception(\sprintf('Aucune pièce trouvée pour le dossier %s', $idDossier));
                                 }
 
                                 $piece_notification = array_filter($pieces, fn ($piece) => $piece['idPiece'] === $idPiece);
@@ -149,7 +149,7 @@ final class LectureNotifications extends Command
                         $consultation    = $this->consultation_service->rechercheConsultations(['idConsultation' => $consultation_id]);
 
                         if ([] === $consultation) {
-                            throw new \Exception(\sprintf("La consultation %s est introuvable selon les critères de recherche", $consultation_id));
+                            throw new \Exception(\sprintf('La consultation %s est introuvable selon les critères de recherche', $consultation_id));
                         }
 
                         if ($this->prevarisc_service->consultationExiste($consultation_id)) {
@@ -158,7 +158,7 @@ final class LectureNotifications extends Command
                             break;
                         }
 
-                        $consultation    = $consultation[array_key_first($consultation)];
+                        $consultation        = $consultation[array_key_first($consultation)];
                         $service_instructeur = null !== $consultation['dossier']['idServiceInstructeur'] ? $this->acteur_service->recuperationActeur($consultation['dossier']['idServiceInstructeur']) : null;
                         $demandeur           = null !== $consultation['idServiceConsultant'] ? $this->acteur_service->recuperationActeur($consultation['idServiceConsultant']) : null;
 
