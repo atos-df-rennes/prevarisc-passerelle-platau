@@ -134,7 +134,10 @@ final class LectureNotifications extends Command
                     try {
                         $consultation_id = $notification['idElementConcerne'];
                         $consultation    = $this->consultation_service->rechercheConsultations(['idConsultation' => $consultation_id]);
-                        $consultation    = $consultation[array_key_first($consultation)];
+
+                        if ([] === $consultation) {
+                            throw new \Exception(\sprintf("La consultation %s est introuvable selon les critères de recherche.", $consultation_id));
+                        }
 
                         if ($this->prevarisc_service->consultationExiste($consultation_id)) {
                             $output->writeln(\sprintf('Consultation %s déjà existante dans Prevarisc', $consultation_id));
@@ -142,6 +145,7 @@ final class LectureNotifications extends Command
                             break;
                         }
 
+                        $consultation    = $consultation[array_key_first($consultation)];
                         $service_instructeur = null !== $consultation['dossier']['idServiceInstructeur'] ? $this->acteur_service->recuperationActeur($consultation['dossier']['idServiceInstructeur']) : null;
                         $demandeur           = null !== $consultation['idServiceConsultant'] ? $this->acteur_service->recuperationActeur($consultation['idServiceConsultant']) : null;
 
