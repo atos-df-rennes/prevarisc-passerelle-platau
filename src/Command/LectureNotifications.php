@@ -78,11 +78,24 @@ final class LectureNotifications extends Command
                         case 15:
                         case 17:
                         case 71:
-                            $output->writeln(\sprintf("Traitement de la notification pour la pièce d'identifiant %s", $notification['idElementConcerne']));
+                            $idPiece = $notification['idElementConcerne'];
+                            $idDossier = $notification['idDossier'];
+
+                            $output->writeln(\sprintf("Traitement de la notification pour la pièce d'identifiant %s", $idPiece));
 
                             try {
-                                $pieces             = $this->consultation_service->getPieces($notification['idDossier']);
-                                $piece_notification = array_filter($pieces, fn ($piece) => $piece['idPiece'] === $notification['idElementConcerne']);
+                                $pieces             = $this->consultation_service->getPieces($idDossier);
+
+                                if ([] === $pieces) {
+                                    throw new \Exception(\sprintf("Aucune pièce trouvée pour le dossier %s", $idDossier));
+                                }
+
+                                $piece_notification = array_filter($pieces, fn ($piece) => $piece['idPiece'] === $idPiece);
+
+                                if ([] === $piece_notification) {
+                                    throw new \Exception(\sprintf("La pièce %s n'a pas été trouvée dans les pièces du dossier %s", $idPiece, $idDossier));
+                                }
+
                                 $piece_notification = $piece_notification[array_key_first($piece_notification)];
 
                                 // Téléchargement de la pièce
@@ -96,7 +109,7 @@ final class LectureNotifications extends Command
 
                                 /* Comme la pièce est ajoutée au dossier et non à la consultation,
                                 on crée la liaison pour chaque consultation existante */
-                                $consultations = $this->consultation_service->rechercheConsultationsAvecCriteresDossier(['idDossier' => $notification['idDossier']]);
+                                $consultations = $this->consultation_service->rechercheConsultationsAvecCriteresDossier(['idDossier' => $idDossier]);
                                 foreach ($consultations as $consultation) {
                                     if (!$this->prevarisc_service->consultationExiste($consultation['idConsultation'])) {
                                         continue;
@@ -136,7 +149,7 @@ final class LectureNotifications extends Command
                         $consultation    = $this->consultation_service->rechercheConsultations(['idConsultation' => $consultation_id]);
 
                         if ([] === $consultation) {
-                            throw new \Exception(\sprintf("La consultation %s est introuvable selon les critères de recherche.", $consultation_id));
+                            throw new \Exception(\sprintf("La consultation %s est introuvable selon les critères de recherche", $consultation_id));
                         }
 
                         if ($this->prevarisc_service->consultationExiste($consultation_id)) {
