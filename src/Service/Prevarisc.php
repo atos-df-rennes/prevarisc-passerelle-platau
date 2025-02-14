@@ -658,6 +658,25 @@ class Prevarisc
     }
 
     /**
+     * Récupère les dossiers Prevarisc étant indiqués comme à renvoyer ou en erreur et ayant un avis renseigné.
+     */
+    public function recupererDossiersARenvoyer() : array
+    {
+        /** @var array{ID_PLATAU: string}[] $results */
+        $results = $this->db->createQueryBuilder()
+            ->select('d.ID_PLATAU')
+            ->from('dossier', 'd')
+            ->join('d', 'platauconsultation', 'pc', 'd.ID_PLATAU = pc.ID_PLATAU')
+            ->where("pc.STATUT_AVIS IN ('to_export', 'in_error')")
+            ->andWhere('d.AVIS_DOSSIER_COMMISSION IS NOT NULL')
+            ->executeQuery()
+            ->fetchAllAssociative()
+        ;
+
+        return array_map(fn ($result) => $result['ID_PLATAU'], $results);
+    }
+
+    /**
      * Correspondance entre une nature de dossier PlatAU et Prevarisc.
      * On lui donne un ID PlatAU et il nous ressort un ID Prevarisc.
      * Si l'ID Prevarisc correspondant n'existe pas, la fonction lève une exception.
