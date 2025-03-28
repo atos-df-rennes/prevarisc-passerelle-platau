@@ -123,6 +123,13 @@ final class ExportPEC extends Command
                     $pec_documents   = $pec_versee_data[array_key_first($pec_versee_data)]['consultations'][0]['pecMetier']['documents'];
 
                     foreach ($pieces_to_export as $index_piece => $piece_to_map) {
+                        if (!\array_key_exists($index_piece, $pec_documents)) {
+                            $filename = $piece_to_map['NOM_PIECEJOINTE'].$piece_to_map['EXTENSION_PIECEJOINTE'];
+                            $output->writeln("La pièce {$filename} n'a pas été trouvée dans la liste des documents envoyés avec la prise en compte métier");
+
+                            continue;
+                        }
+
                         $id_document = $pec_documents[$index_piece]['idDocument'];
 
                         $this->prevarisc_service->setPieceIdPlatau($piece_to_map['ID_PIECEJOINTE'], $id_document);
@@ -150,6 +157,13 @@ final class ExportPEC extends Command
                     $pec_documents   = $pec_versee_data[array_key_first($pec_versee_data)]['consultations'][0]['pecMetier']['documents'];
 
                     foreach ($pieces_to_export as $index_piece => $piece_to_map) {
+                        if (!\array_key_exists($index_piece, $pec_documents)) {
+                            $filename = $piece_to_map['NOM_PIECEJOINTE'].$piece_to_map['EXTENSION_PIECEJOINTE'];
+                            $output->writeln("La pièce {$filename} n'a pas été trouvée dans la liste des documents envoyés avec la prise en compte métier");
+
+                            continue;
+                        }
+
                         $id_document = $pec_documents[$index_piece]['idDocument'];
 
                         $this->prevarisc_service->setPieceIdPlatau($piece_to_map['ID_PIECEJOINTE'], $id_document);

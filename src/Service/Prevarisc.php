@@ -164,6 +164,26 @@ class Prevarisc
                 && \in_array('MESSAGE_ERREUR', array_map(function (Column $column) {
                     return $column->getName();
                 }, $this->db->createSchemaManager()->listTableColumns('piecejointe')))
+            // Colonne 'TYPE' dans la table 'piecejointe'
+
+                && \in_array('TYPE', array_map(function (Column $column) {
+                    return $column->getName();
+                }, $this->db->createSchemaManager()->listTableColumns('piecejointe')))
+            // Colonne 'SOUS_TYPE' dans la table 'piecejointe'
+
+                && \in_array('SOUS_TYPE', array_map(function (Column $column) {
+                    return $column->getName();
+                }, $this->db->createSchemaManager()->listTableColumns('piecejointe')))
+            // Colonne 'NATURE' dans la table 'piecejointe'
+
+                && \in_array('NATURE', array_map(function (Column $column) {
+                    return $column->getName();
+                }, $this->db->createSchemaManager()->listTableColumns('piecejointe')))
+            // Colonne 'DATE_DEPOT' dans la table 'piecejointe'
+
+                && \in_array('DATE_DEPOT', array_map(function (Column $column) {
+                    return $column->getName();
+                }, $this->db->createSchemaManager()->listTableColumns('piecejointe')))
             // Colonne 'STATUT_PEC' dans la table 'platauconsultation'
 
                 && \in_array('STATUT_PEC', array_map(function (Column $column) {
@@ -438,8 +458,11 @@ class Prevarisc
                 'NOM_PIECEJOINTE' => $query_builder->createPositionalParameter($filename),
                 'EXTENSION_PIECEJOINTE' => $query_builder->createPositionalParameter($extension),
                 'DATE_PIECEJOINTE' => $query_builder->createPositionalParameter((new \DateTime())->format('Y-m-d')),
-                'DESCRIPTION_PIECEJOINTE' => $query_builder->createPositionalParameter($description),
                 'ID_PLATAU' => $query_builder->createPositionalParameter($piece['idPiece']),
+                'TYPE' => $query_builder->createPositionalParameter($piece['nomTypePiece']['libNom']),
+                'SOUS_TYPE' => $query_builder->createPositionalParameter($piece['libAutreTypePiece']),
+                'NATURE' => $query_builder->createPositionalParameter($piece['nomNaturePiece']['libNom']),
+                'DATE_DEPOT' => $query_builder->createPositionalParameter((new \DateTime($piece['dtDepot']))->format('Y-m-d')),
             ];
 
             if (null !== $notification) {
@@ -541,7 +564,7 @@ class Prevarisc
         ;
     }
 
-    public function ajouterMessageErreurPiece(string $id_platau, string $message) : void
+    public function ajouterMessageErreurPiece(string $id_platau, string $message, string $id_column = 'ID_PIECEJOINTE') : void
     {
         $query_builder = $this->db->createQueryBuilder();
 
@@ -549,7 +572,7 @@ class Prevarisc
             ->update('piecejointe', 'pj')
             ->set('MESSAGE_ERREUR', ':message')
             ->where(
-                $query_builder->expr()->eq('ID_PLATAU', ':id_platau')
+                $query_builder->expr()->eq($id_column, ':id_platau')
             )
             ->setParameter('message', $message)
             ->setParameter('id_platau', $id_platau)
@@ -632,6 +655,25 @@ class Prevarisc
         ;
 
         return $query_builder;
+    }
+
+    /**
+     * Récupère les dossiers Prevarisc étant indiqués comme à renvoyer ou en erreur et ayant un avis renseigné.
+     */
+    public function recupererDossiersARenvoyer() : array
+    {
+        /** @var array{ID_PLATAU: string}[] $results */
+        $results = $this->db->createQueryBuilder()
+            ->select('d.ID_PLATAU')
+            ->from('dossier', 'd')
+            ->join('d', 'platauconsultation', 'pc', 'd.ID_PLATAU = pc.ID_PLATAU')
+            ->where("pc.STATUT_AVIS IN ('to_export', 'in_error')")
+            ->andWhere('d.AVIS_DOSSIER_COMMISSION IS NOT NULL')
+            ->executeQuery()
+            ->fetchAllAssociative()
+        ;
+
+        return array_map(fn ($result) => $result['ID_PLATAU'], $results);
     }
 
     /**

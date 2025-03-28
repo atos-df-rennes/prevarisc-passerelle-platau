@@ -10,7 +10,7 @@ final class PlatauConsultation extends PlatauAbstract
     /**
      * Recherche de plusieurs consultations.
      */
-    public function rechercheConsultations(array $params = [], string $order_by = 'DT_DEPOT', string $sort = 'DESC') : array
+    public function rechercheConsultations(array $params = [], string $order_by = 'DT_LIMITE_DE_REPONSE', string $sort = 'DESC') : array
     {
         // On recherche la consultation en fonction des critères de recherche
         $paginator = $this->pagination('post', 'consultations/recherche', [
@@ -36,7 +36,7 @@ final class PlatauConsultation extends PlatauAbstract
     /**
      * Recherche de plusieurs consultations avec pour critères des éléments du dossier.
      */
-    public function rechercheConsultationsAvecCriteresDossier(array $params = [], string $order_by = 'DT_DEPOT', string $sort = 'DESC') : array
+    public function rechercheConsultationsAvecCriteresDossier(array $params = [], string $order_by = 'DT_LIMITE_DE_REPONSE', string $sort = 'DESC') : array
     {
         // On recherche la consultation en fonction des critères de recherche
         $paginator = $this->pagination('post', 'consultations/recherche', [

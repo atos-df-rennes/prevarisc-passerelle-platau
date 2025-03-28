@@ -96,33 +96,6 @@ class SyncplicityClient
      */
     public function upload(string $file_contents, string $file_name) : array
     {
-        // Si le fichier fait moins de 10mo, alors on lance un upload simple
-        if ($this->getFileSize($file_contents) < 10 * 10 ** 6) {
-            // On lance l'upload
-            $response = $this->request('POST', 'upload', [
-                'multipart' => [
-                    [
-                        'name' => 'fileData',
-                        'contents' => $file_contents,
-                        'filename' => $file_name,
-                    ],
-                ],
-            ]);
-
-            // On décode la réponse JSON
-            $json = json_decode($response->getBody()->__toString(), true, 512, \JSON_THROW_ON_ERROR);
-            \assert(
-                \is_array($json)
-                && \array_key_exists('data_file_id', $json)
-                && \array_key_exists('data_file_version_id', $json)
-                && \array_key_exists('VirtualFolderId', $json),
-                "L'upload du fichier Syncplicity est incorrect"
-            );
-
-            return $json;
-        }
-
-        // Si nous sommes là, alors le fichier à upload fait plus de 10mo.
         // Nous devons tout d'abord créer un ticket de pre-upload pour annoncer à Syncplicity
         // que nous allons envoyer un fichier.
         $response          = $this->request('GET', 'pre-upload');
@@ -162,7 +135,7 @@ class SyncplicityClient
                     'contents' => $ticket_pre_upload['VirtualFolderId'],
                 ],
                 [
-                    'name' => 'SHA-256',
+                    'name' => 'sha256',
                     'contents' => hash('sha256', $file_contents),
                 ],
                 [
@@ -187,14 +160,5 @@ class SyncplicityClient
         return $json_file + [
             'VirtualFolderId' => $ticket_pre_upload['VirtualFolderId'],
         ];
-    }
-
-    /**
-     * Calcul de la taille du contenu d'un fichier.
-     * Retourne le résultat en octets.
-     */
-    private static function getFileSize(string $file_contents) : int
-    {
-        return false === mb_detect_encoding($file_contents, null, true) ? mb_strlen($file_contents) : mb_strlen($file_contents);
     }
 }

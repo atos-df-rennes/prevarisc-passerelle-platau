@@ -84,8 +84,16 @@ final class ExportAvis extends Command
             $output->writeln('Récupération de la consultation concernée ...');
             $consultations_en_attente_davis = [$this->consultation_service->getConsultation($input->getOption('consultation-id'))];
         } else {
-            $output->writeln('Recherche de toutes les consultations en attente d\'avis ou traitées ...');
-            $consultations_en_attente_davis = $this->consultation_service->rechercheConsultations(['nomEtatConsultation' => [3, 6]]);
+            $output->writeln('Recherche de toutes les consultations en attente d\'avis ou traitées (à renvoyer) ...');
+
+            $consultations_a_renvoyer = $this->prevarisc_service->recupererDossiersARenvoyer();
+            $consultations_a_renvoyer = array_map(
+                fn ($consultation_id) => $this->consultation_service->getConsultation($consultation_id),
+                $consultations_a_renvoyer
+            );
+
+            $consultations_en_attente_davis = $this->consultation_service->rechercheConsultations(['nomEtatConsultation' => [3]]);
+            $consultations_en_attente_davis = array_merge($consultations_a_renvoyer, $consultations_en_attente_davis);
         }
 
         // Si il n'existe pas de consultations en attente d'avis, on arrête le travail ici
@@ -136,6 +144,7 @@ final class ExportAvis extends Command
                             $this->prevarisc_service->changerStatutPiece($piece_jointe['ID_PIECEJOINTE'], 'awaiting_status');
                         } catch (\Exception $e) {
                             $this->prevarisc_service->changerStatutPiece($piece_jointe['ID_PIECEJOINTE'], 'on_error');
+                            $this->prevarisc_service->ajouterMessageErreurPiece($piece_jointe['ID_PIECEJOINTE'], $e->getMessage());
                         }
                     }
                 }
@@ -153,29 +162,35 @@ final class ExportAvis extends Command
                             $date_envoi = null !== $dossier['DATE_AVIS'] ? \DateTime::createFromFormat('Y-m-d', $dossier['DATE_AVIS']) : \DateTime::createFromFormat('Y-m-d', $avis['dtAvis']);
                         }
 
-                        $avis_verse = $this->consultation_service->versementAvis(
-                            $consultation_id,
-                            (int)$dossier['AVIS_DOSSIER_COMMISSION'],
-                            $prescriptions,
-                            $pieces,
-                            $date_envoi,
-                            new Auteur($auteur['PRENOM_UTILISATEURINFORMATIONS'], $auteur['NOM_UTILISATEURINFORMATIONS'], $auteur['MAIL_UTILISATEURINFORMATIONS'], $auteur['TELFIXE_UTILISATEURINFORMATIONS'], $auteur['TELPORTABLE_UTILISATEURINFORMATIONS']),
-                        );
-                        $avis_verse_data = json_decode($avis_verse->getBody()->getContents(), true, 512, \JSON_THROW_ON_ERROR);
-                        $avis_documents  = $avis_verse_data[array_key_first($avis_verse_data)]['avis'][0]['documents'];
+                    $avis_verse = $this->consultation_service->versementAvis(
+                        $consultation_id,
+                        (int)$dossier['AVIS_DOSSIER_COMMISSION'],
+                        $prescriptions,
+                        $pieces,
+                        $date_envoi,
+                        new Auteur($auteur['PRENOM_UTILISATEURINFORMATIONS'], $auteur['NOM_UTILISATEURINFORMATIONS'], $auteur['MAIL_UTILISATEURINFORMATIONS'], $auteur['TELFIXE_UTILISATEURINFORMATIONS'], $auteur['TELPORTABLE_UTILISATEURINFORMATIONS']),
+                    );
+                    $avis_verse_data = json_decode($avis_verse->getBody()->getContents(), true, 512, \JSON_THROW_ON_ERROR);
+                    $avis_documents  = $avis_verse_data[array_key_first($avis_verse_data)]['avis'][0]['documents'];
 
-                        foreach ($pieces_to_export as $index_piece => $piece_to_map) {
-                            $id_document = $avis_documents[$index_piece]['idDocument'];
+                    foreach ($pieces_to_export as $index_piece => $piece_to_map) {
+                        if (!\array_key_exists($index_piece, $avis_documents)) {
+                            $filename = $piece_to_map['NOM_PIECEJOINTE'].$piece_to_map['EXTENSION_PIECEJOINTE'];
+                            $output->writeln("La pièce {$filename} n'a pas été trouvée dans la liste des documents envoyés avec l'avis");
 
-                            $this->prevarisc_service->setPieceIdPlatau($piece_to_map['ID_PIECEJOINTE'], $id_document);
+                            continue;
                         }
 
-                        $this->prevarisc_service->setMetadonneesEnvoi($consultation_id, 'AVIS', 'treated')->set('DATE_AVIS', ':date_avis')->setParameter('date_avis', date('Y-m-d'))->executeStatement();
-                        $output->writeln('Avis envoyé !');
-                    } else {
-                        $output->writeln("Impossible d'envoyer un avis pour la consultation $consultation_id pour le moment (en attente de l'avis de commission dans Prevarisc) ...");
+                        $id_document = $avis_documents[$index_piece]['idDocument'];
+
+                        $this->prevarisc_service->setPieceIdPlatau($piece_to_map['ID_PIECEJOINTE'], $id_document);
                     }
-                
+
+                    $this->prevarisc_service->setMetadonneesEnvoi($consultation_id, 'AVIS', 'treated')->set('DATE_AVIS', ':date_avis')->setParameter('date_avis', date('Y-m-d'))->executeStatement();
+                    $output->writeln('Avis envoyé !');
+                } else {
+                    $output->writeln("Impossible d'envoyer un avis pour la consultation $consultation_id pour le moment (en attente de l'avis de commission dans Prevarisc) ...");
+                }
             } catch (\Exception $e) {
                 // On passe toutes les pièces en attente de versement
                 foreach ($pieces_to_export as $piece) {
