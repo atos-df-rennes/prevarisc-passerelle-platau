@@ -42,6 +42,36 @@ final class ExportAvis extends Command
             ->addOption('config', 'c', InputOption::VALUE_REQUIRED, 'Chemin vers le fichier de configuration');
     }
 
+
+    /**
+    * Fonction qui retourne le libellé de l'avis en fonction de l'ID de l'avis .
+    *
+    * @param string $id_dossier_commission L'ID de l'avis de dossier commission.
+    * @return string Le libellé de l'avis.
+    */
+    private function getLibelleAvis($id_dossier_commission): string
+    {
+        if (!getenv('PREVARISC_NOMENCLATURE_AVIS_COMMISSION')) {
+            $avis_types = [
+                '1' => "Favorable",
+                '2' => "Défavorable",
+            ];
+        } else {
+            $avis_types = [
+                '1' => "Favorable",
+                '2' => "Favorable assorti d’une ou plusieurs prescriptions",
+                '3' => "Défavorable",
+                '4' => "Pas d’avis car consultation sans objet",
+                '5' => "Pas d’avis suite à déclaration d’incomplétude du dossier",
+                '6' => "Pas d’avis - à motiver dans la partie Fondement de l’avis"
+            ];
+        }  
+
+        // Retourner le libellé correspondant à l'ID de l'avis
+        return $avis_types[$id_dossier_commission];
+    }
+
+
     /**
      * Logique d'execution de la commande.
      */
@@ -110,42 +140,42 @@ final class ExportAvis extends Command
                     }
                 }
 
-                // On verse l'avis de commission Prevarisc (défavorable ou favorable à l'étude) dans Plat'AU
-                if ('1' === (string) $dossier['AVIS_DOSSIER_COMMISSION'] || '2' === (string) $dossier['AVIS_DOSSIER_COMMISSION']) {
+                // On verse l'avis de commission Prevarisc dans Plat'AU
+
+                if ($dossier['AVIS_DOSSIER_COMMISSION'] !== null && (string)$dossier['AVIS_DOSSIER_COMMISSION'] !== '0') {
                     // On verse l'avis de commission dans Plat'AU
-                    // Pour rappel, un avis de commission à 1 = favorable, 2 = défavorable.
-                    $est_favorable = '1' === (string) $dossier['AVIS_DOSSIER_COMMISSION'];
-                    $output->writeln("Versement d'un avis ".($est_favorable ? 'favorable' : 'défavorable')." pour la consultation $consultation_id au service instructeur ...");
-                    // Si cela concerne un premier envoi d'avis alors on place la date de l'avis Prevarisc, sinon la date du lancement de la commande
-                    $date_envoi = new \DateTime();
+                        $output->writeln("Versement d'un avis ".$this->getLibelleAvis($dossier['AVIS_DOSSIER_COMMISSION'])." pour la consultation $consultation_id au service instructeur ...");
+                        // Si cela concerne un premier envoi d'avis alors on place la date de l'avis Prevarisc, sinon la date du lancement de la commande
+                        $date_envoi = new \DateTime();
 
-                    if ('to_export' === $dossier['STATUT_AVIS']) {
-                        $avis       = $this->avis_service->getAvisForConsultation($consultation_id);
-                        $date_envoi = null !== $dossier['DATE_AVIS'] ? \DateTime::createFromFormat('Y-m-d', $dossier['DATE_AVIS']) : \DateTime::createFromFormat('Y-m-d', $avis['dtAvis']);
+                        if ('to_export' === $dossier['STATUT_AVIS']) {
+                            $avis       = $this->avis_service->getAvisForConsultation($consultation_id);
+                            $date_envoi = null !== $dossier['DATE_AVIS'] ? \DateTime::createFromFormat('Y-m-d', $dossier['DATE_AVIS']) : \DateTime::createFromFormat('Y-m-d', $avis['dtAvis']);
+                        }
+
+                        $avis_verse = $this->consultation_service->versementAvis(
+                            $consultation_id,
+                            (int)$dossier['AVIS_DOSSIER_COMMISSION'],
+                            $prescriptions,
+                            $pieces,
+                            $date_envoi,
+                            new Auteur($auteur['PRENOM_UTILISATEURINFORMATIONS'], $auteur['NOM_UTILISATEURINFORMATIONS'], $auteur['MAIL_UTILISATEURINFORMATIONS'], $auteur['TELFIXE_UTILISATEURINFORMATIONS'], $auteur['TELPORTABLE_UTILISATEURINFORMATIONS']),
+                        );
+                        $avis_verse_data = json_decode($avis_verse->getBody()->getContents(), true, 512, \JSON_THROW_ON_ERROR);
+                        $avis_documents  = $avis_verse_data[array_key_first($avis_verse_data)]['avis'][0]['documents'];
+
+                        foreach ($pieces_to_export as $index_piece => $piece_to_map) {
+                            $id_document = $avis_documents[$index_piece]['idDocument'];
+
+                            $this->prevarisc_service->setPieceIdPlatau($piece_to_map['ID_PIECEJOINTE'], $id_document);
+                        }
+
+                        $this->prevarisc_service->setMetadonneesEnvoi($consultation_id, 'AVIS', 'treated')->set('DATE_AVIS', ':date_avis')->setParameter('date_avis', date('Y-m-d'))->executeStatement();
+                        $output->writeln('Avis envoyé !');
+                    } else {
+                        $output->writeln("Impossible d'envoyer un avis pour la consultation $consultation_id pour le moment (en attente de l'avis de commission dans Prevarisc) ...");
                     }
-
-                    $avis_verse = $this->consultation_service->versementAvis(
-                        $consultation_id,
-                        $est_favorable,
-                        $prescriptions,
-                        $pieces,
-                        $date_envoi,
-                        new Auteur($auteur['PRENOM_UTILISATEURINFORMATIONS'], $auteur['NOM_UTILISATEURINFORMATIONS'], $auteur['MAIL_UTILISATEURINFORMATIONS'], $auteur['TELFIXE_UTILISATEURINFORMATIONS'], $auteur['TELPORTABLE_UTILISATEURINFORMATIONS']),
-                    );
-                    $avis_verse_data = json_decode($avis_verse->getBody()->getContents(), true, 512, \JSON_THROW_ON_ERROR);
-                    $avis_documents  = $avis_verse_data[array_key_first($avis_verse_data)]['avis'][0]['documents'];
-
-                    foreach ($pieces_to_export as $index_piece => $piece_to_map) {
-                        $id_document = $avis_documents[$index_piece]['idDocument'];
-
-                        $this->prevarisc_service->setPieceIdPlatau($piece_to_map['ID_PIECEJOINTE'], $id_document);
-                    }
-
-                    $this->prevarisc_service->setMetadonneesEnvoi($consultation_id, 'AVIS', 'treated')->set('DATE_AVIS', ':date_avis')->setParameter('date_avis', date('Y-m-d'))->executeStatement();
-                    $output->writeln('Avis envoyé !');
-                } else {
-                    $output->writeln("Impossible d'envoyer un avis pour la consultation $consultation_id pour le moment (en attente de l'avis de commission dans Prevarisc) ...");
-                }
+                
             } catch (\Exception $e) {
                 // On passe toutes les pièces en attente de versement
                 foreach ($pieces_to_export as $piece) {
