@@ -29,6 +29,7 @@ final class Prevarisc implements ServiceProvider
             'PREVARISC_DB_PORT',
             'PREVARISC_DB_PLATAU_USER_ID',
             'PREVARISC_PIECES_JOINTES_PATH',
+            'PREVARISC_NOMENCLATURE_AVIS_COMMISSION',
         ]);
         $this->config = $resolver->resolve($config);
     }

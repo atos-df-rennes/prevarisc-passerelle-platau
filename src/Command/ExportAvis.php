@@ -51,19 +51,29 @@ final class ExportAvis extends Command
     */
     private function getLibelleAvis($id_dossier_commission): string
     {
-        if (!getenv('PREVARISC_NOMENCLATURE_AVIS_COMMISSION')) {
+        $basePath = realpath('/home/prv/current');
+        $passerellePlatauDirname = 'prevarisc-passerelle-platau';
+        $platauConfFileName = 'config.json';    
+        $platauConfPath = implode(DIRECTORY_SEPARATOR, [
+            $basePath,
+            $passerellePlatauDirname,
+            $platauConfFileName,
+        ]);
+        $platauConfContent = json_decode(file_get_contents($platauConfPath), true);
+
+        if ( $platauConfContent['prevarisc.options']['PREVARISC_NOMENCLATURE_AVIS_COMMISSION'] !==1) {
             $avis_types = [
-                '1' => "Favorable",
-                '2' => "Défavorable",
+                1 => "Favorable",
+                2 => "Défavorable",
             ];
         } else {
             $avis_types = [
-                '1' => "Favorable",
-                '2' => "Favorable assorti d’une ou plusieurs prescriptions",
-                '3' => "Défavorable",
-                '4' => "Pas d’avis car consultation sans objet",
-                '5' => "Pas d’avis suite à déclaration d’incomplétude du dossier",
-                '6' => "Pas d’avis - à motiver dans la partie Fondement de l’avis"
+                1 => "Favorable",
+                2 => "Favorable assorti d’une ou plusieurs prescriptions",
+                3 => "Défavorable",
+                4 => "Pas d’avis car consultation sans objet",
+                5 => "Pas d’avis suite à déclaration d’incomplétude du dossier",
+                6 => "Pas d’avis - à motiver dans la partie Fondement de l’avis"
             ];
         }  
 
@@ -153,7 +163,7 @@ final class ExportAvis extends Command
 
                 if ($dossier['AVIS_DOSSIER_COMMISSION'] !== null && (string)$dossier['AVIS_DOSSIER_COMMISSION'] !== '0') {
                     // On verse l'avis de commission dans Plat'AU
-                        $output->writeln("Versement d'un avis ".$this->getLibelleAvis($dossier['AVIS_DOSSIER_COMMISSION'])." pour la consultation $consultation_id au service instructeur ...");
+                        $output->writeln("Versement d'un avis \"".$this->getLibelleAvis($dossier['AVIS_DOSSIER_COMMISSION'])."\" pour la consultation $consultation_id au service instructeur ...");
                         // Si cela concerne un premier envoi d'avis alors on place la date de l'avis Prevarisc, sinon la date du lancement de la commande
                         $date_envoi = new \DateTime();
 

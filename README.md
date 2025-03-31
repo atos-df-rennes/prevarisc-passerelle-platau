@@ -64,7 +64,9 @@ Voici un exemple d'un fichier JSON de configuration :
         "PREVARISC_DB_CHARSET": "utf8",
         "PREVARISC_DB_PORT": 3306,
         "PREVARISC_DB_PLATAU_USER_ID": 0,
-        "PREVARISC_PIECES_JOINTES_PATH": "xxxxxxxxxx"
+        "PREVARISC_PIECES_JOINTES_PATH": "xxxxxxxxxx",
+        "PREVARISC_NOMENCLATURE_AVIS_COMMISSION": 0
+
     },
     // Les options syncplicity sont optionnelles et servent à téléverser une pièce dans Plat'AU
     // Note : Si l'API Syncplicity est activée sur la même application qui contient les API Plat'AU,

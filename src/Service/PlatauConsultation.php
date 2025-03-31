@@ -190,7 +190,18 @@ final class PlatauConsultation extends PlatauAbstract
         ]);
 
         $date_envoi = $date_envoi ?? (new \DateTime());
-        if (!getenv('PREVARISC_NOMENCLATURE_AVIS_COMMISSION')) {
+        $basePath = realpath('/home/prv/current');
+        $passerellePlatauDirname = 'prevarisc-passerelle-platau';
+        $platauConfFileName = 'config.json';
+    
+        $platauConfPath = implode(DIRECTORY_SEPARATOR, [
+            $basePath,
+            $passerellePlatauDirname,
+            $platauConfFileName,
+        ]);
+        $platauConfContent = json_decode(file_get_contents($platauConfPath), true);
+
+        if ($platauConfContent['prevarisc.options']['PREVARISC_NOMENCLATURE_AVIS_COMMISSION']!==1) {
             if($avis_dossier_commission === 1){
                 $nomNatureAvisRendu = (0 === \count($prescriptions)) ? 1 : 2;
             }else{
