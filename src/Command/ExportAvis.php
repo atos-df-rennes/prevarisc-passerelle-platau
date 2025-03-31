@@ -43,6 +43,45 @@ final class ExportAvis extends Command
     }
 
     /**
+     * Fonction qui retourne le libellé de l'avis en fonction de l'ID de l'avis .
+     *
+     * @param string $id_dossier_commission L'ID de l'avis de dossier commission
+     *
+     * @return string le libellé de l'avis
+     */
+    private function getLibelleAvis($id_dossier_commission) : string
+    {
+        $basePath                = realpath('/home/prv/current');
+        $passerellePlatauDirname = 'prevarisc-passerelle-platau';
+        $platauConfFileName      = 'config.json';
+        $platauConfPath          = implode(\DIRECTORY_SEPARATOR, [
+            $basePath,
+            $passerellePlatauDirname,
+            $platauConfFileName,
+        ]);
+        $platauConfContent = json_decode(file_get_contents($platauConfPath), true);
+
+        if (1 !== $platauConfContent['prevarisc.options']['PREVARISC_NOMENCLATURE_AVIS_COMMISSION']) {
+            $avis_types = [
+                1 => 'Favorable',
+                2 => 'Défavorable',
+            ];
+        } else {
+            $avis_types = [
+                1 => 'Favorable',
+                2 => 'Favorable assorti d’une ou plusieurs prescriptions',
+                3 => 'Défavorable',
+                4 => 'Pas d’avis car consultation sans objet',
+                5 => 'Pas d’avis suite à déclaration d’incomplétude du dossier',
+                6 => 'Pas d’avis - à motiver dans la partie Fondement de l’avis',
+            ];
+        }
+
+        // Retourner le libellé correspondant à l'ID de l'avis
+        return $avis_types[$id_dossier_commission];
+    }
+
+    /**
      * Logique d'execution de la commande.
      */
     protected function execute(InputInterface $input, OutputInterface $output) : int
@@ -119,12 +158,11 @@ final class ExportAvis extends Command
                     }
                 }
 
-                // On verse l'avis de commission Prevarisc (défavorable ou favorable à l'étude) dans Plat'AU
-                if ('1' === (string) $dossier['AVIS_DOSSIER_COMMISSION'] || '2' === (string) $dossier['AVIS_DOSSIER_COMMISSION']) {
+                // On verse l'avis de commission Prevarisc dans Plat'AU
+
+                if (null !== $dossier['AVIS_DOSSIER_COMMISSION'] && '0' !== (string) $dossier['AVIS_DOSSIER_COMMISSION']) {
                     // On verse l'avis de commission dans Plat'AU
-                    // Pour rappel, un avis de commission à 1 = favorable, 2 = défavorable.
-                    $est_favorable = '1' === (string) $dossier['AVIS_DOSSIER_COMMISSION'];
-                    $output->writeln("Versement d'un avis ".($est_favorable ? 'favorable' : 'défavorable')." pour la consultation $consultation_id au service instructeur ...");
+                    $output->writeln("Versement d'un avis \"".$this->getLibelleAvis($dossier['AVIS_DOSSIER_COMMISSION'])."\" pour la consultation $consultation_id au service instructeur ...");
                     // Si cela concerne un premier envoi d'avis alors on place la date de l'avis Prevarisc, sinon la date du lancement de la commande
                     $date_envoi = new \DateTime();
 
@@ -135,7 +173,7 @@ final class ExportAvis extends Command
 
                     $avis_verse = $this->consultation_service->versementAvis(
                         $consultation_id,
-                        $est_favorable,
+                        (int) $dossier['AVIS_DOSSIER_COMMISSION'],
                         $prescriptions,
                         $pieces,
                         $date_envoi,
