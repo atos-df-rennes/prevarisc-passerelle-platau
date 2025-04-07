@@ -54,8 +54,16 @@ final class ExportAvis extends Command
             $output->writeln('Récupération de la consultation concernée ...');
             $consultations_en_attente_davis = [$this->consultation_service->getConsultation($input->getOption('consultation-id'))];
         } else {
-            $output->writeln('Recherche de toutes les consultations en attente d\'avis ou traitées ...');
-            $consultations_en_attente_davis = $this->consultation_service->rechercheConsultations(['nomEtatConsultation' => [3, 6]]);
+            $output->writeln('Recherche de toutes les consultations en attente d\'avis ou traitées (à renvoyer) ...');
+
+            $consultations_a_renvoyer = $this->prevarisc_service->recupererDossiersARenvoyer();
+            $consultations_a_renvoyer = array_map(
+                fn ($consultation_id) => $this->consultation_service->getConsultation($consultation_id),
+                $consultations_a_renvoyer
+            );
+
+            $consultations_en_attente_davis = $this->consultation_service->rechercheConsultations(['nomEtatConsultation' => [3]]);
+            $consultations_en_attente_davis = array_merge($consultations_a_renvoyer, $consultations_en_attente_davis);
         }
 
         // Si il n'existe pas de consultations en attente d'avis, on arrête le travail ici
