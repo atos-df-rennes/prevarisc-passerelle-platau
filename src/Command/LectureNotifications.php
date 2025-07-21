@@ -56,11 +56,11 @@ final class LectureNotifications extends Command
             $params = ['offset' => $offset];
         }
 
-        $output->writeln('Lecture des nouvelles notifications ...');
+        $output->writeln($this->logMessage('Lecture des nouvelles notifications ...'));
         $notifications = $this->notification_service->rechercheNotifications($params);
 
         if (0 === \count($notifications)) {
-            $output->writeln('Aucune nouvelle notification.');
+            $output->writeln($this->logMessage('Aucune nouvelle notification.'));
 
             return Command::SUCCESS;
         }
@@ -81,7 +81,7 @@ final class LectureNotifications extends Command
                             $idPiece   = $notification['idElementConcerne'];
                             $idDossier = $notification['idDossier'];
 
-                            $output->writeln(\sprintf("Traitement de la notification pour la pièce d'identifiant %s", $idPiece));
+                            $output->writeln($this->logMessage(\sprintf("Traitement de la notification pour la pièce d'identifiant %s", $idPiece)));
 
                             try {
                                 $pieces             = $this->consultation_service->getPieces($idDossier);
@@ -122,14 +122,14 @@ final class LectureNotifications extends Command
                                     $this->prevarisc_service->creerPieceJointe($dossier_prevarisc['ID_DOSSIER'], $piece_notification, $extension, $file_contents, $notification);
                                 }
 
-                                $output->writeln('La pièce a été téléchargée.');
+                                $output->writeln($this->logMessage('La pièce a été téléchargée.'));
                             } catch (\Exception $e) {
-                                $output->writeln(\sprintf("La pièce n'a pas pu être téléchargée : %s", $e->getMessage()));
+                                $output->writeln($this->logMessage(\sprintf("La pièce n'a pas pu être téléchargée : %s", $e->getMessage())));
                             }
 
                             break;
                         default:
-                            $output->writeln(\sprintf("La notification de l'événement d'identifiant %d n'est pas prise en compte par la passerelle actuellement.", $notification['idTypeEvenement']));
+                            $output->writeln($this->logMessage(\sprintf("La notification de l'événement d'identifiant %d n'est pas prise en compte par la passerelle actuellement.", $notification['idTypeEvenement'])));
 
                             break;
                     }
@@ -137,12 +137,12 @@ final class LectureNotifications extends Command
                     break;
                 case 6:
                     if (19 !== $notification['idTypeEvenement']) {
-                        $output->writeln(\sprintf("La notification de l'événement d'identifiant %d n'est pas prise en compte par la passerelle actuellement.", $notification['idTypeEvenement']));
+                        $output->writeln($this->logMessage(\sprintf("La notification de l'événement d'identifiant %d n'est pas prise en compte par la passerelle actuellement.", $notification['idTypeEvenement'])));
 
                         break;
                     }
 
-                    $output->writeln(\sprintf("Traitement de la notification pour la consultation d'identifiant %s", $notification['idElementConcerne']));
+                    $output->writeln($this->logMessage(\sprintf("Traitement de la notification pour la consultation d'identifiant %s", $notification['idElementConcerne'])));
 
                     try {
                         $consultation_id = $notification['idElementConcerne'];
@@ -153,7 +153,7 @@ final class LectureNotifications extends Command
                         }
 
                         if ($this->prevarisc_service->consultationExiste($consultation_id)) {
-                            $output->writeln(\sprintf('Consultation %s déjà existante dans Prevarisc', $consultation_id));
+                            $output->writeln($this->logMessage(\sprintf('Consultation %s déjà existante dans Prevarisc', $consultation_id)));
 
                             break;
                         }
@@ -166,7 +166,7 @@ final class LectureNotifications extends Command
                         $this->prevarisc_service->importConsultation($consultation, $demandeur, $service_instructeur, $notification);
                         $this->prevarisc_service->setMetadonneesEnvoi($consultation_id, 'PEC', 'awaiting')->executeStatement();
 
-                        $output->writeln(\sprintf('Consultation %s récupérée et stockée dans Prevarisc !', $consultation_id));
+                        $output->writeln($this->logMessage(\sprintf('Consultation %s récupérée et stockée dans Prevarisc !', $consultation_id)));
 
                         // Récupération du dossier Prevarisc nouvellement créé
                         $dossier_prevarisc = $this->prevarisc_service->recupererDossierDeConsultation($consultation_id);
@@ -181,45 +181,50 @@ final class LectureNotifications extends Command
                             $this->prevarisc_service->creerPieceJointe($dossier_prevarisc['ID_DOSSIER'], $piece, $extension, $file_contents, $notification);
                         }
 
-                        $output->writeln(\sprintf('Pièces initiales importées pour la consultation %s', $consultation_id));
+                        $output->writeln($this->logMessage(\sprintf('Pièces initiales importées pour la consultation %s', $consultation_id)));
                     } catch (\Exception $e) {
-                        $output->writeln(\sprintf('Problème lors du traitement de la consultation : %s', $e->getMessage()));
+                        $output->writeln($this->logMessage(\sprintf('Problème lors du traitement de la consultation : %s', $e->getMessage())));
                     }
 
                     break;
                 case 31:
-                    $output->writeln(\sprintf("Traitement de la notification pour le document d'identifiant %s", $notification['idElementConcerne']));
+                    $output->writeln($this->logMessage(\sprintf("Traitement de la notification pour le document d'identifiant %s", $notification['idElementConcerne'])));
 
                     /* 84 - Succès
                        85 - Echec */
                     switch ($notification['idTypeEvenement']) {
                         case 84:
-                            $output->writeln('Document versé avec succès.');
+                            $output->writeln($this->logMessage('Document versé avec succès.'));
 
                             $this->prevarisc_service->changerStatutPiece($notification['idElementConcerne'], 'exported', 'ID_PLATAU');
 
                             break;
                         case 85:
-                            $output->writeln('Echec du versement du document.');
+                            $output->writeln($this->logMessage('Echec du versement du document.'));
 
                             $this->prevarisc_service->changerStatutPiece($notification['idElementConcerne'], 'on_error', 'ID_PLATAU');
                             $this->prevarisc_service->ajouterMessageErreurPiece($notification['idElementConcerne'], $notification['txErreur'], 'ID_PLATAU');
 
                             break;
                         default:
-                            $output->writeln(\sprintf("La notification de l'événement d'identifiant %d n'est pas prise en compte par la passerelle actuellement.", $notification['idTypeEvenement']));
+                            $output->writeln($this->logMessage(\sprintf("La notification de l'événement d'identifiant %d n'est pas prise en compte par la passerelle actuellement.", $notification['idTypeEvenement'])));
 
                             break;
                     }
 
                     break;
                 default:
-                    $output->writeln(\sprintf("La notification de l'objet métier d'identifiant %d n'est pas prise en compte par la passerelle actuellement.", $notification['idTypeObjetMetier']));
+                    $output->writeln($this->logMessage(\sprintf("La notification de l'objet métier d'identifiant %d n'est pas prise en compte par la passerelle actuellement.", $notification['idTypeObjetMetier'])));
 
                     break;
             }
         }
 
         return Command::SUCCESS;
+    }
+
+    private function logMessage(string $message): string
+    {
+      return \sprintf('[%s] %s', (new \DateTime())->format('d-m-Y H:i:s'), $message);
     }
 }
