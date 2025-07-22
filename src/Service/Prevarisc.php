@@ -410,9 +410,7 @@ class Prevarisc
 
         $piece_jointe = $result->fetchAssociative();
 
-        \assert(\is_array($piece_jointe));
-
-        return !empty($piece_jointe);
+        return false !== $piece_jointe && [] !== $piece_jointe;
     }
 
     /**
