@@ -124,7 +124,7 @@ final class LectureNotifications extends Command
 
                                 $output->writeln($this->logMessage('La pièce a été téléchargée.'));
                             } catch (\Exception $e) {
-                                $output->writeln($this->logMessage(\sprintf("La pièce n'a pas pu être téléchargée : %s", $e->getMessage())));
+                                $output->writeln($this->logMessage(\sprintf("[Offset: %d] La pièce n'a pas pu être téléchargée : %s", $notification['offset'], $e->getMessage())));
                             }
 
                             break;
@@ -183,7 +183,7 @@ final class LectureNotifications extends Command
 
                         $output->writeln($this->logMessage(\sprintf('Pièces initiales importées pour la consultation %s', $consultation_id)));
                     } catch (\Exception $e) {
-                        $output->writeln($this->logMessage(\sprintf('Problème lors du traitement de la consultation : %s', $e->getMessage())));
+                        $output->writeln($this->logMessage(\sprintf('[Offset: %d] Problème lors du traitement de la consultation : %s', $notification['offset'], $e->getMessage())));
                     }
 
                     break;
@@ -223,8 +223,8 @@ final class LectureNotifications extends Command
         return Command::SUCCESS;
     }
 
-    private function logMessage(string $message): string
+    private function logMessage(string $message) : string
     {
-      return \sprintf('[%s] %s', (new \DateTime())->format('d-m-Y H:i:s'), $message);
+        return \sprintf('[%s] %s', (new \DateTime())->format('d-m-Y H:i:s'), $message);
     }
 }
