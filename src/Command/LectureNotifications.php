@@ -6,8 +6,8 @@ use App\Service\Prevarisc;
 use App\Service\PlatauPiece;
 use App\Service\PlatauActeur;
 use App\Service\PlatauConsultation;
-use App\Service\PlatauNotification;
 use App\Service\PlatauNomenclature;
+use App\Service\PlatauNotification;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputInterface;
@@ -29,7 +29,7 @@ final class LectureNotifications extends Command
         PlatauConsultation $consultation_service,
         PlatauPiece $piece_service,
         PlatauActeur $acteur_service,
-        PlatauNomenclature $nomenclature_service
+        PlatauNomenclature $nomenclature_service,
     ) {
         $this->notification_service = $notification_service;
         $this->prevarisc_service    = $prevarisc_service;
@@ -71,7 +71,7 @@ final class LectureNotifications extends Command
         }
 
         foreach ($notifications as $notification) {
-            $objet_metier = $this->nomenclature_service->rechercheNomenclature('TYPE_OBJET_METIER', $notification['idTypeObjetMetier']);
+            $objet_metier   = $this->nomenclature_service->rechercheNomenclature('TYPE_OBJET_METIER', $notification['idTypeObjetMetier']);
             $type_evenement = $this->nomenclature_service->rechercheNomenclature('TYPE_EVENEMENT', $notification['idTypeEvenement']);
 
             /* 5 - Pièce
@@ -238,28 +238,28 @@ final class LectureNotifications extends Command
     }
 
     // Affiche un message d'information pour les notifications que la passerelle ne traite pas.
-    private function messageNotificationNonPriseEnCompte(string $objet_metier, ?string $type_evenement = null): string
+    private function messageNotificationNonPriseEnCompte(string $objet_metier, ?string $type_evenement = null) : string
     {
-      $message = "La notification %s";
-      $values = [$objet_metier];
+        $message = 'La notification %s';
+        $values  = [$objet_metier];
 
-      if (null !== $type_evenement) {
-        $message .= " - %s";
-        $values[] = $type_evenement;
-      }
+        if (null !== $type_evenement) {
+            $message .= ' - %s';
+            $values[] = $type_evenement;
+        }
 
-      $message .= " n'est pas prise en compte par la passerelle actuellement";
+        $message .= " n'est pas prise en compte par la passerelle actuellement";
 
-      return \sprintf($message, ...$values);
+        return \sprintf($message, ...$values);
     }
 
     // Affiche un message d'information pour les notifications que la passerelle traite.
-    private function messageTraitementNotification(string $objet_metier, string $type_evenement, string $identifiant_element_concerne): string
+    private function messageTraitementNotification(string $objet_metier, string $type_evenement, string $identifiant_element_concerne) : string
     {
-      return \vsprintf("Traitement de la notification %s - %s ayant pour identifiant %s", [
-        $objet_metier,
-        $type_evenement,
-        $identifiant_element_concerne
-      ]);
+        return vsprintf('Traitement de la notification %s - %s ayant pour identifiant %s', [
+            $objet_metier,
+            $type_evenement,
+            $identifiant_element_concerne,
+        ]);
     }
 }
