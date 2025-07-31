@@ -9,6 +9,7 @@ namespace App\Service;
  * @property PlatauNotification $notifications
  * @property PlatauPiece        $pieces
  * @property PlatauAvis         $avis
+ * @property PlatauNomenclature $nomenclatures
  */
 class PlatauClient extends PlatauAbstract
 {
@@ -19,6 +20,7 @@ class PlatauClient extends PlatauAbstract
         'notifications' => PlatauNotification::class,
         'pieces' => PlatauPiece::class,
         'avis' => PlatauAvis::class,
+        'nomenclatures' => PlatauNomenclature::class,
     ];
 
     /**

@@ -6,6 +6,7 @@ use App\Service\Prevarisc;
 use App\Service\PlatauPiece;
 use App\Service\PlatauActeur;
 use App\Service\PlatauConsultation;
+use App\Service\PlatauNomenclature;
 use App\Service\PlatauNotification;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputOption;
@@ -20,18 +21,22 @@ final class LectureNotifications extends Command
     private PlatauPiece $piece_service;
     private PlatauActeur $acteur_service;
 
+    private PlatauNomenclature $nomenclature_service;
+
     public function __construct(
         PlatauNotification $notification_service,
         Prevarisc $prevarisc_service,
         PlatauConsultation $consultation_service,
         PlatauPiece $piece_service,
         PlatauActeur $acteur_service,
+        PlatauNomenclature $nomenclature_service,
     ) {
         $this->notification_service = $notification_service;
         $this->prevarisc_service    = $prevarisc_service;
         $this->consultation_service = $consultation_service;
         $this->piece_service        = $piece_service;
         $this->acteur_service       = $acteur_service;
+        $this->nomenclature_service = $nomenclature_service;
         parent::__construct();
     }
 
@@ -66,6 +71,9 @@ final class LectureNotifications extends Command
         }
 
         foreach ($notifications as $notification) {
+            $objet_metier   = $this->nomenclature_service->rechercheNomenclature('TYPE_OBJET_METIER', $notification['idTypeObjetMetier']);
+            $type_evenement = $this->nomenclature_service->rechercheNomenclature('TYPE_EVENEMENT', $notification['idTypeEvenement']);
+
             /* 5 - Pièce
                6 - Consultation
                31 - Document */
@@ -81,7 +89,7 @@ final class LectureNotifications extends Command
                             $idPiece   = $notification['idElementConcerne'];
                             $idDossier = $notification['idDossier'];
 
-                            $output->writeln($this->logMessage(\sprintf("Traitement de la notification pour la pièce d'identifiant %s", $idPiece)));
+                            $output->writeln($this->logMessage($this->messageTraitementNotification($objet_metier, $type_evenement, $notification['idElementConcerne'])));
 
                             try {
                                 $pieces             = $this->consultation_service->getPieces($idDossier);
@@ -129,7 +137,7 @@ final class LectureNotifications extends Command
 
                             break;
                         default:
-                            $output->writeln($this->logMessage(\sprintf("La notification de l'événement d'identifiant %d n'est pas prise en compte par la passerelle actuellement.", $notification['idTypeEvenement'])));
+                            $output->writeln($this->logMessage($this->messageNotificationNonPriseEnCompte($objet_metier, $type_evenement)));
 
                             break;
                     }
@@ -137,12 +145,12 @@ final class LectureNotifications extends Command
                     break;
                 case 6:
                     if (19 !== $notification['idTypeEvenement']) {
-                        $output->writeln($this->logMessage(\sprintf("La notification de l'événement d'identifiant %d n'est pas prise en compte par la passerelle actuellement.", $notification['idTypeEvenement'])));
+                        $output->writeln($this->logMessage($this->messageNotificationNonPriseEnCompte($objet_metier, $type_evenement)));
 
                         break;
                     }
 
-                    $output->writeln($this->logMessage(\sprintf("Traitement de la notification pour la consultation d'identifiant %s", $notification['idElementConcerne'])));
+                    $output->writeln($this->logMessage($this->messageTraitementNotification($objet_metier, $type_evenement, $notification['idElementConcerne'])));
 
                     try {
                         $consultation_id = $notification['idElementConcerne'];
@@ -188,7 +196,7 @@ final class LectureNotifications extends Command
 
                     break;
                 case 31:
-                    $output->writeln($this->logMessage(\sprintf("Traitement de la notification pour le document d'identifiant %s", $notification['idElementConcerne'])));
+                    $output->writeln($this->logMessage($this->messageTraitementNotification($objet_metier, $type_evenement, $notification['idElementConcerne'])));
 
                     /* 84 - Succès
                        85 - Echec */
@@ -207,14 +215,14 @@ final class LectureNotifications extends Command
 
                             break;
                         default:
-                            $output->writeln($this->logMessage(\sprintf("La notification de l'événement d'identifiant %d n'est pas prise en compte par la passerelle actuellement.", $notification['idTypeEvenement'])));
+                            $output->writeln($this->logMessage($this->messageNotificationNonPriseEnCompte($objet_metier, $type_evenement)));
 
                             break;
                     }
 
                     break;
                 default:
-                    $output->writeln($this->logMessage(\sprintf("La notification de l'objet métier d'identifiant %d n'est pas prise en compte par la passerelle actuellement.", $notification['idTypeObjetMetier'])));
+                    $output->writeln($this->logMessage($this->messageNotificationNonPriseEnCompte($objet_metier)));
 
                     break;
             }
@@ -223,8 +231,35 @@ final class LectureNotifications extends Command
         return Command::SUCCESS;
     }
 
+    // Log les messsages avec la date et l'heure à la manière de Monolog.
     private function logMessage(string $message) : string
     {
         return \sprintf('[%s] %s', (new \DateTime())->format('d-m-Y H:i:s'), $message);
+    }
+
+    // Affiche un message d'information pour les notifications que la passerelle ne traite pas.
+    private function messageNotificationNonPriseEnCompte(string $objet_metier, ?string $type_evenement = null) : string
+    {
+        $message = 'La notification %s';
+        $values  = [$objet_metier];
+
+        if (null !== $type_evenement) {
+            $message .= ' - %s';
+            $values[] = $type_evenement;
+        }
+
+        $message .= " n'est pas prise en compte par la passerelle actuellement";
+
+        return \sprintf($message, ...$values);
+    }
+
+    // Affiche un message d'information pour les notifications que la passerelle traite.
+    private function messageTraitementNotification(string $objet_metier, string $type_evenement, string $identifiant_element_concerne) : string
+    {
+        return vsprintf('Traitement de la notification %s - %s ayant pour identifiant %s', [
+            $objet_metier,
+            $type_evenement,
+            $identifiant_element_concerne,
+        ]);
     }
 }

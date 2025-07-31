@@ -39,5 +39,6 @@ final class Platau implements ServiceProvider
         $c->set('service.platau.piece', fn () => $client->pieces);
         $c->set('service.platau.healthcheck', fn () => $client->healthcheck);
         $c->set('service.platau.avis', fn () => $client->avis);
+        $c->set('service.platau.nomenclature', fn () => $client->nomenclatures);
     }
 }
