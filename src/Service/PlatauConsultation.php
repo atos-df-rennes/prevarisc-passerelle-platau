@@ -25,15 +25,16 @@ final class PlatauConsultation extends PlatauAbstract
 
         $consultations = [];
 
-        foreach ($paginator->autoPagingIterator() as $consultation) {
-            \assert(\is_array($consultation));
-            $consultations[] = $this->parseConsultation($consultation);
+        foreach ($paginator->autoPagingIterator() as $information) {
+            \assert(\is_array($information));
+            $consultations[] = $information;
         }
 
         return $consultations;
     }
 
     /**
+     * @todo: Sans doute à remplacer de la même manière que rechercheConsultations.
      * Recherche de plusieurs consultations avec pour critères des éléments du dossier.
      */
     public function rechercheConsultationsAvecCriteresDossier(array $params = [], string $order_by = 'DT_LIMITE_DE_REPONSE', string $sort = 'DESC') : array
@@ -79,6 +80,7 @@ final class PlatauConsultation extends PlatauAbstract
         $consultation = array_shift($consultations);
 
         \assert(\is_array($consultation));
+        \assert(\count($consultation['dossier']['consultations']) === 1);
 
         return $consultation;
     }
@@ -100,26 +102,13 @@ final class PlatauConsultation extends PlatauAbstract
     }
 
     /**
-     * Retourne un tableau représentant la consultation.
-     */
-    private function parseConsultation(array $consultation) : array
-    {
-        // On vient récupérer les détails de la consultation recherchée, qui, pour une raison étrange, se trouvent
-        // dans un tableau de consultations auxquelles le dossier lié est rattaché.
-        // Pour que ce soit plus logique, on les place au même niveau que 'projet' et 'dossier'.
-        $consultation_id = (string) $consultation['dossier']['consultations'][0]['idConsultation'];
-        $consultation    = array_merge($consultation, current(array_filter($consultation['dossier']['consultations'], fn (array $c) => $c['idConsultation'] === $consultation_id)));
-
-        return $consultation;
-    }
-
-    /**
      * Envoi d'une PEC sur une consultation.
      */
     public function envoiPEC(string $consultation_id, bool $est_positive = true, ?\DateInterval $date_limite_reponse_interval = null, ?string $observations = null, array $documents = [], ?\DateTime $date_envoi = null, ?Auteur $auteur = null) : ResponseInterface
     {
         // On recherche dans Plat'AU les détails de la consultation liée à la PEC
-        $consultation = $this->getConsultation($consultation_id);
+        $information = $this->getConsultation($consultation_id);
+        $consultation = $information['dossier']['consultations'][0];
 
         // Définition de la DLR à envoyer
         // Correspond à la date d'instruction donnée dans la consultation si aucune date limite est donnée
@@ -167,8 +156,8 @@ final class PlatauConsultation extends PlatauAbstract
                             'pecMetier' => $pec_metier_options,
                         ],
                     ],
-                    'idDossier' => $consultation['dossier']['idDossier'],
-                    'noVersion' => $consultation['dossier']['noVersion'],
+                    'idDossier' => $information['dossier']['idDossier'],
+                    'noVersion' => $information['dossier']['noVersion'],
                 ],
             ],
         ]);
