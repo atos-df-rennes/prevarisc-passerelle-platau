@@ -2,14 +2,17 @@
 
 namespace App\Dto;
 
-class Information {
-  private Dossier $dossier;
+class Information
+{
+    private Dossier $dossier;
 
-  public function __construct(Dossier $dossier) {
-    $this->dossier = $dossier;
-  }
+    public function __construct(Dossier $dossier)
+    {
+        $this->dossier = $dossier;
+    }
 
-  public function getDossier(): Dossier {
-    return $this->dossier;
-  }
+    public function getDossier() : Dossier
+    {
+        return $this->dossier;
+    }
 }

@@ -65,7 +65,8 @@ final class ExportPEC extends Command
 
         // Pour chaque consultation trouvée, on va chercher dans Prevarisc si la complétion (ou non) du dossier a été indiquée.
         foreach ($consultations_en_attente_de_pec as $information) {
-          $consultations = $information->getDossier()->getConsultations();
+            $consultations = $information->getDossier()->getConsultations();
+
             foreach ($consultations as $consultation) {
                 // Récupération de l'ID de la consultation
                 $consultation_id = $consultation->getIdConsultation();

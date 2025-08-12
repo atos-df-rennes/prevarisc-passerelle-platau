@@ -2,14 +2,17 @@
 
 namespace App\Dto;
 
-class NomEtatConsultation {
-  private int $idNom;
+class NomEtatConsultation
+{
+    private int $idNom;
 
-  public function __construct(int $idNom) {
-    $this->idNom = $idNom;
-  }
+    public function __construct(int $idNom)
+    {
+        $this->idNom = $idNom;
+    }
 
-  public function getIdNom(): int {
-    return $this->idNom;
-  }
+    public function getIdNom() : int
+    {
+        return $this->idNom;
+    }
 }

@@ -77,7 +77,8 @@ final class ExportAvis extends Command
 
         // Pour chaque consultation trouvée, on va chercher dans Prevarisc si un avis existe.
         foreach ($consultations_en_attente_davis as $information) {
-          $consultations = $information->getDossier()->getConsultations();
+            $consultations = $information->getDossier()->getConsultations();
+
             foreach ($consultations as $consultation) {
                 // Récupération de l'ID de la consultation
                 $consultation_id = $consultation->getIdConsultation();

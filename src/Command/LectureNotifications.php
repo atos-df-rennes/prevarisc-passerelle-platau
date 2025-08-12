@@ -154,7 +154,7 @@ final class LectureNotifications extends Command
                         }
 
                         $information  = $this->consultation_service->getConsultation($consultation_id);
-                        $dossier = $information->getDossier();
+                        $dossier      = $information->getDossier();
                         $consultation = $dossier->getConsultation();
 
                         $service_instructeur = null !== $dossier->getIdServiceInstructeur() ? $this->acteur_service->recuperationActeur($dossier->getIdServiceInstructeur()) : null;

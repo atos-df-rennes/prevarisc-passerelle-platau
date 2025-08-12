@@ -67,8 +67,9 @@ final class ImportPieces extends Command
 
         // Si on se trouve ici, c'est qu'on a des consultations à traiter.
         foreach ($consultations as $information) {
-            $dossier = $information->getDossier();
+            $dossier               = $information->getDossier();
             $consultations_dossier = $dossier->getConsultations();
+
             foreach ($consultations_dossier as $consultation) {
                 // On récupère l'identifiant de la consultation
                 $consultation_id = $consultation->getIdConsultation();

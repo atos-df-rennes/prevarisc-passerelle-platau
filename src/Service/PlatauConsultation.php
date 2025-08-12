@@ -5,10 +5,10 @@ namespace App\Service;
 use App\Dto\Information;
 use App\ValueObjects\Auteur;
 use Psr\Http\Message\ResponseInterface;
-use Symfony\Component\PropertyInfo\Extractor\PhpDocExtractor;
-use Symfony\Component\Serializer\Normalizer\ArrayDenormalizer;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\PropertyInfo\Extractor\PhpDocExtractor;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\Serializer\Normalizer\ArrayDenormalizer;
 
 final class PlatauConsultation extends PlatauAbstract
 {
@@ -33,7 +33,7 @@ final class PlatauConsultation extends PlatauAbstract
         $consultations = [];
 
         $normalizers = [new ArrayDenormalizer(), new ObjectNormalizer(null, null, null, new PhpDocExtractor())];
-        $serializer = new Serializer($normalizers);
+        $serializer  = new Serializer($normalizers);
 
         foreach ($paginator->autoPagingIterator() as $information) {
             \assert(\is_array($information));
@@ -43,31 +43,31 @@ final class PlatauConsultation extends PlatauAbstract
         return $consultations;
     }
 
-  /**
-   * Recherche de plusieurs consultations.
-   */
-  public function rechercheConsultationsAsArray(array $params = [], string $order_by = 'DT_LIMITE_DE_REPONSE', string $sort = 'DESC') : array
-  {
-    // On recherche la consultation en fonction des critères de recherche
-    $paginator = $this->pagination('post', 'consultations/recherche', [
-      'json' => [
-        'criteresSurConsultations' => $params,
-      ],
-      'query' => [
-        'colonneTri' => $order_by,
-        'sensTri' => $sort,
-      ],
-    ]);
+    /**
+     * Recherche de plusieurs consultations.
+     */
+    public function rechercheConsultationsAsArray(array $params = [], string $order_by = 'DT_LIMITE_DE_REPONSE', string $sort = 'DESC') : array
+    {
+        // On recherche la consultation en fonction des critères de recherche
+        $paginator = $this->pagination('post', 'consultations/recherche', [
+            'json' => [
+                'criteresSurConsultations' => $params,
+            ],
+            'query' => [
+                'colonneTri' => $order_by,
+                'sensTri' => $sort,
+            ],
+        ]);
 
-    $consultations = [];
+        $consultations = [];
 
-    foreach ($paginator->autoPagingIterator() as $information) {
-      \assert(\is_array($information));
-      $consultations[] = $information;
+        foreach ($paginator->autoPagingIterator() as $information) {
+            \assert(\is_array($information));
+            $consultations[] = $information;
+        }
+
+        return $consultations;
     }
-
-    return $consultations;
-  }
 
     /**
      * Recherche de plusieurs consultations avec pour critères des éléments du dossier.
@@ -107,9 +107,9 @@ final class PlatauConsultation extends PlatauAbstract
     {
         // On recherche la consultation demandée
         if ($as_array) {
-          $consultations = $this->rechercheConsultationsAsArray(['idConsultation' => $consultation_id] + $params);
+            $consultations = $this->rechercheConsultationsAsArray(['idConsultation' => $consultation_id] + $params);
         } else {
-          $consultations = $this->rechercheConsultations(['idConsultation' => $consultation_id] + $params);
+            $consultations = $this->rechercheConsultations(['idConsultation' => $consultation_id] + $params);
         }
 
         // Si la liste des consultations est vide, alors on lève une erreur (la recherche n'a rien donné)
@@ -121,11 +121,11 @@ final class PlatauConsultation extends PlatauAbstract
         $consultation = array_shift($consultations);
 
         if ($as_array) {
-          \assert(\is_array($consultation));
-          \assert(1 === \count($consultation['dossier']['consultations']));
+            \assert(\is_array($consultation));
+            \assert(1 === \count($consultation['dossier']['consultations']));
         } else {
-          \assert($consultation instanceof Information);
-          \assert(1 === \count($consultation->getDossier()->getConsultations()));
+            \assert($consultation instanceof Information);
+            \assert(1 === \count($consultation->getDossier()->getConsultations()));
         }
 
         return $consultation;
@@ -156,7 +156,7 @@ final class PlatauConsultation extends PlatauAbstract
         // @fixme: Ne pas rechercher de nouveau les informations sur l'API mais envoyer les informations à la place de l'identifiant ?
         /** @var Information $information */
         $information  = $this->getConsultation($consultation_id);
-        $dossier = $information->getDossier();
+        $dossier      = $information->getDossier();
         $consultation = $dossier->getConsultation();
 
         // Définition de la DLR à envoyer
@@ -221,7 +221,7 @@ final class PlatauConsultation extends PlatauAbstract
         // @fixme: Ne pas rechercher de nouveau les informations sur l'API mais envoyer les informations à la place de l'identifiant ?
         /** @var Information $information */
         $information = $this->getConsultation($consultation_id, ['nomEtatConsultation' => [3, 6]]);
-        $dossier = $information->getDossier();
+        $dossier     = $information->getDossier();
 
         // Création du texte formulant l'avis
         /** @var array<array-key, string> $libelles */
