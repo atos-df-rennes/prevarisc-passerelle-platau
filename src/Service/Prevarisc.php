@@ -310,11 +310,13 @@ class Prevarisc
             $dossier_id = $this->db->lastInsertId();
 
             // Insertion des numéros de document d'urbanisme (PC, AT ...)
-            if (null !== $dossier->getNoLocal()) {
-                $num_doc_urba = $dossier->getNoLocal();
+            $noLocal = $dossier->getNoLocal();
+            if (null !== $noLocal) {
+                $num_doc_urba = $noLocal;
 
-                if (null !== $dossier->getSuffixeNoLocal()) {
-                    $num_doc_urba .= $dossier->getSuffixeNoLocal();
+                $suffixeNoLocal = $dossier->getSuffixeNoLocal();
+                if (null !== $suffixeNoLocal) {
+                    $num_doc_urba .= $suffixeNoLocal;
                 }
 
                 $query_builder_docurba = $this->db->createQueryBuilder()->insert('dossierdocurba');
@@ -338,7 +340,7 @@ class Prevarisc
 
             $query_builder_consultation = $this->db->createQueryBuilder()->insert('platauconsultation');
             $query_builder_consultation->values([
-                'ID_PLATAU' => $query_builder_consultation->createPositionalParameter($consultation['idConsultation']),
+                'ID_PLATAU' => $query_builder_consultation->createPositionalParameter($consultation->getIdConsultation()),
                 'DATE_REPONSE_ATTENDUE' => $query_builder_consultation->createPositionalParameter($date_reponse->date()),
             ])->executeStatement();
 

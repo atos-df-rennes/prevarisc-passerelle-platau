@@ -5,7 +5,7 @@ namespace App\Dto;
 class Consultation {
   private string $idConsultation;
 
-  private int $delaiDeReponse;
+  private ?int $delaiDeReponse;
 
   private NomTypeDelai $nomTypeDelai;
 
@@ -25,7 +25,7 @@ class Consultation {
 
   public function __construct(
     string $idConsultation,
-    int $delaiDeReponse,
+    ?int $delaiDeReponse,
     NomTypeDelai $nomTypeDelai,
     int $noVersion,
     NomEtatConsultation $nomEtatConsultation,
@@ -51,7 +51,7 @@ class Consultation {
     return $this->idConsultation;
   }
 
-  public function getDelaiDeReponse(): int {
+  public function getDelaiDeReponse(): ?int {
     return $this->delaiDeReponse;
   }
 

@@ -132,18 +132,6 @@ final class PlatauConsultation extends PlatauAbstract
     }
 
     /**
-     * Récupération des informations d'une consultation sans les informations du dossier.
-     * Le paramètre $information doit être le retour d'un appel à la fonction getConsultation().
-     */
-    public function getSingleConsultation(array $information) : array
-    {
-        /** @var array<int, array> $consultations */
-        $consultations = $information['dossier']['consultations'];
-
-        return $consultations[0];
-    }
-
-    /**
      * Récupération des pièces d'un dossier.
      */
     public function getPieces(string $dossier_id) : array
@@ -166,6 +154,7 @@ final class PlatauConsultation extends PlatauAbstract
     {
         // On recherche dans Plat'AU les détails de la consultation liée à la PEC
         // @fixme: Ne pas rechercher de nouveau les informations sur l'API mais envoyer les informations à la place de l'identifiant ?
+        /** @var Information $information */
         $information  = $this->getConsultation($consultation_id);
         $dossier = $information->getDossier();
         $consultation = $dossier->getConsultation();
@@ -180,7 +169,7 @@ final class PlatauConsultation extends PlatauAbstract
                     break;
                 case 'Mois': $date_limite_reponse_interval              = new \DateInterval("P{$delai_reponse}M");
                     break;
-                default: throw new \Exception('Type de la date de réponse attendue inconnu : '.$type_date_limite_reponse);
+                default: throw new \Exception('Type de la date de réponse attendue inconnu : '.($type_date_limite_reponse ?? 'vide'));
             }
         }
 
@@ -230,6 +219,7 @@ final class PlatauConsultation extends PlatauAbstract
     {
         // On recherche dans Plat'AU les détails de la consultation liée (dans les traitées et versées)
         // @fixme: Ne pas rechercher de nouveau les informations sur l'API mais envoyer les informations à la place de l'identifiant ?
+        /** @var Information $information */
         $information = $this->getConsultation($consultation_id, ['nomEtatConsultation' => [3, 6]]);
         $dossier = $information->getDossier();
 

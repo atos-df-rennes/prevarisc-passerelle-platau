@@ -3,13 +3,13 @@
 namespace App\Dto;
 
 class Dossier {
-  private string $idDossier;
+  private ?string $idDossier;
 
   private string $idServiceInstructeur;
 
   private int $noVersion;
 
-  private ?string $txDescriptifGlobal;
+  private string $txDescriptifGlobal;
 
   private ?string $noLocal;
 
@@ -20,11 +20,12 @@ class Dossier {
   /** @var Consultation[] */
   private array $consultations;
 
+  /** @param Consultation[] $consultations */
   public function __construct(
-    string $idDossier,
+    ?string $idDossier,
     string $idServiceInstructeur,
     int $noVersion,
-    ?string $txDescriptifGlobal,
+    string $txDescriptifGlobal,
     ?string $noLocal,
     ?string $suffixeNoLocal,
     NomTypeDossier $nomTypeDossier,
@@ -40,7 +41,7 @@ class Dossier {
     $this->consultations = $consultations;
   }
 
-  public function getIdDossier(): string {
+  public function getIdDossier(): ?string {
     return $this->idDossier;
   }
 
@@ -52,7 +53,7 @@ class Dossier {
     return $this->noVersion;
   }
 
-  public function getTxDescriptifGlobal(): ?string {
+  public function getTxDescriptifGlobal(): string {
     return $this->txDescriptifGlobal;
   }
 
@@ -77,6 +78,12 @@ class Dossier {
 
   public function getConsultation(): Consultation
   {
-    return $this->consultations[array_key_first($this->consultations)];
+    $first_key = array_key_first($this->consultations);
+
+    if (null === $first_key) {
+      throw new \Exception('Aucune consultation pour ce dossier.');
+    }
+
+    return $this->consultations[$first_key];
   }
 }
