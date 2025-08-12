@@ -222,8 +222,11 @@ class Prevarisc
      * @throws \Exception
      */
     // @fixme Retirer le paramètre $notification une fois la commande `import` supprimée
-    public function importConsultation(array $consultation, ?array $demandeur = null, ?array $service_instructeur = null, ?array $notification = null) : void
+    public function importConsultation(array $information, ?array $demandeur = null, ?array $service_instructeur = null, ?array $notification = null) : void
     {
+        /** @see PlatauConsultation::getSingleConsultation() */
+        $consultation = $information['dossier']['consultations'][0];
+
         // On démarre une transaction SQL. Si jamais les choses se passent mal, on pourra revenir en arrière.
         $this->db->beginTransaction();
 
@@ -268,7 +271,7 @@ class Prevarisc
             // Objet du dossier (c'est à dire l'objet de la consultation ainsi que le descriptif global du dossier associé)
             $query_builder->setValue('OBJET_DOSSIER', $query_builder->createPositionalParameter(vsprintf('Objet de la consultation : %s ; %s', [
                 $consultation['txObjetDeLaConsultation'] ?? 'SANS OBJET',
-                $consultation['dossier']['txDescriptifGlobal'],
+                $information['dossier']['txDescriptifGlobal'],
             ])));
 
             // On note dans les observations du dossier des données importantes de Plat'AU (dates, type de consulation ...)
@@ -278,7 +281,7 @@ class Prevarisc
                 $consultation['dtEmission'] ?? 'DATE EMISSION INCONNUE',
                 $consultation['delaiDeReponse'] ?? 'DELAI INCONNU',
                 $consultation['nomTypeDelai']['libNom'] ?? '',
-                $consultation['dossier']['idDossier'] ?? 'ID INCONNU',
+                $information['dossier']['idDossier'] ?? 'ID INCONNU',
             ])));
 
             // Les champs suivant doivent être mis à NULL manuellement, car aucune valeur par défaut n'est prévue dans la base de données
@@ -308,11 +311,11 @@ class Prevarisc
             $dossier_id = $this->db->lastInsertId();
 
             // Insertion des numéros de document d'urbanisme (PC, AT ...)
-            if (null !== $consultation['dossier']['noLocal']) {
-                $num_doc_urba = (string) $consultation['dossier']['noLocal'];
+            if (null !== $information['dossier']['noLocal']) {
+                $num_doc_urba = (string) $information['dossier']['noLocal'];
 
-                if (null !== $consultation['dossier']['suffixeNoLocal']) {
-                    $num_doc_urba .= (string) $consultation['dossier']['suffixeNoLocal'];
+                if (null !== $information['dossier']['suffixeNoLocal']) {
+                    $num_doc_urba .= (string) $information['dossier']['suffixeNoLocal'];
                 }
 
                 $query_builder_docurba = $this->db->createQueryBuilder()->insert('dossierdocurba');
@@ -324,7 +327,7 @@ class Prevarisc
 
             // On lie la nature du dossier Plat'AU avec celui de Prevarisc (avec l'aide d'une table de correspondance)
             $this->db->createQueryBuilder()->insert('dossiernature')->values([
-                'ID_NATURE' => $this->correspondanceNaturePrevarisc($consultation['dossier']['nomTypeDossier']['idNom']),
+                'ID_NATURE' => $this->correspondanceNaturePrevarisc($information['dossier']['nomTypeDossier']['idNom']),
                 'ID_DOSSIER' => $dossier_id,
             ])->executeStatement();
 

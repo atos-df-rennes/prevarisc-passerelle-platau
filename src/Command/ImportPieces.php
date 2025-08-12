@@ -67,42 +67,45 @@ final class ImportPieces extends Command
 
         // Si on se trouve ici, c'est qu'on a des consultations à traiter.
         foreach ($consultations as $consultation) {
+          foreach ($consultation['dossier']['consultations'] as $c) {
             // On récupère l'identifiant de la consultation
-            $consultation_id = $consultation['idConsultation'];
+            $consultation_id = $c['idConsultation'];
 
             // Avec la consultation Platau, on va tenter de récupérer l'ensemble des pièces du dossier concerné
             try {
-                // Vérification de l'existence de la consultation dans Prevarisc ? Si non, on ignore complètement la consultation
-                if (!$this->prevarisc_service->consultationExiste($consultation_id)) {
-                    $output->writeln("La consultation $consultation_id n'existe pas dans Prevarisc. Importez là d'abord avec la commande <import>.");
-                    continue;
-                }
+              // Vérification de l'existence de la consultation dans Prevarisc ? Si non, on ignore complètement la consultation
+              if (!$this->prevarisc_service->consultationExiste($consultation_id)) {
+                $output->writeln("La consultation $consultation_id n'existe pas dans Prevarisc. Importez là d'abord avec la commande <import>.");
+                continue;
+              }
 
-                $dossier_id = $consultation['dossier']['idDossier'];
+              $dossier_id = $consultation['dossier']['idDossier'];
 
-                // Récupération du dossier Prevarisc lié à cette consultation
-                $dossier_prevarisc = $this->prevarisc_service->recupererDossierDeConsultation($consultation_id);
+              // Récupération du dossier Prevarisc lié à cette consultation
+              $dossier_prevarisc = $this->prevarisc_service->recupererDossierDeConsultation($consultation_id);
 
-                // Récupération des pièces jointes liées à la consultation
-                foreach ($this->consultation_service->getPieces($dossier_id) as $piece) {
-                    // Téléchargement de la pièce
-                    $http_response = $this->piece_service->download($piece);
+              // Récupération des pièces jointes liées à la consultation
+              foreach ($this->consultation_service->getPieces($dossier_id) as $piece) {
+                // Téléchargement de la pièce
+                $http_response = $this->piece_service->download($piece);
 
-                    // On essaie de trouver l'extension de la pièce jointe
-                    $extension = $this->piece_service->getExtensionFromHttpResponse($http_response) ?? '???';
+                // On essaie de trouver l'extension de la pièce jointe
+                $extension = $this->piece_service->getExtensionFromHttpResponse($http_response) ?? '???';
 
-                    // Récupération du contenu de la pièce jointe
-                    $file_contents = $http_response->getBody()->getContents();
+                // Récupération du contenu de la pièce jointe
+                $file_contents = $http_response->getBody()->getContents();
 
-                    // Insertion dans Prevarisc
-                    $this->prevarisc_service->creerPieceJointe($dossier_prevarisc['ID_DOSSIER'], $piece, $extension, $file_contents);
-                }
+                // Insertion dans Prevarisc
+                $this->prevarisc_service->creerPieceJointe($dossier_prevarisc['ID_DOSSIER'], $piece, $extension, $file_contents);
+              }
 
-                // La consultation est importée !
-                $output->writeln("Consultation $consultation_id récupérée et stockée dans Prevarisc !");
-            } catch (\Exception $e) {
-                $output->writeln("Problème lors du traitement de la consultation : {$e->getMessage()}");
+              // La consultation est importée !
+              $output->writeln("Consultation $consultation_id récupérée et stockée dans Prevarisc !");
             }
+            catch (\Exception $e) {
+              $output->writeln("Problème lors du traitement de la consultation : {$e->getMessage()}");
+            }
+          }
         }
 
         return Command::SUCCESS;

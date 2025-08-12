@@ -34,7 +34,6 @@ final class PlatauConsultation extends PlatauAbstract
     }
 
     /**
-     * @todo: Sans doute à remplacer de la même manière que rechercheConsultations.
      * Recherche de plusieurs consultations avec pour critères des éléments du dossier.
      */
     public function rechercheConsultationsAvecCriteresDossier(array $params = [], string $order_by = 'DT_LIMITE_DE_REPONSE', string $sort = 'DESC') : array
@@ -64,7 +63,7 @@ final class PlatauConsultation extends PlatauAbstract
     }
 
     /**
-     * Récupération d'une consultation.
+     * Récupération des informations d'une consultation avec les informations du dossier.
      */
     public function getConsultation(string $consultation_id, array $params = []) : array
     {
@@ -83,6 +82,15 @@ final class PlatauConsultation extends PlatauAbstract
         \assert(\count($consultation['dossier']['consultations']) === 1);
 
         return $consultation;
+    }
+
+    /**
+     * Récupération des informations d'une consultation sans les informations du dossier.
+     * Le paramètre $information doit être le retour d'un appel à la fonction getConsultation().
+     */
+    public function getSingleConsultation(array $information): array
+    {
+      return $information['dossier']['consultations'][0];
     }
 
     /**
