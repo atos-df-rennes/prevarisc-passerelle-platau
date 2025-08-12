@@ -52,6 +52,7 @@ final class ExportAvis extends Command
         // Sinon on récupère dans Plat'AU l'ensemble des consultations en attente d'avis (c'est à dire avec un état "Prise en compte - en cours de traitement") et celle déjà traitées
         if ($input->getOption('consultation-id')) {
             $output->writeln('Récupération de la consultation concernée ...');
+            /** @var \App\Dto\Information[] $consultations_en_attente_davis */
             $consultations_en_attente_davis = [$this->consultation_service->getConsultation($input->getOption('consultation-id'))];
         } else {
             $output->writeln('Recherche de toutes les consultations en attente d\'avis ou traitées (à renvoyer) ...');
@@ -63,6 +64,7 @@ final class ExportAvis extends Command
             );
 
             $consultations_en_attente_davis = $this->consultation_service->rechercheConsultations(['nomEtatConsultation' => [3]]);
+            /** @var \App\Dto\Information[] $consultations_en_attente_davis */
             $consultations_en_attente_davis = array_merge($consultations_a_renvoyer, $consultations_en_attente_davis);
         }
 
@@ -74,10 +76,11 @@ final class ExportAvis extends Command
         }
 
         // Pour chaque consultation trouvée, on va chercher dans Prevarisc si un avis existe.
-        foreach ($consultations_en_attente_davis as $consultations) {
-            foreach ($consultations['dossier']['consultations'] as $consultation) {
+        foreach ($consultations_en_attente_davis as $information) {
+          $consultations = $information->getDossier()->getConsultations();
+            foreach ($consultations as $consultation) {
                 // Récupération de l'ID de la consultation
-                $consultation_id = $consultation['idConsultation'];
+                $consultation_id = $consultation->getIdConsultation();
 
                 // On essaie d'envoyer l'avis sur Plat'AU
                 try {
@@ -95,7 +98,7 @@ final class ExportAvis extends Command
                     $auteur  = $this->prevarisc_service->recupererDossierAuteur($dossier['ID_DOSSIER']);
 
                     // Nom état consultation 6 = Consultation traitée
-                    if (6 === $consultation['nomEtatConsultation']['idNom'] && !\in_array($dossier['STATUT_AVIS'], [
+                    if (6 === $consultation->getNomEtatConsultation()->getIdNom() && !\in_array($dossier['STATUT_AVIS'], [
                         'to_export',
                         'in_error',
                     ])) {

@@ -59,10 +59,12 @@ final class ImportConsultations extends Command
         }
 
         // Si on se trouve ici, c'est qu'on a des consultations à traiter.
-        foreach ($consultations as $consultation) {
-            foreach ($consultation['dossier']['consultations'] as $c) {
+        foreach ($consultations as $information) {
+            $dossier = $information->getDossier();
+            $consultations_dossier = $dossier->getConsultations();
+            foreach ($consultations_dossier as $consultation) {
                 // On récupère l'identifant de la consultation
-                $consultation_id = $c['idConsultation'];
+                $consultation_id = $consultation->getIdConsultation();
 
                 // Avec la consultation Platau, on va tenter de :
                 // - Récupérer les données de la consultation
@@ -77,11 +79,11 @@ final class ImportConsultations extends Command
                     }
 
                     // On récupère les acteurs liés à la consultation
-                    $service_instructeur = null !== $consultation['dossier']['idServiceInstructeur'] ? $this->acteur_service->recuperationActeur($consultation['dossier']['idServiceInstructeur']) : null;
-                    $demandeur           = null !== $c['idServiceConsultant'] ? $this->acteur_service->recuperationActeur($c['idServiceConsultant']) : null;
+                    $service_instructeur = null !== $dossier->getIdServiceInstructeur() ? $this->acteur_service->recuperationActeur($dossier->getIdServiceInstructeur()) : null;
+                    $demandeur           = null !== $consultation->getIdServiceConsultant() ? $this->acteur_service->recuperationActeur($consultation->getIdServiceConsultant()) : null;
 
                     // Versement de la consultation dans Prevarisc et on passe l'état de sa PEC à 'awaiting'
-                    $this->prevarisc_service->importConsultation($consultation, $demandeur, $service_instructeur);
+                    $this->prevarisc_service->importConsultation($information, $demandeur, $service_instructeur);
                     $this->prevarisc_service->setMetadonneesEnvoi($consultation_id, 'PEC', 'awaiting')
                       ->executeStatement();
 

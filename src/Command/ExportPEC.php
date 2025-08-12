@@ -49,9 +49,11 @@ final class ExportPEC extends Command
         // Sinon on récupère dans Plat'AU l'ensemble des consultations en attente de PEC (c'est à dire avec un état "Non Traitée")
         if ($input->getOption('consultation-id')) {
             $output->writeln('Récupération de la consultation concernée ...');
+            /** @var \App\Dto\Information[] $consultations_en_attente_de_pec */
             $consultations_en_attente_de_pec = [$this->consultation_service->getConsultation($input->getOption('consultation-id'))];
         } else {
             $output->writeln('Recherche de consultations en attente de prise en compte métier et celle refusées ...');
+            // @todo: Faire la même chose que pour l'export avis avec le tableau d'avis à renvoyer pour alléger la requête.
             $consultations_en_attente_de_pec = $this->consultation_service->rechercheConsultations(['nomEtatConsultation' => [1, 2]]);
         }
 
@@ -62,10 +64,11 @@ final class ExportPEC extends Command
         }
 
         // Pour chaque consultation trouvée, on va chercher dans Prevarisc si la complétion (ou non) du dossier a été indiquée.
-        foreach ($consultations_en_attente_de_pec as $consultations) {
-            foreach ($consultations['dossier']['consultations'] as $consultation) {
+        foreach ($consultations_en_attente_de_pec as $information) {
+          $consultations = $information->getDossier()->getConsultations();
+            foreach ($consultations as $consultation) {
                 // Récupération de l'ID de la consultation
-                $consultation_id = $consultation['idConsultation'];
+                $consultation_id = $consultation->getIdConsultation();
 
                 // On essaie d'envoyer la PEC
                 try {
@@ -83,7 +86,7 @@ final class ExportPEC extends Command
                     $auteur  = $this->prevarisc_service->recupererDossierAuteur($dossier['ID_DOSSIER']);
 
                     // Nom état consultation 2 = Consultation refusée
-                    if (2 === $consultation['nomEtatConsultation']['idNom'] && !\in_array($dossier['STATUT_PEC'], [
+                    if (2 === $consultation->getNomEtatConsultation()->getIdNom() && !\in_array($dossier['STATUT_PEC'], [
                         'to_export',
                         'in_error',
                     ])) {

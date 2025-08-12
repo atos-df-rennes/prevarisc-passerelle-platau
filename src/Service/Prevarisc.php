@@ -2,7 +2,7 @@
 
 namespace App\Service;
 
-use Exception;
+use App\Dto\Information;
 use League\Flysystem;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Schema\Column;
@@ -222,14 +222,10 @@ class Prevarisc
      * @throws \Exception
      */
     // @fixme Retirer le paramètre $notification une fois la commande `import` supprimée
-    public function importConsultation(array $information, ?array $demandeur = null, ?array $service_instructeur = null, ?array $notification = null) : void
+    public function importConsultation(Information $information, ?array $demandeur = null, ?array $service_instructeur = null, ?array $notification = null) : void
     {
-        /**
-         * @var array $consultation
-         *
-         * @see PlatauConsultation::getSingleConsultation()
-         */
-        $consultation = $information['dossier']['consultations'][0];
+        $dossier = $information->getDossier();
+        $consultation = $dossier->getConsultation();
 
         // On démarre une transaction SQL. Si jamais les choses se passent mal, on pourra revenir en arrière.
         $this->db->beginTransaction();
@@ -261,12 +257,11 @@ class Prevarisc
             // On place des dates importantes dans Prevarisc
             $query_builder->setValue('DATESDIS_DOSSIER', $query_builder->createPositionalParameter((new \DateTime())->format('Y-m-d H:i:s')));
 
-            /** @var string $date_insertion */
-            $date_insertion = $consultation['dtEmission'] ?? $consultation['dtConsultation'] ?? 'now';
+            $date_insertion = $consultation->getDtEmission() ?? $consultation->getDtConsultation() ?? 'now';
             $query_builder->setValue('DATEINSERT_DOSSIER', $query_builder->createPositionalParameter((new \DateTime($date_insertion))->format('Y-m-d H:i:s')));
 
             // On associe la consultation Plat'AU avec le dossier créé
-            $query_builder->setValue('ID_PLATAU', $query_builder->createPositionalParameter($consultation['idConsultation']));
+            $query_builder->setValue('ID_PLATAU', $query_builder->createPositionalParameter($consultation->getIdConsultation()));
 
             if (null !== $notification) {
                 $query_builder->setValue('DATE_NOTIFICATION', $query_builder->createPositionalParameter((new \DateTime())->format('Y-m-d H:i:s')));
@@ -274,18 +269,18 @@ class Prevarisc
 
             // Objet du dossier (c'est à dire l'objet de la consultation ainsi que le descriptif global du dossier associé)
             $query_builder->setValue('OBJET_DOSSIER', $query_builder->createPositionalParameter(vsprintf('Objet de la consultation : %s ; %s', [
-                $consultation['txObjetDeLaConsultation'] ?? 'SANS OBJET',
-                $information['dossier']['txDescriptifGlobal'],
+                $consultation->getTxObjetDeLaConsultation() ?? 'SANS OBJET',
+                $dossier->getTxDescriptifGlobal(),
             ])));
 
             // On note dans les observations du dossier des données importantes de Plat'AU (dates, type de consulation ...)
             $query_builder->setValue('OBSERVATION_DOSSIER', $query_builder->createPositionalParameter(vsprintf('Consultation PLATAU : Consultation de type %s décidée le %s et transmise au service consultable le %s. Une réponse est attendue dans %s %s. (ID PLATAU DOSSIER : %s)', [
-                $consultation['nomTypeConsultation']['libNom'] ?? 'INCONNUE',
-                $consultation['dtConsultation'] ?? 'DATE CONSULTATION INCONNUE',
-                $consultation['dtEmission'] ?? 'DATE EMISSION INCONNUE',
-                $consultation['delaiDeReponse'] ?? 'DELAI INCONNU',
-                $consultation['nomTypeDelai']['libNom'] ?? '',
-                $information['dossier']['idDossier'] ?? 'ID INCONNU',
+                $consultation->getNomTypeConsultation()->getLibNom() ?? 'INCONNUE',
+                $consultation->getDtConsultation() ?? 'DATE CONSULTATION INCONNUE',
+                $consultation->getDtEmission() ?? 'DATE EMISSION INCONNUE',
+                $consultation->getDelaiDeReponse() ?? 'DELAI INCONNU',
+                $consultation->getNomTypeDelai()->getLibNom() ?? '',
+                $dossier->getIdDossier() ?? 'ID INCONNU',
             ])));
 
             // Les champs suivant doivent être mis à NULL manuellement, car aucune valeur par défaut n'est prévue dans la base de données
@@ -315,11 +310,11 @@ class Prevarisc
             $dossier_id = $this->db->lastInsertId();
 
             // Insertion des numéros de document d'urbanisme (PC, AT ...)
-            if (null !== $information['dossier']['noLocal']) {
-                $num_doc_urba = (string) $information['dossier']['noLocal'];
+            if (null !== $dossier->getNoLocal()) {
+                $num_doc_urba = $dossier->getNoLocal();
 
-                if (null !== $information['dossier']['suffixeNoLocal']) {
-                    $num_doc_urba .= (string) $information['dossier']['suffixeNoLocal'];
+                if (null !== $dossier->getSuffixeNoLocal()) {
+                    $num_doc_urba .= $dossier->getSuffixeNoLocal();
                 }
 
                 $query_builder_docurba = $this->db->createQueryBuilder()->insert('dossierdocurba');
@@ -331,14 +326,14 @@ class Prevarisc
 
             // On lie la nature du dossier Plat'AU avec celui de Prevarisc (avec l'aide d'une table de correspondance)
             $this->db->createQueryBuilder()->insert('dossiernature')->values([
-                'ID_NATURE' => $this->correspondanceNaturePrevarisc($information['dossier']['nomTypeDossier']['idNom']),
+                'ID_NATURE' => $this->correspondanceNaturePrevarisc($dossier->getNomTypeDossier()->getIdNom()),
                 'ID_DOSSIER' => $dossier_id,
             ])->executeStatement();
 
             $date_reponse = new DateReponse(
-                $consultation['dtEmission'],
-                $consultation['delaiDeReponse'],
-                $consultation['nomTypeDelai']['libNom']
+                $consultation->getDtEmission(),
+                $consultation->getDelaiDeReponse(),
+                $consultation->getNomTypeDelai()->getLibNom(),
             );
 
             $query_builder_consultation = $this->db->createQueryBuilder()->insert('platauconsultation');

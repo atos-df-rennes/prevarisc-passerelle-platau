@@ -66,10 +66,12 @@ final class ImportPieces extends Command
         }
 
         // Si on se trouve ici, c'est qu'on a des consultations à traiter.
-        foreach ($consultations as $consultation) {
-            foreach ($consultation['dossier']['consultations'] as $c) {
+        foreach ($consultations as $information) {
+            $dossier = $information->getDossier();
+            $consultations_dossier = $dossier->getConsultations();
+            foreach ($consultations_dossier as $consultation) {
                 // On récupère l'identifiant de la consultation
-                $consultation_id = $c['idConsultation'];
+                $consultation_id = $consultation->getIdConsultation();
 
                 // Avec la consultation Platau, on va tenter de récupérer l'ensemble des pièces du dossier concerné
                 try {
@@ -79,7 +81,7 @@ final class ImportPieces extends Command
                         continue;
                     }
 
-                    $dossier_id = $consultation['dossier']['idDossier'];
+                    $dossier_id = $dossier->getIdDossier();
 
                     // Récupération du dossier Prevarisc lié à cette consultation
                     $dossier_prevarisc = $this->prevarisc_service->recupererDossierDeConsultation($consultation_id);
