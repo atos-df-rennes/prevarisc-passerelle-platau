@@ -60,38 +60,37 @@ final class ImportConsultations extends Command
 
         // Si on se trouve ici, c'est qu'on a des consultations à traiter.
         foreach ($consultations as $consultation) {
-          foreach ($consultation['dossier']['consultations'] as $c) {
-            // On récupère l'identifant de la consultation
-            $consultation_id = $c['idConsultation'];
+            foreach ($consultation['dossier']['consultations'] as $c) {
+                // On récupère l'identifant de la consultation
+                $consultation_id = $c['idConsultation'];
 
-            // Avec la consultation Platau, on va tenter de :
-            // - Récupérer les données de la consultation
-            // - Extraire les informations sur le projet, l'établissement concerné, le dossier ...
-            // - Télécharger les pièces consultatives
-            // - Injecter le tout dans Prevarisc
-            try {
-              // La consultation existe t'elle déjà dans Prevarisc ? Si oui, on ignore complètement la consultation
-              if ($this->prevarisc_service->consultationExiste($consultation_id)) {
-                $output->writeln("Consultation $consultation_id déjà existante dans Prevarisc");
-                continue;
-              }
+                // Avec la consultation Platau, on va tenter de :
+                // - Récupérer les données de la consultation
+                // - Extraire les informations sur le projet, l'établissement concerné, le dossier ...
+                // - Télécharger les pièces consultatives
+                // - Injecter le tout dans Prevarisc
+                try {
+                    // La consultation existe t'elle déjà dans Prevarisc ? Si oui, on ignore complètement la consultation
+                    if ($this->prevarisc_service->consultationExiste($consultation_id)) {
+                        $output->writeln("Consultation $consultation_id déjà existante dans Prevarisc");
+                        continue;
+                    }
 
-              // On récupère les acteurs liés à la consultation
-              $service_instructeur = null !== $consultation['dossier']['idServiceInstructeur'] ? $this->acteur_service->recuperationActeur($consultation['dossier']['idServiceInstructeur']) : null;
-              $demandeur = null !== $c['idServiceConsultant'] ? $this->acteur_service->recuperationActeur($c['idServiceConsultant']) : null;
+                    // On récupère les acteurs liés à la consultation
+                    $service_instructeur = null !== $consultation['dossier']['idServiceInstructeur'] ? $this->acteur_service->recuperationActeur($consultation['dossier']['idServiceInstructeur']) : null;
+                    $demandeur           = null !== $c['idServiceConsultant'] ? $this->acteur_service->recuperationActeur($c['idServiceConsultant']) : null;
 
-              // Versement de la consultation dans Prevarisc et on passe l'état de sa PEC à 'awaiting'
-              $this->prevarisc_service->importConsultation($consultation, $demandeur, $service_instructeur);
-              $this->prevarisc_service->setMetadonneesEnvoi($consultation_id, 'PEC', 'awaiting')
-                ->executeStatement();
+                    // Versement de la consultation dans Prevarisc et on passe l'état de sa PEC à 'awaiting'
+                    $this->prevarisc_service->importConsultation($consultation, $demandeur, $service_instructeur);
+                    $this->prevarisc_service->setMetadonneesEnvoi($consultation_id, 'PEC', 'awaiting')
+                      ->executeStatement();
 
-              // La consultation est importée !
-              $output->writeln("Consultation $consultation_id récupérée et stockée dans Prevarisc !");
+                    // La consultation est importée !
+                    $output->writeln("Consultation $consultation_id récupérée et stockée dans Prevarisc !");
+                } catch (\Exception $e) {
+                    $output->writeln("Problème lors du traitement de la consultation : {$e->getMessage()}");
+                }
             }
-            catch (\Exception $e) {
-              $output->writeln("Problème lors du traitement de la consultation : {$e->getMessage()}");
-            }
-          }
         }
 
         return Command::SUCCESS;

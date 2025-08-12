@@ -226,6 +226,7 @@ class Prevarisc
     {
         /**
          * @var array $consultation
+         *
          * @see PlatauConsultation::getSingleConsultation()
          */
         $consultation = $information['dossier']['consultations'][0];

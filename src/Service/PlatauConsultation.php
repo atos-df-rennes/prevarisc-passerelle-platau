@@ -79,7 +79,7 @@ final class PlatauConsultation extends PlatauAbstract
         $consultation = array_shift($consultations);
 
         \assert(\is_array($consultation));
-        \assert(\count($consultation['dossier']['consultations']) === 1);
+        \assert(1 === \count($consultation['dossier']['consultations']));
 
         return $consultation;
     }
@@ -88,12 +88,12 @@ final class PlatauConsultation extends PlatauAbstract
      * Récupération des informations d'une consultation sans les informations du dossier.
      * Le paramètre $information doit être le retour d'un appel à la fonction getConsultation().
      */
-    public function getSingleConsultation(array $information): array
+    public function getSingleConsultation(array $information) : array
     {
-      /** @var array<int, array> $consultations */
-      $consultations = $information['dossier']['consultations'];
+        /** @var array<int, array> $consultations */
+        $consultations = $information['dossier']['consultations'];
 
-      return $consultations[0];
+        return $consultations[0];
     }
 
     /**
@@ -118,7 +118,7 @@ final class PlatauConsultation extends PlatauAbstract
     public function envoiPEC(string $consultation_id, bool $est_positive = true, ?\DateInterval $date_limite_reponse_interval = null, ?string $observations = null, array $documents = [], ?\DateTime $date_envoi = null, ?Auteur $auteur = null) : ResponseInterface
     {
         // On recherche dans Plat'AU les détails de la consultation liée à la PEC
-        $information = $this->getConsultation($consultation_id);
+        $information  = $this->getConsultation($consultation_id);
         $consultation = $this->getSingleConsultation($information);
 
         // Définition de la DLR à envoyer
