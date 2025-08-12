@@ -224,7 +224,10 @@ class Prevarisc
     // @fixme Retirer le paramètre $notification une fois la commande `import` supprimée
     public function importConsultation(array $information, ?array $demandeur = null, ?array $service_instructeur = null, ?array $notification = null) : void
     {
-        /** @see PlatauConsultation::getSingleConsultation() */
+        /**
+         * @var array $consultation
+         * @see PlatauConsultation::getSingleConsultation()
+         */
         $consultation = $information['dossier']['consultations'][0];
 
         // On démarre une transaction SQL. Si jamais les choses se passent mal, on pourra revenir en arrière.

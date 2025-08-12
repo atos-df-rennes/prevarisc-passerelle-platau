@@ -90,7 +90,10 @@ final class PlatauConsultation extends PlatauAbstract
      */
     public function getSingleConsultation(array $information): array
     {
-      return $information['dossier']['consultations'][0];
+      /** @var array<int, array> $consultations */
+      $consultations = $information['dossier']['consultations'];
+
+      return $consultations[0];
     }
 
     /**
@@ -116,7 +119,7 @@ final class PlatauConsultation extends PlatauAbstract
     {
         // On recherche dans Plat'AU les détails de la consultation liée à la PEC
         $information = $this->getConsultation($consultation_id);
-        $consultation = $information['dossier']['consultations'][0];
+        $consultation = $this->getSingleConsultation($information);
 
         // Définition de la DLR à envoyer
         // Correspond à la date d'instruction donnée dans la consultation si aucune date limite est donnée
