@@ -2,9 +2,9 @@
 
 namespace App\Service;
 
-use App\Dto\Consultation;
 use League\Flysystem;
 use App\Dto\Information;
+use App\Dto\Consultation;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Schema\Column;
 use App\ValueObjects\DateReponse;
