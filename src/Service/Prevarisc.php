@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Dto\Consultation;
 use League\Flysystem;
 use App\Dto\Information;
 use Doctrine\DBAL\Connection;
@@ -222,10 +223,9 @@ class Prevarisc
      * @throws \Exception
      */
     // @fixme Retirer le paramètre $notification une fois la commande `import` supprimée
-    public function importConsultation(Information $information, ?array $demandeur = null, ?array $service_instructeur = null, ?array $notification = null) : void
+    public function importConsultation(Information $information, Consultation $consultation, ?array $demandeur = null, ?array $service_instructeur = null, ?array $notification = null) : void
     {
         $dossier      = $information->getDossier();
-        $consultation = $dossier->getConsultation();
 
         // On démarre une transaction SQL. Si jamais les choses se passent mal, on pourra revenir en arrière.
         $this->db->beginTransaction();

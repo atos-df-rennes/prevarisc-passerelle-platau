@@ -153,7 +153,6 @@ final class PlatauConsultation extends PlatauAbstract
     public function envoiPEC(string $consultation_id, bool $est_positive = true, ?\DateInterval $date_limite_reponse_interval = null, ?string $observations = null, array $documents = [], ?\DateTime $date_envoi = null, ?Auteur $auteur = null) : ResponseInterface
     {
         // On recherche dans Plat'AU les détails de la consultation liée à la PEC
-        // @fixme: Ne pas rechercher de nouveau les informations sur l'API mais envoyer les informations à la place de l'identifiant ?
         /** @var Information $information */
         $information  = $this->getConsultation($consultation_id);
         $dossier      = $information->getDossier();
@@ -218,7 +217,6 @@ final class PlatauConsultation extends PlatauAbstract
     public function versementAvis(string $consultation_id, bool $est_favorable = true, array $prescriptions = [], array $documents = [], ?\DateTime $date_envoi = null, ?Auteur $auteur = null) : ResponseInterface
     {
         // On recherche dans Plat'AU les détails de la consultation liée (dans les traitées et versées)
-        // @fixme: Ne pas rechercher de nouveau les informations sur l'API mais envoyer les informations à la place de l'identifiant ?
         /** @var Information $information */
         $information = $this->getConsultation($consultation_id, ['nomEtatConsultation' => [3, 6]]);
         $dossier     = $information->getDossier();
