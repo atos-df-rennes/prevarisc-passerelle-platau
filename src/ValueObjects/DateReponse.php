@@ -6,7 +6,7 @@ class DateReponse
 {
     private ?\DateTime $date = null;
 
-    public function __construct(?string $dateEmission, ?string $delaiDeReponse, ?string $type_date_limite_reponse)
+    public function __construct(?string $dateEmission, ?int $delaiDeReponse, ?string $type_date_limite_reponse)
     {
         if (null !== $dateEmission && null !== $delaiDeReponse) {
             $date_limite_reponse_interval = null;

@@ -84,7 +84,7 @@ final class LectureNotifications extends Command
                             $output->writeln($this->logMessage(\sprintf("Traitement de la notification pour la pièce d'identifiant %s", $idPiece)));
 
                             try {
-                                $pieces             = $this->consultation_service->getPieces($idDossier);
+                                $pieces = $this->consultation_service->getPieces($idDossier);
 
                                 if ([] === $pieces) {
                                     throw new \Exception(\sprintf('Aucune pièce trouvée pour le dossier %s', $idDossier));
@@ -146,11 +146,6 @@ final class LectureNotifications extends Command
 
                     try {
                         $consultation_id = $notification['idElementConcerne'];
-                        $consultation    = $this->consultation_service->rechercheConsultations(['idConsultation' => $consultation_id]);
-
-                        if ([] === $consultation) {
-                            throw new \Exception(\sprintf('La consultation %s est introuvable selon les critères de recherche', $consultation_id));
-                        }
 
                         if ($this->prevarisc_service->consultationExiste($consultation_id)) {
                             $output->writeln($this->logMessage(\sprintf('Consultation %s déjà existante dans Prevarisc', $consultation_id)));
@@ -158,12 +153,15 @@ final class LectureNotifications extends Command
                             break;
                         }
 
-                        $consultation        = $consultation[array_key_first($consultation)];
-                        $service_instructeur = null !== $consultation['dossier']['idServiceInstructeur'] ? $this->acteur_service->recuperationActeur($consultation['dossier']['idServiceInstructeur']) : null;
-                        $demandeur           = null !== $consultation['idServiceConsultant'] ? $this->acteur_service->recuperationActeur($consultation['idServiceConsultant']) : null;
+                        $information  = $this->consultation_service->getConsultation($consultation_id);
+                        $dossier      = $information->getDossier();
+                        $consultation = $dossier->getConsultation();
+
+                        $service_instructeur = null !== $dossier->getIdServiceInstructeur() ? $this->acteur_service->recuperationActeur($dossier->getIdServiceInstructeur()) : null;
+                        $demandeur           = null !== $consultation->getIdServiceConsultant() ? $this->acteur_service->recuperationActeur($consultation->getIdServiceConsultant()) : null;
 
                         // Versement de la consultation dans Prevarisc et on passe l'état de sa PEC à 'awaiting'
-                        $this->prevarisc_service->importConsultation($consultation, $demandeur, $service_instructeur, $notification);
+                        $this->prevarisc_service->importConsultation($information, $consultation, $demandeur, $service_instructeur, $notification);
                         $this->prevarisc_service->setMetadonneesEnvoi($consultation_id, 'PEC', 'awaiting')->executeStatement();
 
                         $output->writeln($this->logMessage(\sprintf('Consultation %s récupérée et stockée dans Prevarisc !', $consultation_id)));

@@ -13,7 +13,10 @@
         "symfony/options-resolver": "^5.2",
         "pagerfanta/pagerfanta": "^3.6",
         "caseyamcl/guzzle_retry_middleware": "^2.8",
-        "adbario/php-dot-notation": "^3.2"
+        "adbario/php-dot-notation": "^3.2",
+        "symfony/serializer": "^5.4",
+        "symfony/property-info": "^5.4",
+        "symfony/property-access": "^5.4"
     },
     "require-dev": {
         "kdubuc/php-cs-fixer-rules": "^1.0",

@@ -6,6 +6,15 @@
       <code><![CDATA[new Command\ImportPieces($container->get('service.prevarisc'), $container->get('service.platau.consultation'), $container->get('service.platau.piece'))]]></code>
     </DeprecatedClass>
   </file>
+  <file src="src/Service/PlatauConsultation.php">
+    <MixedAssignment>
+      <code><![CDATA[$consultations[]]]></code>
+    </MixedAssignment>
+    <MixedReturnTypeCoercion>
+      <code><![CDATA[$consultations]]></code>
+      <code><![CDATA[Information[]]]></code>
+    </MixedReturnTypeCoercion>
+  </file>
   <file src="src/Service/Prevarisc.php">
     <InternalMethod>
       <code><![CDATA[connect]]></code>
