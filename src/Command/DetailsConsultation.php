@@ -34,7 +34,7 @@ final class DetailsConsultation extends Command
         // Récupération de la consultation demandée ...
         $output->writeln('Récupération de la consultation concernée ...');
         $consultation_id = $input->getArgument('consultation-id');
-        $consultation    = $this->consultation_service->getConsultation($consultation_id);
+        $consultation    = $this->consultation_service->getConsultation($consultation_id, [], true);
 
         // On active la "dot notation" sur les données de la consultation afin de rendre plus facile la lecture
         $rowset = new Dot($consultation);

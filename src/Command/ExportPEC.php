@@ -49,9 +49,11 @@ final class ExportPEC extends Command
         // Sinon on récupère dans Plat'AU l'ensemble des consultations en attente de PEC (c'est à dire avec un état "Non Traitée")
         if ($input->getOption('consultation-id')) {
             $output->writeln('Récupération de la consultation concernée ...');
+            /** @var \App\Dto\Information[] $consultations_en_attente_de_pec */
             $consultations_en_attente_de_pec = [$this->consultation_service->getConsultation($input->getOption('consultation-id'))];
         } else {
             $output->writeln('Recherche de consultations en attente de prise en compte métier et celle refusées ...');
+            // @todo: Faire la même chose que pour l'export avis avec le tableau d'avis à renvoyer pour alléger la requête.
             $consultations_en_attente_de_pec = $this->consultation_service->rechercheConsultations(['nomEtatConsultation' => [1, 2]]);
         }
 
@@ -62,132 +64,150 @@ final class ExportPEC extends Command
         }
 
         // Pour chaque consultation trouvée, on va chercher dans Prevarisc si la complétion (ou non) du dossier a été indiquée.
-        foreach ($consultations_en_attente_de_pec as $consultation) {
-            // Récupération de l'ID de la consultation
-            $consultation_id = $consultation['idConsultation'];
+        foreach ($consultations_en_attente_de_pec as $information) {
+            $consultations = $information->getDossier()->getConsultations();
 
-            // On essaie d'envoyer la PEC
-            try {
-                $pieces_to_export = [];
-                $pieces           = [];
+            foreach ($consultations as $consultation) {
+                // Récupération de l'ID de la consultation
+                $consultation_id = $consultation->getIdConsultation();
 
-                // Vérification de l'existence de la consultation dans Prevarisc ? Si non, on ignore complètement la consultation
-                if (!$this->prevarisc_service->consultationExiste($consultation_id)) {
-                    $output->writeln("La consultation $consultation_id n'existe pas dans Prevarisc. Importez là d'abord avec la commande <import>.");
-                    continue;
-                }
+                // On essaie d'envoyer la PEC
+                try {
+                    $pieces_to_export = [];
+                    $pieces           = [];
 
-                // Récupération du dossier lié à la consultation
-                $dossier = $this->prevarisc_service->recupererDossierDeConsultation($consultation_id);
-                $auteur  = $this->prevarisc_service->recupererDossierAuteur($dossier['ID_DOSSIER']);
+                    // Vérification de l'existence de la consultation dans Prevarisc ? Si non, on ignore complètement la consultation
+                    if (!$this->prevarisc_service->consultationExiste($consultation_id)) {
+                        $output->writeln("La consultation $consultation_id n'existe pas dans Prevarisc. Importez là d'abord avec la commande <import>.");
+                        continue;
+                    }
 
-                // Nom état consultation 2 = Consultation refusée
-                if (2 === $consultation['nomEtatConsultation']['idNom'] && !\in_array($dossier['STATUT_PEC'], ['to_export', 'in_error'])) {
-                    continue;
-                }
+                    // Récupération du dossier lié à la consultation
+                    $dossier = $this->prevarisc_service->recupererDossierDeConsultation($consultation_id);
+                    $auteur  = $this->prevarisc_service->recupererDossierAuteur($dossier['ID_DOSSIER']);
 
-                // On recherche les pièces jointes en attente d'envoi vers Plat'AU associées au dossier Prevarisc
-                if ($this->piece_service->getSyncplicity()) {
-                    $pieces_to_export = $this->prevarisc_service->recupererPiecesAvecStatut($dossier['ID_DOSSIER'], 'to_be_exported');
+                    // Nom état consultation 2 = Consultation refusée
+                    if (2 === $consultation->getNomEtatConsultation()->getIdNom() && !\in_array($dossier['STATUT_PEC'], [
+                        'to_export',
+                        'in_error',
+                    ])) {
+                        continue;
+                    }
 
-                    foreach ($pieces_to_export as $piece_jointe) {
-                        $filename = $piece_jointe['NOM_PIECEJOINTE'].$piece_jointe['EXTENSION_PIECEJOINTE'];
-                        $contents = $this->prevarisc_service->recupererFichierPhysique($piece_jointe['ID_PIECEJOINTE'], $piece_jointe['EXTENSION_PIECEJOINTE']);
+                    // On recherche les pièces jointes en attente d'envoi vers Plat'AU associées au dossier Prevarisc
+                    if ($this->piece_service->getSyncplicity()) {
+                        $pieces_to_export = $this->prevarisc_service->recupererPiecesAvecStatut($dossier['ID_DOSSIER'], 'to_be_exported');
 
-                        try {
-                            $pieces[] = $this->piece_service->uploadDocument($filename, $contents, 47); // Type document 47 = Document lié à une prise en compte métier
-                            $this->prevarisc_service->changerStatutPiece($piece_jointe['ID_PIECEJOINTE'], 'awaiting_status');
-                        } catch (\Exception $e) {
-                            $this->prevarisc_service->changerStatutPiece($piece_jointe['ID_PIECEJOINTE'], 'on_error');
+                        foreach ($pieces_to_export as $piece_jointe) {
+                            $filename = $piece_jointe['NOM_PIECEJOINTE'].$piece_jointe['EXTENSION_PIECEJOINTE'];
+                            $contents = $this->prevarisc_service->recupererFichierPhysique($piece_jointe['ID_PIECEJOINTE'], $piece_jointe['EXTENSION_PIECEJOINTE']);
+
+                            try {
+                                $pieces[] = $this->piece_service->uploadDocument($filename, $contents, 47); // Type document 47 = Document lié à une prise en compte métier
+                                $this->prevarisc_service->changerStatutPiece($piece_jointe['ID_PIECEJOINTE'], 'awaiting_status');
+                            } catch (\Exception $e) {
+                                $this->prevarisc_service->changerStatutPiece($piece_jointe['ID_PIECEJOINTE'], 'on_error');
+                            }
                         }
                     }
-                }
 
-                // Si le dossier est déclaré incomplet, on envoie une PEC négative
-                if ('1' === (string) $dossier['INCOMPLET_DOSSIER']) {
-                    $output->writeln("Notification de la Prise En Compte Négative de la consultation $consultation_id au service instructeur ...");
-                    $documentsManquants = $this->prevarisc_service->recupererDocumentsManquants($dossier['ID_DOSSIER']);
+                    // Si le dossier est déclaré incomplet, on envoie une PEC négative
+                    if ('1' === (string) $dossier['INCOMPLET_DOSSIER']) {
+                        $output->writeln("Notification de la Prise En Compte Négative de la consultation $consultation_id au service instructeur ...");
+                        $documentsManquants = $this->prevarisc_service->recupererDocumentsManquants($dossier['ID_DOSSIER']);
 
-                    // Si cela concerne un premier envoi de PEC alors on place la date de la PEC Prevarisc, sinon la date du lancement de la commande
-                    $pec_versee = $this->consultation_service->envoiPEC(
-                        $consultation_id,
-                        false,
-                        $delai_reponse,
-                        $documentsManquants,
-                        $pieces,
-                        'to_export' === $dossier['STATUT_PEC'] ? \DateTime::createFromFormat('Y-m-d', $dossier['DATE_PEC']) : null,
-                        new Auteur($auteur['PRENOM_UTILISATEURINFORMATIONS'], $auteur['NOM_UTILISATEURINFORMATIONS'], $auteur['MAIL_UTILISATEURINFORMATIONS'], $auteur['TELFIXE_UTILISATEURINFORMATIONS'], $auteur['TELPORTABLE_UTILISATEURINFORMATIONS']),
-                    );
+                        // Si cela concerne un premier envoi de PEC alors on place la date de la PEC Prevarisc, sinon la date du lancement de la commande
+                        $pec_versee = $this->consultation_service->envoiPEC(
+                            $consultation_id,
+                            false,
+                            $delai_reponse,
+                            $documentsManquants,
+                            $pieces,
+                            'to_export' === $dossier['STATUT_PEC'] ? \DateTime::createFromFormat('Y-m-d', $dossier['DATE_PEC']) : null,
+                            new Auteur($auteur['PRENOM_UTILISATEURINFORMATIONS'], $auteur['NOM_UTILISATEURINFORMATIONS'], $auteur['MAIL_UTILISATEURINFORMATIONS'], $auteur['TELFIXE_UTILISATEURINFORMATIONS'], $auteur['TELPORTABLE_UTILISATEURINFORMATIONS']),
+                        );
 
-                    $pec_versee_data = json_decode($pec_versee->getBody()->getContents(), true, 512, \JSON_THROW_ON_ERROR);
-                    $pec_documents   = $pec_versee_data[array_key_first($pec_versee_data)]['consultations'][0]['pecMetier']['documents'];
+                        $pec_versee_data = json_decode($pec_versee->getBody()
+                          ->getContents(), true, 512, \JSON_THROW_ON_ERROR);
+                        $pec_documents = $pec_versee_data[array_key_first($pec_versee_data)]['consultations'][0]['pecMetier']['documents'];
 
-                    foreach ($pieces_to_export as $index_piece => $piece_to_map) {
-                        if (!\array_key_exists($index_piece, $pec_documents)) {
-                            $filename = $piece_to_map['NOM_PIECEJOINTE'].$piece_to_map['EXTENSION_PIECEJOINTE'];
-                            $output->writeln("La pièce {$filename} n'a pas été trouvée dans la liste des documents envoyés avec la prise en compte métier");
+                        foreach ($pieces_to_export as $index_piece => $piece_to_map) {
+                            if (!\array_key_exists($index_piece, $pec_documents)) {
+                                $filename = $piece_to_map['NOM_PIECEJOINTE'].$piece_to_map['EXTENSION_PIECEJOINTE'];
+                                $output->writeln("La pièce {$filename} n'a pas été trouvée dans la liste des documents envoyés avec la prise en compte métier");
 
-                            continue;
+                                continue;
+                            }
+
+                            $id_document = $pec_documents[$index_piece]['idDocument'];
+
+                            $this->prevarisc_service->setPieceIdPlatau($piece_to_map['ID_PIECEJOINTE'], $id_document);
                         }
 
-                        $id_document = $pec_documents[$index_piece]['idDocument'];
+                        $this->prevarisc_service->setMetadonneesEnvoi($consultation_id, 'PEC', 'taken_into_account')
+                          ->set('DATE_PEC', ':date_pec')
+                          ->setParameter('date_pec', date('Y-m-d'))
+                          ->executeStatement();
+                        $this->prevarisc_service->setMetadonneesEnvoi($consultation_id, 'AVIS', 'in_progress')
+                          ->executeStatement();
 
-                        $this->prevarisc_service->setPieceIdPlatau($piece_to_map['ID_PIECEJOINTE'], $id_document);
-                    }
+                        $output->writeln('Notification de la Prise En Compte Négative envoyée !');
+                    } elseif ('0' === (string) $dossier['INCOMPLET_DOSSIER']) {
+                        $output->writeln("Notification de la Prise En Compte Positive de la consultation $consultation_id au service instructeur ...");
 
-                    $this->prevarisc_service->setMetadonneesEnvoi($consultation_id, 'PEC', 'taken_into_account')->set('DATE_PEC', ':date_pec')->setParameter('date_pec', date('Y-m-d'))->executeStatement();
-                    $this->prevarisc_service->setMetadonneesEnvoi($consultation_id, 'AVIS', 'in_progress')->executeStatement();
+                        // Si cela concerne un premier envoi de PEC alors on place la date de la PEC Prevarisc, sinon la date du lancement de la commande
+                        $pec_versee = $this->consultation_service->envoiPEC(
+                            $consultation_id,
+                            true,
+                            $delai_reponse,
+                            null,
+                            $pieces,
+                            'to_export' === $dossier['STATUT_PEC'] ? \DateTime::createFromFormat('Y-m-d', $dossier['DATE_PEC']) : new \DateTime(),
+                            new Auteur($auteur['PRENOM_UTILISATEURINFORMATIONS'], $auteur['NOM_UTILISATEURINFORMATIONS'], $auteur['MAIL_UTILISATEURINFORMATIONS'], $auteur['TELFIXE_UTILISATEURINFORMATIONS'], $auteur['TELPORTABLE_UTILISATEURINFORMATIONS']),
+                        );
 
-                    $output->writeln('Notification de la Prise En Compte Négative envoyée !');
-                } elseif ('0' === (string) $dossier['INCOMPLET_DOSSIER']) {
-                    $output->writeln("Notification de la Prise En Compte Positive de la consultation $consultation_id au service instructeur ...");
+                        $pec_versee_data = json_decode($pec_versee->getBody()
+                          ->getContents(), true, 512, \JSON_THROW_ON_ERROR);
+                        $pec_documents = $pec_versee_data[array_key_first($pec_versee_data)]['consultations'][0]['pecMetier']['documents'];
 
-                    // Si cela concerne un premier envoi de PEC alors on place la date de la PEC Prevarisc, sinon la date du lancement de la commande
-                    $pec_versee = $this->consultation_service->envoiPEC(
-                        $consultation_id,
-                        true,
-                        $delai_reponse,
-                        null,
-                        $pieces,
-                        'to_export' === $dossier['STATUT_PEC'] ? \DateTime::createFromFormat('Y-m-d', $dossier['DATE_PEC']) : new \DateTime(),
-                        new Auteur($auteur['PRENOM_UTILISATEURINFORMATIONS'], $auteur['NOM_UTILISATEURINFORMATIONS'], $auteur['MAIL_UTILISATEURINFORMATIONS'], $auteur['TELFIXE_UTILISATEURINFORMATIONS'], $auteur['TELPORTABLE_UTILISATEURINFORMATIONS']),
-                    );
+                        foreach ($pieces_to_export as $index_piece => $piece_to_map) {
+                            if (!\array_key_exists($index_piece, $pec_documents)) {
+                                $filename = $piece_to_map['NOM_PIECEJOINTE'].$piece_to_map['EXTENSION_PIECEJOINTE'];
+                                $output->writeln("La pièce {$filename} n'a pas été trouvée dans la liste des documents envoyés avec la prise en compte métier");
 
-                    $pec_versee_data = json_decode($pec_versee->getBody()->getContents(), true, 512, \JSON_THROW_ON_ERROR);
-                    $pec_documents   = $pec_versee_data[array_key_first($pec_versee_data)]['consultations'][0]['pecMetier']['documents'];
+                                continue;
+                            }
 
-                    foreach ($pieces_to_export as $index_piece => $piece_to_map) {
-                        if (!\array_key_exists($index_piece, $pec_documents)) {
-                            $filename = $piece_to_map['NOM_PIECEJOINTE'].$piece_to_map['EXTENSION_PIECEJOINTE'];
-                            $output->writeln("La pièce {$filename} n'a pas été trouvée dans la liste des documents envoyés avec la prise en compte métier");
+                            $id_document = $pec_documents[$index_piece]['idDocument'];
 
-                            continue;
+                            $this->prevarisc_service->setPieceIdPlatau($piece_to_map['ID_PIECEJOINTE'], $id_document);
                         }
 
-                        $id_document = $pec_documents[$index_piece]['idDocument'];
+                        $this->prevarisc_service->setMetadonneesEnvoi($consultation_id, 'PEC', 'taken_into_account')
+                          ->set('DATE_PEC', ':date_pec')
+                          ->setParameter('date_pec', date('Y-m-d'))
+                          ->executeStatement();
+                        $this->prevarisc_service->setMetadonneesEnvoi($consultation_id, 'AVIS', 'in_progress')
+                          ->executeStatement();
 
-                        $this->prevarisc_service->setPieceIdPlatau($piece_to_map['ID_PIECEJOINTE'], $id_document);
+                        $output->writeln('Notification de la Prise En Compte Positive envoyée !');
+                    } else {
+                        $output->writeln("Impossible d'envoyer une PEC pour la consultation $consultation_id pour le moment (en attente de l'indication de complétude du dossier dans Prevarisc) ...");
+                    }
+                } catch (\Exception $e) {
+                    // On passe les pièces jointes en attente de versement
+                    foreach ($pieces_to_export as $piece) {
+                        if ('on_error' !== $piece['NOM_STATUT']) {
+                            $this->prevarisc_service->changerStatutPiece($piece['ID_PIECEJOINTE'], 'to_be_exported');
+                        }
                     }
 
-                    $this->prevarisc_service->setMetadonneesEnvoi($consultation_id, 'PEC', 'taken_into_account')->set('DATE_PEC', ':date_pec')->setParameter('date_pec', date('Y-m-d'))->executeStatement();
-                    $this->prevarisc_service->setMetadonneesEnvoi($consultation_id, 'AVIS', 'in_progress')->executeStatement();
+                    // On passe la PEC en erreur d'envoi
+                    $this->prevarisc_service->setMetadonneesEnvoi($consultation_id, 'PEC', 'in_error')
+                      ->executeStatement();
 
-                    $output->writeln('Notification de la Prise En Compte Positive envoyée !');
-                } else {
-                    $output->writeln("Impossible d'envoyer une PEC pour la consultation $consultation_id pour le moment (en attente de l'indication de complétude du dossier dans Prevarisc) ...");
+                    $output->writeln("Problème lors du traitement de la consultation : {$e->getMessage()}");
                 }
-            } catch (\Exception $e) {
-                // On passe les pièces jointes en attente de versement
-                foreach ($pieces_to_export as $piece) {
-                    if ('on_error' !== $piece['NOM_STATUT']) {
-                        $this->prevarisc_service->changerStatutPiece($piece['ID_PIECEJOINTE'], 'to_be_exported');
-                    }
-                }
-
-                // On passe la PEC en erreur d'envoi
-                $this->prevarisc_service->setMetadonneesEnvoi($consultation_id, 'PEC', 'in_error')->executeStatement();
-
-                $output->writeln("Problème lors du traitement de la consultation : {$e->getMessage()}");
             }
         }
 
