@@ -71,8 +71,9 @@ final class LectureNotifications extends Command
         }
 
         foreach ($notifications as $notification) {
-            $objet_metier   = $this->nomenclature_service->rechercheNomenclature('TYPE_OBJET_METIER', $notification['idTypeObjetMetier']);
-            $type_evenement = $this->nomenclature_service->rechercheNomenclature('TYPE_EVENEMENT', $notification['idTypeEvenement']);
+            $identifiant_element_concerne = $notification['idElementConcerne'];
+            $objet_metier                 = $this->nomenclature_service->rechercheNomenclature('TYPE_OBJET_METIER', $notification['idTypeObjetMetier']);
+            $type_evenement               = $this->nomenclature_service->rechercheNomenclature('TYPE_EVENEMENT', $notification['idTypeEvenement']);
 
             /* 5 - Pièce
                6 - Consultation
@@ -86,10 +87,9 @@ final class LectureNotifications extends Command
                         case 15:
                         case 17:
                         case 71:
-                            $idPiece   = $notification['idElementConcerne'];
                             $idDossier = $notification['idDossier'];
 
-                            $output->writeln($this->logMessage($this->messageTraitementNotification($objet_metier, $type_evenement, $notification['idElementConcerne'])));
+                            $output->writeln($this->logMessage($this->messageTraitementNotification($objet_metier, $type_evenement, $identifiant_element_concerne)));
 
                             try {
                                 $pieces = $this->consultation_service->getPieces($idDossier);
@@ -98,10 +98,10 @@ final class LectureNotifications extends Command
                                     throw new \Exception(\sprintf('Aucune pièce trouvée pour le dossier %s', $idDossier));
                                 }
 
-                                $piece_notification = array_filter($pieces, fn ($piece) => $piece['idPiece'] === $idPiece);
+                                $piece_notification = array_filter($pieces, fn ($piece) => $piece['idPiece'] === $identifiant_element_concerne);
 
                                 if ([] === $piece_notification) {
-                                    throw new \Exception(\sprintf("La pièce %s n'a pas été trouvée dans les pièces du dossier %s", $idPiece, $idDossier));
+                                    throw new \Exception(\sprintf("La pièce %s n'a pas été trouvée dans les pièces du dossier %s", $identifiant_element_concerne, $idDossier));
                                 }
 
                                 $piece_notification = $piece_notification[array_key_first($piece_notification)];
@@ -137,7 +137,7 @@ final class LectureNotifications extends Command
 
                             break;
                         default:
-                            $output->writeln($this->logMessage($this->messageNotificationNonPriseEnCompte($objet_metier, $type_evenement)));
+                            $output->writeln($this->logMessage($this->messageNotificationNonPriseEnCompte($identifiant_element_concerne, $objet_metier, $type_evenement)));
 
                             break;
                     }
@@ -145,23 +145,21 @@ final class LectureNotifications extends Command
                     break;
                 case 6:
                     if (19 !== $notification['idTypeEvenement']) {
-                        $output->writeln($this->logMessage($this->messageNotificationNonPriseEnCompte($objet_metier, $type_evenement)));
+                        $output->writeln($this->logMessage($this->messageNotificationNonPriseEnCompte($identifiant_element_concerne, $objet_metier, $type_evenement)));
 
                         break;
                     }
 
-                    $output->writeln($this->logMessage($this->messageTraitementNotification($objet_metier, $type_evenement, $notification['idElementConcerne'])));
+                    $output->writeln($this->logMessage($this->messageTraitementNotification($objet_metier, $type_evenement, $identifiant_element_concerne)));
 
                     try {
-                        $consultation_id = $notification['idElementConcerne'];
-
-                        if ($this->prevarisc_service->consultationExiste($consultation_id)) {
-                            $output->writeln($this->logMessage(\sprintf('Consultation %s déjà existante dans Prevarisc', $consultation_id)));
+                        if ($this->prevarisc_service->consultationExiste($identifiant_element_concerne)) {
+                            $output->writeln($this->logMessage(\sprintf('Consultation %s déjà existante dans Prevarisc', $identifiant_element_concerne)));
 
                             break;
                         }
 
-                        $information  = $this->consultation_service->getConsultation($consultation_id);
+                        $information  = $this->consultation_service->getConsultation($identifiant_element_concerne);
                         $dossier      = $information->getDossier();
                         $consultation = $dossier->getConsultation();
 
@@ -170,12 +168,12 @@ final class LectureNotifications extends Command
 
                         // Versement de la consultation dans Prevarisc et on passe l'état de sa PEC à 'awaiting'
                         $this->prevarisc_service->importConsultation($information, $consultation, $demandeur, $service_instructeur, $notification);
-                        $this->prevarisc_service->setMetadonneesEnvoi($consultation_id, 'PEC', 'awaiting')->executeStatement();
+                        $this->prevarisc_service->setMetadonneesEnvoi($identifiant_element_concerne, 'PEC', 'awaiting')->executeStatement();
 
-                        $output->writeln($this->logMessage(\sprintf('Consultation %s récupérée et stockée dans Prevarisc !', $consultation_id)));
+                        $output->writeln($this->logMessage(\sprintf('Consultation %s récupérée et stockée dans Prevarisc !', $identifiant_element_concerne)));
 
                         // Récupération du dossier Prevarisc nouvellement créé
-                        $dossier_prevarisc = $this->prevarisc_service->recupererDossierDeConsultation($consultation_id);
+                        $dossier_prevarisc = $this->prevarisc_service->recupererDossierDeConsultation($identifiant_element_concerne);
 
                         // Téléchargement des pièces initiales
                         $pieces = $this->consultation_service->getPieces($notification['idDossier']);
@@ -187,14 +185,14 @@ final class LectureNotifications extends Command
                             $this->prevarisc_service->creerPieceJointe($dossier_prevarisc['ID_DOSSIER'], $piece, $extension, $file_contents, $notification);
                         }
 
-                        $output->writeln($this->logMessage(\sprintf('Pièces initiales importées pour la consultation %s', $consultation_id)));
+                        $output->writeln($this->logMessage(\sprintf('Pièces initiales importées pour la consultation %s', $identifiant_element_concerne)));
                     } catch (\Exception $e) {
                         $output->writeln($this->logMessage(\sprintf('[Offset: %d] Problème lors du traitement de la consultation : %s', $notification['offset'], $e->getMessage())));
                     }
 
                     break;
                 case 31:
-                    $output->writeln($this->logMessage($this->messageTraitementNotification($objet_metier, $type_evenement, $notification['idElementConcerne'])));
+                    $output->writeln($this->logMessage($this->messageTraitementNotification($objet_metier, $type_evenement, $identifiant_element_concerne)));
 
                     /* 84 - Succès
                        85 - Echec */
@@ -202,25 +200,25 @@ final class LectureNotifications extends Command
                         case 84:
                             $output->writeln($this->logMessage('Document versé avec succès.'));
 
-                            $this->prevarisc_service->changerStatutPiece($notification['idElementConcerne'], 'exported', 'ID_PLATAU');
+                            $this->prevarisc_service->changerStatutPiece($identifiant_element_concerne, 'exported', 'ID_PLATAU');
 
                             break;
                         case 85:
                             $output->writeln($this->logMessage('Echec du versement du document.'));
 
-                            $this->prevarisc_service->changerStatutPiece($notification['idElementConcerne'], 'on_error', 'ID_PLATAU');
-                            $this->prevarisc_service->ajouterMessageErreurPiece($notification['idElementConcerne'], $notification['txErreur'], 'ID_PLATAU');
+                            $this->prevarisc_service->changerStatutPiece($identifiant_element_concerne, 'on_error', 'ID_PLATAU');
+                            $this->prevarisc_service->ajouterMessageErreurPiece($identifiant_element_concerne, $notification['txErreur'], 'ID_PLATAU');
 
                             break;
                         default:
-                            $output->writeln($this->logMessage($this->messageNotificationNonPriseEnCompte($objet_metier, $type_evenement)));
+                            $output->writeln($this->logMessage($this->messageNotificationNonPriseEnCompte($identifiant_element_concerne, $objet_metier, $type_evenement)));
 
                             break;
                     }
 
                     break;
                 default:
-                    $output->writeln($this->logMessage($this->messageNotificationNonPriseEnCompte($objet_metier)));
+                    $output->writeln($this->logMessage($this->messageNotificationNonPriseEnCompte($identifiant_element_concerne, $objet_metier)));
 
                     break;
             }
@@ -236,7 +234,7 @@ final class LectureNotifications extends Command
     }
 
     // Affiche un message d'information pour les notifications que la passerelle ne traite pas.
-    private function messageNotificationNonPriseEnCompte(string $objet_metier, ?string $type_evenement = null) : string
+    private function messageNotificationNonPriseEnCompte(string $id_element_concerne, string $objet_metier, ?string $type_evenement = null) : string
     {
         $message = 'La notification %s';
         $values  = [$objet_metier];
@@ -246,7 +244,9 @@ final class LectureNotifications extends Command
             $values[] = $type_evenement;
         }
 
-        $message .= " n'est pas prise en compte par la passerelle actuellement";
+        $values[] = $id_element_concerne;
+
+        $message .= " pour l'élément d'identifiant %s n'est pas prise en compte par la passerelle actuellement";
 
         return \sprintf($message, ...$values);
     }
@@ -254,7 +254,7 @@ final class LectureNotifications extends Command
     // Affiche un message d'information pour les notifications que la passerelle traite.
     private function messageTraitementNotification(string $objet_metier, string $type_evenement, string $identifiant_element_concerne) : string
     {
-        return vsprintf('Traitement de la notification %s - %s ayant pour identifiant %s', [
+        return vsprintf('Traitement de la notification %s - %s pour l\'élément d\'identifiant %s', [
             $objet_metier,
             $type_evenement,
             $identifiant_element_concerne,
