@@ -10,7 +10,7 @@ class Dossier
 
     private int $noVersion;
 
-    private string $txDescriptifGlobal;
+    private ?string $txDescriptifGlobal;
 
     private ?string $noLocal;
 
@@ -26,7 +26,7 @@ class Dossier
         ?string $idDossier,
         string $idServiceInstructeur,
         int $noVersion,
-        string $txDescriptifGlobal,
+        ?string $txDescriptifGlobal,
         ?string $noLocal,
         ?string $suffixeNoLocal,
         NomTypeDossier $nomTypeDossier,
@@ -57,7 +57,7 @@ class Dossier
         return $this->noVersion;
     }
 
-    public function getTxDescriptifGlobal() : string
+    public function getTxDescriptifGlobal() : ?string
     {
         return $this->txDescriptifGlobal;
     }

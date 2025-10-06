@@ -270,7 +270,7 @@ class Prevarisc
             // Objet du dossier (c'est à dire l'objet de la consultation ainsi que le descriptif global du dossier associé)
             $query_builder->setValue('OBJET_DOSSIER', $query_builder->createPositionalParameter(vsprintf('Objet de la consultation : %s ; %s', [
                 $consultation->getTxObjetDeLaConsultation() ?? 'SANS OBJET',
-                $dossier->getTxDescriptifGlobal(),
+                $dossier->getTxDescriptifGlobal() ?? 'SANS DESCRIPTIF GLOBAL',
             ])));
 
             // On note dans les observations du dossier des données importantes de Plat'AU (dates, type de consulation ...)
