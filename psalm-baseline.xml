@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<files psalm-version="5.26.1@d747f6500b38ac4f7dfc5edbcae6e4b637d7add0">
+<files psalm-version="6.0.0@b8e96bb617bf59382113b1b56cef751f648a7dc9">
   <file src="src/Console.php">
     <DeprecatedClass>
       <code><![CDATA[new Command\ImportConsultations($container->get('service.prevarisc'), $container->get('service.platau.consultation'), $container->get('service.platau.acteur'))]]></code>
@@ -19,5 +19,9 @@
     <InternalMethod>
       <code><![CDATA[connect]]></code>
     </InternalMethod>
+    <PossiblyFalseArgument>
+      <code><![CDATA[$filename]]></code>
+      <code><![CDATA[$legacy_filename]]></code>
+    </PossiblyFalseArgument>
   </file>
 </files>
