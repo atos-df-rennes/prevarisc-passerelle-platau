@@ -566,7 +566,7 @@ class Prevarisc
         ;
     }
 
-    public function ajouterMessageErreurPiece(string $id_platau, string $message, string $id_column = 'ID_PIECEJOINTE') : void
+    public function ajouterMessageErreurPiece(string $id_platau, ?string $message, string $id_column = 'ID_PIECEJOINTE') : void
     {
         $query_builder = $this->db->createQueryBuilder();
 
@@ -576,7 +576,7 @@ class Prevarisc
             ->where(
                 $query_builder->expr()->eq($id_column, ':id_platau')
             )
-            ->setParameter('message', $message)
+            ->setParameter('message', $message ?? 'Erreur non renseignée')
             ->setParameter('id_platau', $id_platau)
             ->executeStatement()
         ;
