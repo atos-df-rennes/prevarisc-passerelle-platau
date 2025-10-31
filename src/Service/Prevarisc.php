@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Dto\Personne;
 use League\Flysystem;
 use App\Dto\Information;
 use App\Dto\Consultation;
@@ -220,12 +221,14 @@ class Prevarisc
     /**
      * Versement d'une consultation Plat'AU dans Prevarisc.
      *
+     * @param ?\App\Dto\Personne[] $demandeurs
+     *
      * @throws \Exception
      */
     // @fixme Retirer le paramètre $notification une fois la commande `import` supprimée
-    public function importConsultation(Information $information, Consultation $consultation, ?array $demandeur = null, ?array $service_instructeur = null, ?array $notification = null) : void
+    public function importConsultation(Information $information, Consultation $consultation, ?array $service_consultant = null, ?array $service_instructeur = null, ?array $demandeurs = null, ?array $notification = null) : void
     {
-        $dossier      = $information->getDossier();
+        $dossier = $information->getDossier();
 
         // On démarre une transaction SQL. Si jamais les choses se passent mal, on pourra revenir en arrière.
         $this->db->beginTransaction();
@@ -248,7 +251,14 @@ class Prevarisc
             $query_builder->setValue('CREATEUR_DOSSIER', (string) $this->getIdUtilisateurPlatau());
 
             // On associe le demandeur de Plat'AU
-            $query_builder->setValue('DEMANDEUR_DOSSIER', $query_builder->createPositionalParameter(null !== $demandeur ? $demandeur['designationActeur'] : null));
+            $nomsDemandeurs = null;
+            if (null !== $demandeurs) {
+                $nomsDemandeurs = array_map(function(Personne $personne) {
+                    return implode(' ', $personne->getNoms()) . ' ' . implode(' ', $personne->getPrenoms());
+                }, $demandeurs);
+                $nomsDemandeurs = implode(' / ', $nomsDemandeurs);
+            }
+            $query_builder->setValue('DEMANDEUR_DOSSIER', $query_builder->createPositionalParameter($nomsDemandeurs));
 
             // On qualifie le dossier Plat'AU dans Prevarisc en renseignant les champs importants
             $query_builder->setValue('TYPESERVINSTRUC_DOSSIER', $query_builder->createPositionalParameter('servInstGrp'));
@@ -274,13 +284,14 @@ class Prevarisc
             ])));
 
             // On note dans les observations du dossier des données importantes de Plat'AU (dates, type de consulation ...)
-            $query_builder->setValue('OBSERVATION_DOSSIER', $query_builder->createPositionalParameter(vsprintf('Consultation PLATAU : Consultation de type %s décidée le %s et transmise au service consultable le %s. Une réponse est attendue dans %s %s. (ID PLATAU DOSSIER : %s)', [
+            $query_builder->setValue('OBSERVATION_DOSSIER', $query_builder->createPositionalParameter(vsprintf('Consultation PLATAU : Consultation de type %s décidée le %s et transmise au service consultable le %s. Une réponse est attendue dans %s %s. (ID PLATAU DOSSIER : %s / Service consultant : %s)', [
                 $consultation->getNomTypeConsultation()->getLibNom() ?? 'INCONNUE',
                 $consultation->getDtConsultation() ?? 'DATE CONSULTATION INCONNUE',
                 $consultation->getDtEmission() ?? 'DATE EMISSION INCONNUE',
                 $consultation->getDelaiDeReponse() ?? 'DELAI INCONNU',
-                $consultation->getNomTypeDelai()->getLibNom() ?? '',
+                $consultation->getNomTypeDelai()->getLibNom() ?? 'TYPE DELAI INCONNU',
                 $dossier->getIdDossier() ?? 'ID INCONNU',
+                null !== $service_consultant ? $service_consultant['designationActeur'] : 'SERVICE CONSULTANT INCONNU',
             ])));
 
             // Les champs suivant doivent être mis à NULL manuellement, car aucune valeur par défaut n'est prévue dans la base de données

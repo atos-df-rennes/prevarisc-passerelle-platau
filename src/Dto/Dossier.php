@@ -21,7 +21,13 @@ class Dossier
     /** @var Consultation[] */
     private array $consultations;
 
-    /** @param Consultation[] $consultations */
+    /** @var Personne[] */
+    private array $personnes;
+
+    /**
+     * @param Consultation[] $consultations
+     * @param Personne[] $personnes
+     */
     public function __construct(
         ?string $idDossier,
         string $idServiceInstructeur,
@@ -31,6 +37,7 @@ class Dossier
         ?string $suffixeNoLocal,
         NomTypeDossier $nomTypeDossier,
         array $consultations,
+        array $personnes = [],
     ) {
         $this->idDossier            = $idDossier;
         $this->idServiceInstructeur = $idServiceInstructeur;
@@ -40,6 +47,7 @@ class Dossier
         $this->suffixeNoLocal       = $suffixeNoLocal;
         $this->nomTypeDossier       = $nomTypeDossier;
         $this->consultations        = $consultations;
+        $this->personnes            = $personnes;
     }
 
     public function getIdDossier() : ?string
@@ -94,5 +102,21 @@ class Dossier
         }
 
         return $this->consultations[$first_key];
+    }
+
+    /**
+     * @return Personne[]
+     */
+    public function getDemandeurs() : array
+    {
+        $demandeurs = array_filter($this->personnes, function (Personne $personne) {
+            $hasRolePetitionnaire = array_filter($personne->getRoles(), function (Role $role) {
+                return $role->getNomRole()->getIdNom() === 1;
+            });
+
+            return [] !== $hasRolePetitionnaire;
+        });
+
+        return $demandeurs;
     }
 }
