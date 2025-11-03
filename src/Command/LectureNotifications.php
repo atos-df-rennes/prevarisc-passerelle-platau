@@ -164,8 +164,8 @@ final class LectureNotifications extends Command
                         $consultation = $dossier->getConsultation();
 
                         $service_instructeur = null !== $dossier->getIdServiceInstructeur() ? $this->acteur_service->recuperationActeur($dossier->getIdServiceInstructeur()) : null;
-                        $service_consultant           = null !== $consultation->getIdServiceConsultant() ? $this->acteur_service->recuperationActeur($consultation->getIdServiceConsultant()) : null;
-                        $demandeurs = $dossier->getDemandeurs();
+                        $service_consultant  = null !== $consultation->getIdServiceConsultant() ? $this->acteur_service->recuperationActeur($consultation->getIdServiceConsultant()) : null;
+                        $demandeurs          = $dossier->getDemandeurs();
 
                         // Versement de la consultation dans Prevarisc et on passe l'état de sa PEC à 'awaiting'
                         $this->prevarisc_service->importConsultation($information, $consultation, $service_consultant, $service_instructeur, $demandeurs, $notification);

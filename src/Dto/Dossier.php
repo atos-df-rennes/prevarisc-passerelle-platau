@@ -26,7 +26,7 @@ class Dossier
 
     /**
      * @param Consultation[] $consultations
-     * @param Personne[] $personnes
+     * @param Personne[]     $personnes
      */
     public function __construct(
         ?string $idDossier,
@@ -111,7 +111,7 @@ class Dossier
     {
         $demandeurs = array_filter($this->personnes, function (Personne $personne) {
             $hasRolePetitionnaire = array_filter($personne->getRoles(), function (Role $role) {
-                return $role->getNomRole()->getIdNom() === 1;
+                return 1 === $role->getNomRole()->getIdNom();
             });
 
             return [] !== $hasRolePetitionnaire;
@@ -121,9 +121,9 @@ class Dossier
     }
 
     /**
-     * @param ?\App\Dto\Personne[] $demandeurs
+     * @param ?Personne[] $demandeurs
      */
-    public function getDemandeursAsString(?array $demandeurs = null): string
+    public function getDemandeursAsString(?array $demandeurs = null) : string
     {
         if (null === $demandeurs) {
             $demandeurs = $this->getDemandeurs();
@@ -131,9 +131,9 @@ class Dossier
 
         $demandeurs_names = array_map(function (Personne $personne) {
             $prenoms = array_map('trim', $personne->getPrenoms());
-            $noms = array_map('trim', $personne->getNoms());
+            $noms    = array_map('trim', $personne->getNoms());
 
-            return implode(' ', $noms) . ' ' . implode(' ', $prenoms);
+            return implode(' ', $noms).' '.implode(' ', $prenoms);
         }, $demandeurs);
 
         return implode(' / ', $demandeurs_names);

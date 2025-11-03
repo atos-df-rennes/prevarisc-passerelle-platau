@@ -12,48 +12,52 @@ class Personne
 
     private NomGenre $nomGenre;
 
-    /** @var \App\Dto\Role[] */
+    /** @var Role[] */
     private array $roles;
 
     /**
      * @param string[] $prenoms
      * @param string[] $noms
-     * @param \App\Dto\Role[] $roles
+     * @param Role[]   $roles
      */
     public function __construct(
         array $prenoms,
         array $noms,
         NomGenre $nomGenre,
-        array $roles = []
+        array $roles = [],
     ) {
-        $this->prenoms = $prenoms;
-        $this->noms = $noms;
+        $this->prenoms  = $prenoms;
+        $this->noms     = $noms;
         $this->nomGenre = $nomGenre;
-        $this->roles = $roles;
+        $this->roles    = $roles;
     }
 
     /**
      * @return string[]
      */
-    public function getPrenoms(): array {
+    public function getPrenoms() : array
+    {
         return $this->prenoms;
     }
 
     /**
      * @return string[]
      */
-    public function getNoms(): array {
+    public function getNoms() : array
+    {
         return $this->noms;
     }
 
-    public function getNomGenre(): NomGenre {
+    public function getNomGenre() : NomGenre
+    {
         return $this->nomGenre;
     }
 
     /**
-     * @return \App\Dto\Role[]
+     * @return Role[]
      */
-    public function getRoles(): array {
+    public function getRoles() : array
+    {
         return $this->roles;
     }
 }
