@@ -81,10 +81,11 @@ final class ImportConsultations extends Command
 
                     // On récupère les acteurs liés à la consultation
                     $service_instructeur = null !== $dossier->getIdServiceInstructeur() ? $this->acteur_service->recuperationActeur($dossier->getIdServiceInstructeur()) : null;
-                    $demandeur           = null !== $consultation->getIdServiceConsultant() ? $this->acteur_service->recuperationActeur($consultation->getIdServiceConsultant()) : null;
+                    $service_consultant  = null !== $consultation->getIdServiceConsultant() ? $this->acteur_service->recuperationActeur($consultation->getIdServiceConsultant()) : null;
+                    $demandeurs          = $dossier->getDemandeurs();
 
                     // Versement de la consultation dans Prevarisc et on passe l'état de sa PEC à 'awaiting'
-                    $this->prevarisc_service->importConsultation($information, $consultation, $demandeur, $service_instructeur);
+                    $this->prevarisc_service->importConsultation($information, $consultation, $service_consultant, $service_instructeur, $demandeurs);
                     $this->prevarisc_service->setMetadonneesEnvoi($consultation_id, 'PEC', 'awaiting')
                       ->executeStatement();
 

@@ -4,6 +4,8 @@ namespace App\Dto;
 
 class Dossier
 {
+    private const ROLE_PETITIONNAIRE = 1;
+
     private ?string $idDossier;
 
     private string $idServiceInstructeur;
@@ -21,7 +23,13 @@ class Dossier
     /** @var Consultation[] */
     private array $consultations;
 
-    /** @param Consultation[] $consultations */
+    /** @var Personne[] */
+    private array $personnes;
+
+    /**
+     * @param Consultation[] $consultations
+     * @param Personne[]     $personnes
+     */
     public function __construct(
         ?string $idDossier,
         string $idServiceInstructeur,
@@ -31,6 +39,7 @@ class Dossier
         ?string $suffixeNoLocal,
         NomTypeDossier $nomTypeDossier,
         array $consultations,
+        array $personnes = [],
     ) {
         $this->idDossier            = $idDossier;
         $this->idServiceInstructeur = $idServiceInstructeur;
@@ -40,6 +49,7 @@ class Dossier
         $this->suffixeNoLocal       = $suffixeNoLocal;
         $this->nomTypeDossier       = $nomTypeDossier;
         $this->consultations        = $consultations;
+        $this->personnes            = $personnes;
     }
 
     public function getIdDossier() : ?string
@@ -94,5 +104,46 @@ class Dossier
         }
 
         return $this->consultations[$first_key];
+    }
+
+    /**
+     * @return Personne[]
+     */
+    public function getDemandeurs() : array
+    {
+        $demandeurs = array_filter($this->personnes, function (Personne $personne) {
+            $hasRolePetitionnaire = array_filter($personne->getRoles(), function (Role $role) {
+                return self::ROLE_PETITIONNAIRE === $role->getNomRole()->getIdNom();
+            });
+
+            return [] !== $hasRolePetitionnaire;
+        });
+
+        return $demandeurs;
+    }
+
+    /**
+     * @param Personne[]|null $demandeurs
+     */
+    public function getDemandeursAsString(?array $demandeurs = null) : string
+    {
+        if (null === $demandeurs) {
+            $demandeurs = $this->getDemandeurs();
+        }
+
+        $demandeurs_names = array_map(function (Personne $personne) {
+            $prenoms = array_map('trim', $personne->getPrenoms());
+            $noms    = array_map('trim', $personne->getNoms());
+
+            $nom_complet = implode(' ', $noms);
+            if ([] !== $noms && [] !== $prenoms) {
+                $nom_complet .= ' ';
+            }
+            $nom_complet .= implode(' ', $prenoms);
+
+            return $nom_complet;
+        }, $demandeurs);
+
+        return implode(' / ', $demandeurs_names);
     }
 }
