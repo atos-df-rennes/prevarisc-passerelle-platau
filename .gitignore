@@ -1,6 +1,5 @@
 *.code-workspace
 vendor
-tests
 .DS_Store
 *.cache
 config.json
