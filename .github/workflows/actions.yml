@@ -53,3 +53,19 @@ jobs:
      
     - name: Exécuter PHP CS Fixer
       run: vendor/bin/php-cs-fixer fix --dry-run --diff --config=vendor/kdubuc/php-cs-fixer-rules/php-cs-fixer.php
+
+  phpunit:
+    needs: validate-composer
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+      - uses: ramsey/composer-install@v3
+        with:
+          composer-options: "--prefer-dist"
+
+      - name: Exécuter les tests PHPUnit
+        run: vendor/bin/phpunit --testdox tests/
