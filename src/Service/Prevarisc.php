@@ -253,10 +253,7 @@ class Prevarisc
             // On associe le demandeur de Plat'AU
             $nomsDemandeurs = null;
             if (null !== $demandeurs) {
-                $nomsDemandeurs = array_map(function(Personne $personne) {
-                    return implode(' ', $personne->getNoms()) . ' ' . implode(' ', $personne->getPrenoms());
-                }, $demandeurs);
-                $nomsDemandeurs = implode(' / ', $nomsDemandeurs);
+                $nomsDemandeurs = $dossier->getDemandeursAsString($demandeurs);
             }
             $query_builder->setValue('DEMANDEUR_DOSSIER', $query_builder->createPositionalParameter($nomsDemandeurs));
 

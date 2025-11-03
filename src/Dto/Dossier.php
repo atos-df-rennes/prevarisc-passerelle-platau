@@ -119,4 +119,23 @@ class Dossier
 
         return $demandeurs;
     }
+
+    /**
+     * @param ?\App\Dto\Personne[] $demandeurs
+     */
+    public function getDemandeursAsString(?array $demandeurs = null): string
+    {
+        if (null === $demandeurs) {
+            $demandeurs = $this->getDemandeurs();
+        }
+
+        $demandeurs_names = array_map(function (Personne $personne) {
+            $prenoms = array_map('trim', $personne->getPrenoms());
+            $noms = array_map('trim', $personne->getNoms());
+
+            return implode(' ', $noms) . ' ' . implode(' ', $prenoms);
+        }, $demandeurs);
+
+        return implode(' / ', $demandeurs_names);
+    }
 }
