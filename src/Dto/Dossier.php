@@ -4,6 +4,8 @@ namespace App\Dto;
 
 class Dossier
 {
+    private const ROLE_PETITIONNAIRE = 1;
+
     private ?string $idDossier;
 
     private string $idServiceInstructeur;
@@ -111,7 +113,7 @@ class Dossier
     {
         $demandeurs = array_filter($this->personnes, function (Personne $personne) {
             $hasRolePetitionnaire = array_filter($personne->getRoles(), function (Role $role) {
-                return 1 === $role->getNomRole()->getIdNom();
+                return self::ROLE_PETITIONNAIRE === $role->getNomRole()->getIdNom();
             });
 
             return [] !== $hasRolePetitionnaire;
@@ -121,7 +123,7 @@ class Dossier
     }
 
     /**
-     * @param ?Personne[] $demandeurs
+     * @param Personne[]|null $demandeurs
      */
     public function getDemandeursAsString(?array $demandeurs = null) : string
     {
@@ -133,7 +135,13 @@ class Dossier
             $prenoms = array_map('trim', $personne->getPrenoms());
             $noms    = array_map('trim', $personne->getNoms());
 
-            return implode(' ', $noms).' '.implode(' ', $prenoms);
+            $nom_complet = implode(' ', $noms);
+            if ([] !== $noms && [] !== $prenoms) {
+                $nom_complet .= ' ';
+            }
+            $nom_complet .= implode(' ', $prenoms);
+
+            return $nom_complet;
         }, $demandeurs);
 
         return implode(' / ', $demandeurs_names);

@@ -221,7 +221,7 @@ class Prevarisc
     /**
      * Versement d'une consultation Plat'AU dans Prevarisc.
      *
-     * @param ?Personne[] $demandeurs
+     * @param Personne[]|null $demandeurs
      *
      * @throws \Exception
      */
