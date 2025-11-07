@@ -123,6 +123,10 @@ class Dossier
     }
 
     /**
+     * Renvoie les noms des demandeurs du dossier.
+     * Si les prénoms et noms ne sont pas indiqués, renvoie la dénomination ou la raison sociale.
+     * Le cas échéant, indique que l'information n'est pas connue.
+     *
      * @param Personne[]|null $demandeurs
      */
     public function getDemandeursAsString(?array $demandeurs = null) : string
@@ -132,8 +136,22 @@ class Dossier
         }
 
         $demandeurs_names = array_map(function (Personne $personne) {
-            $prenoms = array_map('trim', $personne->getPrenoms());
-            $noms    = array_map('trim', $personne->getNoms());
+            $prenoms = $personne->getPrenoms();
+            $noms    = $personne->getNoms();
+
+            if (null === $prenoms && null === $noms) {
+                return $personne->getLibDenomination() ?? $personne->getLibRaisonSociale() ?? 'Inconnu';
+            }
+
+            if (null === $prenoms) {
+                $prenoms = [];
+            }
+            if (null === $noms) {
+                $noms = [];
+            }
+
+            $prenoms = array_map('trim', $prenoms);
+            $noms    = array_map('trim', $noms);
 
             $nom_complet = implode(' ', $noms);
             if ([] !== $noms && [] !== $prenoms) {
