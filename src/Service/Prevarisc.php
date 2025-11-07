@@ -706,4 +706,15 @@ class Prevarisc
 
         throw new \Exception('Nature inconnue');
     }
+
+    public function correspondanceAvisPlatau(int $avis_prevarisc, array $prescriptions) : int
+    {
+        switch ($avis_prevarisc) {
+            case 1: return 0 === \count($prescriptions) ? 1 : 2; // Favorable ou Favorable avec prescriptions
+            case 2: return 3; // Défavorable
+            case 6: return 6; // Pas d'avis - à motiver dans la partie Fondement de l'avis
+        }
+
+        throw new \InvalidArgumentException(\sprintf('Avis %d inconnu', $avis_prevarisc));
+    }
 }

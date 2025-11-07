@@ -127,12 +127,27 @@ final class ExportAvis extends Command
                         }
                     }
 
-                    // On verse l'avis de commission Prevarisc (défavorable ou favorable à l'étude) dans Plat'AU
-                    if ('1' === (string) $dossier['AVIS_DOSSIER_COMMISSION'] || '2' === (string) $dossier['AVIS_DOSSIER_COMMISSION']) {
+                    // On verse l'avis de commission Prevarisc (défavorable, favorable ou sans avis) dans Plat'AU
+                    $avis_dossier_commission = $dossier['AVIS_DOSSIER_COMMISSION'];
+                    if (in_array($avis_dossier_commission, [1, 2, 6], true)) {
                         // On verse l'avis de commission dans Plat'AU
-                        // Pour rappel, un avis de commission à 1 = favorable, 2 = défavorable.
-                        $est_favorable = '1' === (string) $dossier['AVIS_DOSSIER_COMMISSION'];
-                        $output->writeln("Versement d'un avis ".($est_favorable ? 'favorable' : 'défavorable')." pour la consultation $consultation_id au service instructeur ...");
+                        // Pour rappel, un avis de commission à 1 = favorable, 2 = défavorable, 6 = sans avis.
+                        $avis_rendu = $this->prevarisc_service->correspondanceAvisPlatau($avis_dossier_commission, $prescriptions);
+                        switch ($avis_dossier_commission) {
+                            case 1:
+                                $avis_libelle = 'favorable';
+                                break;
+                            case 2:
+                                $avis_libelle = 'défavorable';
+                                break;
+                            case 6:
+                                $avis_libelle = 'sans avis';
+                                break;
+                            default:
+                                throw new \InvalidArgumentException("Valeur d'avis de commission inconnue : $avis_dossier_commission");
+                        }
+
+                        $output->writeln("Versement d'un avis $avis_libelle pour la consultation $consultation_id au service instructeur ...");
                         // Si cela concerne un premier envoi d'avis alors on place la date de l'avis Prevarisc, sinon la date du lancement de la commande
                         $date_envoi = new \DateTime();
 
@@ -143,7 +158,7 @@ final class ExportAvis extends Command
 
                         $avis_verse = $this->consultation_service->versementAvis(
                             $consultation_id,
-                            $est_favorable,
+                            $avis_rendu,
                             $prescriptions,
                             $pieces,
                             $date_envoi,
