@@ -4,10 +4,10 @@ namespace App\Dto;
 
 class Personne
 {
-    /** @var null|string[] */
+    /** @var string[]|null */
     private ?array $prenoms;
 
-    /** @var null|string[] */
+    /** @var string[]|null */
     private ?array $noms;
 
     private ?string $libDenomination;
@@ -18,9 +18,9 @@ class Personne
     private array $roles;
 
     /**
-     * @param null|string[] $prenoms
-     * @param null|string[] $noms
-     * @param Role[]   $roles
+     * @param string[]|null $prenoms
+     * @param string[]|null $noms
+     * @param Role[]        $roles
      */
     public function __construct(
         ?array $prenoms,
@@ -29,15 +29,15 @@ class Personne
         ?string $libRaisonSociale,
         array $roles = [],
     ) {
-        $this->prenoms  = $prenoms;
-        $this->noms     = $noms;
-        $this->libDenomination = $libDenomination;
+        $this->prenoms          = $prenoms;
+        $this->noms             = $noms;
+        $this->libDenomination  = $libDenomination;
         $this->libRaisonSociale = $libRaisonSociale;
-        $this->roles    = $roles;
+        $this->roles            = $roles;
     }
 
     /**
-     * @return null|string[]
+     * @return string[]|null
      */
     public function getPrenoms() : ?array
     {
@@ -45,9 +45,9 @@ class Personne
     }
 
     /**
-     * @return null|string[]
+     * @return string[]|null
      */
-    public function getNoms() :? array
+    public function getNoms() : ?array
     {
         return $this->noms;
     }

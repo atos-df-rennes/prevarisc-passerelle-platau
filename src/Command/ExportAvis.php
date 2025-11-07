@@ -129,7 +129,7 @@ final class ExportAvis extends Command
 
                     // On verse l'avis de commission Prevarisc (défavorable, favorable ou sans avis) dans Plat'AU
                     $avis_dossier_commission = $dossier['AVIS_DOSSIER_COMMISSION'];
-                    if (in_array($avis_dossier_commission, [1, 2, 6], true)) {
+                    if (\in_array($avis_dossier_commission, [1, 2, 6], true)) {
                         // On verse l'avis de commission dans Plat'AU
                         // Pour rappel, un avis de commission à 1 = favorable, 2 = défavorable, 6 = sans avis.
                         $avis_rendu = $this->prevarisc_service->correspondanceAvisPlatau($avis_dossier_commission, $prescriptions);
