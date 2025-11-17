@@ -132,8 +132,8 @@ final class ExportAvis extends Command
                     if (\in_array($avis_dossier_commission, [1, 2, 6], true)) {
                         // On verse l'avis de commission dans Plat'AU
                         // Pour rappel, un avis de commission à 1 = favorable, 2 = défavorable, 6 = sans avis.
-                        $avis_rendu = $this->prevarisc_service->correspondanceAvisPlatau($avis_dossier_commission, $prescriptions);
-                        $avis_labels = [1 => 'favorable', 2 => 'défavorable', 6 => 'sans avis'];
+                        $avis_rendu   = $this->prevarisc_service->correspondanceAvisPlatau($avis_dossier_commission, $prescriptions);
+                        $avis_labels  = [1 => 'favorable', 2 => 'défavorable', 6 => 'sans avis'];
                         $avis_libelle = $avis_labels[$avis_dossier_commission];
 
                         $output->writeln("Versement d'un avis $avis_libelle pour la consultation $consultation_id au service instructeur ...");
