@@ -133,19 +133,8 @@ final class ExportAvis extends Command
                         // On verse l'avis de commission dans Plat'AU
                         // Pour rappel, un avis de commission à 1 = favorable, 2 = défavorable, 6 = sans avis.
                         $avis_rendu = $this->prevarisc_service->correspondanceAvisPlatau($avis_dossier_commission, $prescriptions);
-                        switch ($avis_dossier_commission) {
-                            case 1:
-                                $avis_libelle = 'favorable';
-                                break;
-                            case 2:
-                                $avis_libelle = 'défavorable';
-                                break;
-                            case 6:
-                                $avis_libelle = 'sans avis';
-                                break;
-                            default:
-                                throw new \InvalidArgumentException("Valeur d'avis de commission inconnue : $avis_dossier_commission");
-                        }
+                        $avis_labels = [1 => 'favorable', 2 => 'défavorable', 6 => 'sans avis'];
+                        $avis_libelle = $avis_labels[$avis_dossier_commission];
 
                         $output->writeln("Versement d'un avis $avis_libelle pour la consultation $consultation_id au service instructeur ...");
                         // Si cela concerne un premier envoi d'avis alors on place la date de l'avis Prevarisc, sinon la date du lancement de la commande
