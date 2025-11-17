@@ -4,53 +4,62 @@ namespace App\Dto;
 
 class Personne
 {
-    /** @var string[] */
-    private array $prenoms;
+    /** @var string[]|null */
+    private ?array $prenoms;
 
-    /** @var string[] */
-    private array $noms;
+    /** @var string[]|null */
+    private ?array $noms;
 
-    private NomGenre $nomGenre;
+    private ?string $libDenomination;
+
+    private ?string $libRaisonSociale;
 
     /** @var Role[] */
     private array $roles;
 
     /**
-     * @param string[] $prenoms
-     * @param string[] $noms
-     * @param Role[]   $roles
+     * @param string[]|null $prenoms
+     * @param string[]|null $noms
+     * @param Role[]        $roles
      */
     public function __construct(
-        array $prenoms,
-        array $noms,
-        NomGenre $nomGenre,
+        ?array $prenoms,
+        ?array $noms,
+        ?string $libDenomination,
+        ?string $libRaisonSociale,
         array $roles = [],
     ) {
-        $this->prenoms  = $prenoms;
-        $this->noms     = $noms;
-        $this->nomGenre = $nomGenre;
-        $this->roles    = $roles;
+        $this->prenoms          = $prenoms;
+        $this->noms             = $noms;
+        $this->libDenomination  = $libDenomination;
+        $this->libRaisonSociale = $libRaisonSociale;
+        $this->roles            = $roles;
     }
 
     /**
-     * @return string[]
+     * @return string[]|null
      */
-    public function getPrenoms() : array
+    public function getPrenoms() : ?array
     {
         return $this->prenoms;
     }
 
     /**
-     * @return string[]
+     * @return string[]|null
      */
-    public function getNoms() : array
+    public function getNoms() : ?array
     {
         return $this->noms;
     }
 
-    public function getNomGenre() : NomGenre
+    public function getLibDenomination() : ?string
     {
-        return $this->nomGenre;
+        return $this->libDenomination;
+    }
+
+    public function getLibRaisonSociale() : ?string
+    {
+        return $this->libRaisonSociale;
     }
 
     /**

@@ -706,4 +706,19 @@ class Prevarisc
 
         throw new \Exception('Nature inconnue');
     }
+
+    /**
+     * Correspondance entre un avis Plat'AU et Prevarisc. On lui donne un ID Prevarisc et il nous ressort un ID Plat'AU.
+     * Plusieurs états sont disponibles pour la notion de "Favorable".
+     * Si l'ID Prevarisc correspondant n'existe pas, la fonction lève une exception.
+     */
+    public function correspondanceAvisPlatau(int $avis_prevarisc, array $prescriptions) : int
+    {
+        switch ($avis_prevarisc) {
+            case 1: return 0 === \count($prescriptions) ? 1 : 2; // Favorable ou Favorable avec prescriptions
+            case 2: return 3; // Défavorable
+            case 6: return 6; // Pas d'avis - à motiver dans la partie Fondement de l'avis
+            default: throw new \InvalidArgumentException(\sprintf('Avis %d inconnu', $avis_prevarisc));
+        }
+    }
 }

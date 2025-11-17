@@ -214,7 +214,7 @@ final class PlatauConsultation extends PlatauAbstract
     /**
      * Versement d'un avis sur une consultation.
      */
-    public function versementAvis(string $consultation_id, bool $est_favorable = true, array $prescriptions = [], array $documents = [], ?\DateTime $date_envoi = null, ?Auteur $auteur = null) : ResponseInterface
+    public function versementAvis(string $consultation_id, int $avis_rendu, array $prescriptions = [], array $documents = [], ?\DateTime $date_envoi = null, ?Auteur $auteur = null) : ResponseInterface
     {
         // On recherche dans Plat'AU les détails de la consultation liée (dans les traitées et versées)
         /** @var Information $information */
@@ -233,7 +233,7 @@ final class PlatauConsultation extends PlatauAbstract
         $avis_options = [
             'idConsultation' => $consultation_id,
             'boEstTacite' => false, // Un avis envoyé ne sera jamais tacite, il doit être considéré comme étant un avis "express" dans tous les cas
-            'nomNatureAvisRendu' => true === $est_favorable ? (0 === \count($prescriptions) ? 1 : 2) : 3, // 1 = favorable, 2 = favorable avec prescriptions, 3 = défavorable
+            'nomNatureAvisRendu' => $avis_rendu, // 1 = favorable, 2 = favorable avec prescriptions, 3 = défavorable, 6 = pas d'avis - à motiver dans la partie Fondement de l'avis
             'nomTypeAvis' => 1, // Avis de type "simple"
             'txAvis' => $description,
             'dtAvis' => $date_envoi->format('Y-m-d'),
