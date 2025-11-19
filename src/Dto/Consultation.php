@@ -14,7 +14,7 @@ class Consultation
 
     private NomEtatConsultation $nomEtatConsultation;
 
-    private string $idServiceConsultant;
+    private ?string $idServiceConsultant;
 
     private ?string $dtEmission;
 
@@ -30,7 +30,7 @@ class Consultation
         NomTypeDelai $nomTypeDelai,
         int $noVersion,
         NomEtatConsultation $nomEtatConsultation,
-        string $idServiceConsultant,
+        ?string $idServiceConsultant,
         ?string $dtEmission,
         ?string $dtConsultation,
         ?string $txObjetDeLaConsultation,
@@ -73,7 +73,7 @@ class Consultation
         return $this->nomEtatConsultation;
     }
 
-    public function getIdServiceConsultant() : string
+    public function getIdServiceConsultant() : ?string
     {
         return $this->idServiceConsultant;
     }

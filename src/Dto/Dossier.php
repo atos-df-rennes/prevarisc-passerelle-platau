@@ -8,7 +8,7 @@ class Dossier
 
     private ?string $idDossier;
 
-    private string $idServiceInstructeur;
+    private ?string $idServiceInstructeur;
 
     private int $noVersion;
 
@@ -32,7 +32,7 @@ class Dossier
      */
     public function __construct(
         ?string $idDossier,
-        string $idServiceInstructeur,
+        ?string $idServiceInstructeur,
         int $noVersion,
         ?string $txDescriptifGlobal,
         ?string $noLocal,
@@ -57,7 +57,7 @@ class Dossier
         return $this->idDossier;
     }
 
-    public function getIdServiceInstructeur() : string
+    public function getIdServiceInstructeur() : ?string
     {
         return $this->idServiceInstructeur;
     }
