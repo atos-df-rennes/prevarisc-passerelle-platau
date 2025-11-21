@@ -23,12 +23,12 @@ class Dossier
     /** @var Consultation[] */
     private array $consultations;
 
-    /** @var Personne[] */
-    private array $personnes;
+    /** @var Personne[]|null */
+    private ?array $personnes;
 
     /**
-     * @param Consultation[] $consultations
-     * @param Personne[]     $personnes
+     * @param Consultation[]  $consultations
+     * @param Personne[]|null $personnes
      */
     public function __construct(
         ?string $idDossier,
@@ -39,7 +39,7 @@ class Dossier
         ?string $suffixeNoLocal,
         NomTypeDossier $nomTypeDossier,
         array $consultations,
-        array $personnes = [],
+        ?array $personnes = [],
     ) {
         $this->idDossier            = $idDossier;
         $this->idServiceInstructeur = $idServiceInstructeur;
@@ -107,12 +107,24 @@ class Dossier
     }
 
     /**
+     * Retourne les demandeurs du dossier (rôle = pétitionnaire).
+     * Si le dossier n'a pas de demandeurs, renvoie un tableau vide.
+     * Si le dossier a des demandeurs mais qu'un demandeur n'a pas de rôle, l'exclut de la liste.
+     *
      * @return Personne[]
      */
     public function getDemandeurs() : array
     {
-        $demandeurs = array_filter($this->personnes, function (Personne $personne) {
-            $hasRolePetitionnaire = array_filter($personne->getRoles(), function (Role $role) {
+        $personnes = $this->personnes ?? [];
+
+        $demandeurs = array_filter($personnes, function (Personne $personne) {
+            $roles = $personne->getRoles();
+
+            if (null === $roles) {
+                return false;
+            }
+
+            $hasRolePetitionnaire = array_filter($roles, function (Role $role) {
                 return self::ROLE_PETITIONNAIRE === $role->getNomRole()->getIdNom();
             });
 
@@ -129,10 +141,14 @@ class Dossier
      *
      * @param Personne[]|null $demandeurs
      */
-    public function getDemandeursAsString(?array $demandeurs = null) : string
+    public function getDemandeursAsString(?array $demandeurs = null) : ?string
     {
         if (null === $demandeurs) {
             $demandeurs = $this->getDemandeurs();
+        }
+
+        if ([] === $demandeurs) {
+            return null;
         }
 
         $demandeurs_names = array_map(function (Personne $personne) {
