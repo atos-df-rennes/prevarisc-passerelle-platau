@@ -57,5 +57,35 @@ final class DossierTest extends TestCase
             1,
             'CARABI CARABO Toto Test'
         ];
+
+        yield 'demandeurs sans noms' => [
+            __DIR__.'/../fixtures/demandeurs_sans_noms.json',
+            2,
+            'BROUARD Guillaume / Toto Test'
+        ];
+
+        yield 'demandeurs sans prénoms' => [
+            __DIR__.'/../fixtures/demandeurs_sans_prenoms.json',
+            2,
+            'BROUARD Guillaume / CARABI CARABO'
+        ];
+
+        yield 'demandeurs sans prénoms noms' => [
+            __DIR__.'/../fixtures/demandeurs_sans_prenoms_noms.json',
+            2,
+            'BROUARD Guillaume / Dénomination TOTO'
+        ];
+
+        yield 'demandeurs sans prénoms noms dénomination' => [
+            __DIR__.'/../fixtures/demandeurs_sans_prenoms_noms_denomination.json',
+            2,
+            'BROUARD Guillaume / Raison sociale TOTO'
+        ];
+
+        yield 'demandeurs sans infos' => [
+            __DIR__.'/../fixtures/demandeurs_sans_infos.json',
+            2,
+            'BROUARD Guillaume / Inconnu'
+        ];
     }
 }
