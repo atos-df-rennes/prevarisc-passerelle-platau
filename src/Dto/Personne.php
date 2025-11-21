@@ -14,20 +14,20 @@ class Personne
 
     private ?string $libRaisonSociale;
 
-    /** @var Role[] */
-    private array $roles;
+    /** @var Role[]|null */
+    private ?array $roles;
 
     /**
      * @param string[]|null $prenoms
      * @param string[]|null $noms
-     * @param Role[]        $roles
+     * @param Role[]|null   $roles
      */
     public function __construct(
         ?array $prenoms,
         ?array $noms,
         ?string $libDenomination,
         ?string $libRaisonSociale,
-        array $roles = [],
+        ?array $roles,
     ) {
         $this->prenoms          = $prenoms;
         $this->noms             = $noms;
@@ -63,9 +63,9 @@ class Personne
     }
 
     /**
-     * @return Role[]
+     * @return Role[]|null
      */
-    public function getRoles() : array
+    public function getRoles() : ?array
     {
         return $this->roles;
     }
