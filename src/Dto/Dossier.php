@@ -39,7 +39,7 @@ class Dossier
         ?string $suffixeNoLocal,
         NomTypeDossier $nomTypeDossier,
         array $consultations,
-        ?array $personnes = [],
+        ?array $personnes,
     ) {
         $this->idDossier            = $idDossier;
         $this->idServiceInstructeur = $idServiceInstructeur;
