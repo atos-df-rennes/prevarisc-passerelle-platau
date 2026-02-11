@@ -98,7 +98,7 @@ final class LectureNotifications extends Command
                                     throw new \Exception(\sprintf('Aucune pièce trouvée pour le dossier %s', $idDossier));
                                 }
 
-                                $piece_notification = array_filter($pieces, fn ($piece) => $piece['idPiece'] === $identifiant_element_concerne);
+                                $piece_notification = array_filter($pieces, static fn ($piece) => $piece['idPiece'] === $identifiant_element_concerne);
 
                                 if ([] === $piece_notification) {
                                     throw new \Exception(\sprintf("La pièce %s n'a pas été trouvée dans les pièces du dossier %s", $identifiant_element_concerne, $idDossier));

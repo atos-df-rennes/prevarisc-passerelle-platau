@@ -117,14 +117,14 @@ class Dossier
     {
         $personnes = $this->personnes ?? [];
 
-        $demandeurs = array_filter($personnes, function (Personne $personne) {
+        $demandeurs = array_filter($personnes, static function (Personne $personne) {
             $roles = $personne->getRoles();
 
             if (null === $roles) {
                 return false;
             }
 
-            $hasRolePetitionnaire = array_filter($roles, function (Role $role) {
+            $hasRolePetitionnaire = array_filter($roles, static function (Role $role) {
                 return self::ROLE_PETITIONNAIRE === $role->getNomRole()->getIdNom();
             });
 
@@ -151,7 +151,7 @@ class Dossier
             return null;
         }
 
-        $demandeurs_names = array_map(function (Personne $personne) {
+        $demandeurs_names = array_map(static function (Personne $personne) {
             $prenoms = $personne->getPrenoms();
             $noms    = $personne->getNoms();
 
