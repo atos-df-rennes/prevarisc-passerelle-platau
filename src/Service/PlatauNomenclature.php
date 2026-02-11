@@ -28,7 +28,7 @@ final class PlatauNomenclature extends PlatauAbstract
         }
 
         /** @var array<int, array> $nomenclature */
-        $nomenclature = array_filter($nomenclatures, fn (array $nomenclature) => $nomenclature['idNom'] === $idNomenclature);
+        $nomenclature = array_filter($nomenclatures, static fn (array $nomenclature) => $nomenclature['idNom'] === $idNomenclature);
 
         if ([] === $nomenclature) {
             throw new \Exception(\sprintf("Aucune nomenclature trouvée pour l'identifiant %d et le code %s", $idNomenclature, $codeNomenclature));
