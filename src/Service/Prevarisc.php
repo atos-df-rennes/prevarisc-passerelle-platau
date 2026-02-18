@@ -532,9 +532,51 @@ class Prevarisc
     /**
      * Récupère la pièce jointe sur le serveur.
      */
-    public function recupererFichierPhysique(int $piece_jointe_id, string $piece_jointe_extension) : string
+    public function recupererFichierPhysique(int $piece_jointe_id, string $piece_jointe_extension) : ?string
     {
-        return $this->filesystem->read("{$piece_jointe_id}{$piece_jointe_extension}");
+        $filepath = "{$piece_jointe_id}{$piece_jointe_extension}";
+
+        try {
+            $contents = $this->filesystem->read($filepath);
+
+            /**
+             * Copie temporaire en local du fichier.
+             * Permet de stabiliser la lecture d'un fichier depuis un filesystem Windows
+             * monté sur la machine Linux via la FSTAB.
+             */
+            $temp_file = tempnam(sys_get_temp_dir(), 'platau_');
+
+            if (false === $temp_file) {
+                error_log('Erreur lors de la création du fichier temporaire');
+
+                return null;
+            }
+
+            $temp_file_contents = file_put_contents($temp_file, $contents);
+
+            if (false === $temp_file_contents) {
+                error_log('Erreur lors de la copie du contenu dans le fichier temporaire');
+
+                return null;
+            }
+
+            // On relit le fichier depuis la copie locale et non le fichier du filesystem Windows.
+            clearstatcache(true, $temp_file);
+            $stable_contents = file_get_contents($temp_file);
+            unlink($temp_file);
+
+            if (false === $stable_contents) {
+                error_log('Erreur lors de la lecture du fichier temporaire');
+
+                return null;
+            }
+
+            return $stable_contents;
+        } catch (Flysystem\FilesystemException $filesystemException) {
+            error_log("Erreur lors de la lecture du fichier $filepath : $filesystemException");
+
+            return null;
+        }
     }
 
     /**
