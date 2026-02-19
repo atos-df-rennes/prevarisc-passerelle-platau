@@ -729,6 +729,25 @@ class Prevarisc
     }
 
     /**
+     * Récupère les dossiers Prevarisc étant indiqués comme à renvoyer ou en erreur et ayant une pec renseignée.
+     */
+    public function recupererPecsARenvoyer() : array
+    {
+        /** @var array{ID_PLATAU: string}[] $results */
+        $results = $this->db->createQueryBuilder()
+            ->select('d.ID_PLATAU')
+            ->from('dossier', 'd')
+            ->join('d', 'platauconsultation', 'pc', 'd.ID_PLATAU = pc.ID_PLATAU')
+            ->where("pc.STATUT_PEC IN ('to_export', 'in_error')")
+            ->andWhere('d.INCOMPLET_DOSSIER IS NOT NULL')
+            ->executeQuery()
+            ->fetchAllAssociative()
+        ;
+
+        return array_map(static fn ($result) => $result['ID_PLATAU'], $results);
+    }
+
+    /**
      * Récupère les informations de consultation Plat'AU du dossier lié à la pièce jointe.
      * Cette méthode étant utilisée pour les renvois de pièces en erreur,
      * on utilise l'identifiant Plat'AU de la pièce concernée.
