@@ -209,7 +209,7 @@ final class LectureNotifications extends Command
                             $output->writeln($this->logMessage('Echec du versement du document : '.$error_message));
 
                             // Extraire le code d'erreur si présent dans le message
-                            $error_code = self::extractErrorCodeFromErrorMessage($error_message);
+                            $error_code = PlatauNotification::extractErrorCodeFromErrorMessage($error_message);
                             if (9 !== $error_code) {
                                 $this->prevarisc_service->changerStatutPiece($identifiant_element_concerne, 'on_error', 'ID_PLATAU');
                                 $this->prevarisc_service->ajouterMessageErreurPiece($identifiant_element_concerne, $notification['txErreur'], 'ID_PLATAU');
@@ -226,7 +226,7 @@ final class LectureNotifications extends Command
                                 break;
                             }
 
-                            $objet_metier = self::identifierObjetMetier($consultation_associee);
+                            $objet_metier = PlatauNotification::identifierObjetMetier($consultation_associee);
                             if (null === $objet_metier) {
                                 $output->writeln($this->logMessage(\sprintf("Impossible d'identifier l'objet métier associé au renvoi de la pièce %s.", $identifiant_element_concerne)));
 
@@ -288,43 +288,5 @@ final class LectureNotifications extends Command
             $type_evenement,
             $identifiant_element_concerne,
         ]);
-    }
-
-    /**
-     * Extrait le code d'erreur du message d'erreur si possible.
-     * Le message doit contenir "Code <numero> ou code <numero>".
-     *
-     * Renvoie null sinon.
-     */
-    private static function extractErrorCodeFromErrorMessage(string $error_message) : ?int
-    {
-        if (preg_match('/code[:\s]*(\d+)/i', $error_message, $matches)) {
-            return (int) $matches[1];
-        }
-
-        return null;
-    }
-
-    /**
-     * Identifie l'objet métier concerné par le renvoi de la pièce associée à la consultation.
-     *
-     * Un objet métier est considéré identifié si son statut est terminé ou en erreur car cela indique
-     * qu'un envoi a déjà été effectué et que le renvoi porte donc nécessairement sur cet objet métier.
-     *
-     * En cas d'impossibilité d'identification, renvoie null.
-     */
-    private static function identifierObjetMetier(array $consultation_associee) : ?string
-    {
-        // On regarde en priorité si un avis a été envoyé.
-        if ('treated' === $consultation_associee['STATUT_AVIS'] || 'in_error' === $consultation_associee['STATUT_AVIS']) {
-            return 'AVIS';
-        }
-
-        // Sinon la pec.
-        if ('taken_into_account' === $consultation_associee['STATUT_PEC'] || 'in_error' === $consultation_associee['STATUT_PEC']) {
-            return 'PEC';
-        }
-
-        return null;
     }
 }

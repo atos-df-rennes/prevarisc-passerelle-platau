@@ -31,4 +31,42 @@ final class PlatauNotification extends PlatauAbstract
 
         return $set;
     }
+
+    /**
+     * Extrait le code d'erreur du message d'erreur si possible.
+     * Le message doit contenir "Code <numero> ou code <numero>".
+     *
+     * Renvoie null sinon.
+     */
+    public static function extractErrorCodeFromErrorMessage(string $error_message) : ?int
+    {
+        if (preg_match('/code[:\s]*(\d+)/i', $error_message, $matches)) {
+            return (int) $matches[1];
+        }
+
+        return null;
+    }
+
+    /**
+     * Identifie l'objet métier concerné par le renvoi de la pièce associée à la consultation.
+     *
+     * Un objet métier est considéré identifié si son statut est terminé ou en erreur car cela indique
+     * qu'un envoi a déjà été effectué et que le renvoi porte donc nécessairement sur cet objet métier.
+     *
+     * En cas d'impossibilité d'identification, renvoie null.
+     */
+    public static function identifierObjetMetier(array $consultation_associee) : ?string
+    {
+        // On regarde en priorité si un avis a été envoyé.
+        if ('treated' === $consultation_associee['STATUT_AVIS'] || 'in_error' === $consultation_associee['STATUT_AVIS']) {
+            return 'AVIS';
+        }
+
+        // Sinon la pec.
+        if ('taken_into_account' === $consultation_associee['STATUT_PEC'] || 'in_error' === $consultation_associee['STATUT_PEC']) {
+            return 'PEC';
+        }
+
+        return null;
+    }
 }
