@@ -557,6 +557,7 @@ class Prevarisc
 
             if (false === $temp_file_contents) {
                 $output->writeln('Erreur lors de la copie du contenu dans le fichier temporaire');
+                unlink($temp_file);
 
                 return null;
             }
