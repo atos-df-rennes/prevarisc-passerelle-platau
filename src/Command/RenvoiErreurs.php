@@ -39,31 +39,35 @@ final class RenvoiErreurs extends Command
         foreach ($pecs_a_renvoyer as $consultation_id_pec) {
             $output->writeln(\sprintf('Renvoi de la prise en compte métier pour la consultation %s.', $consultation_id_pec));
 
-            try {
-                $this->exporterPec($consultation_id_pec, $input, $output);
+            $result_code = $this->exporterPec($consultation_id_pec, $input, $output);
 
-                $output->writeln('Prise en compte métier renvoyée avec succès.');
-            } catch (\RuntimeException $runtimeException) {
-                $output->writeln(\sprintf('Erreur lors du renvoi : %s', $runtimeException->getMessage()));
+            if (Command::SUCCESS !== $result_code) {
+                $output->writeln(\sprintf("Erreur lors du renvoi, code d'erreur : %s", $result_code));
+
+                continue;
             }
+
+            $output->writeln('Prise en compte métier renvoyée avec succès.');
         }
 
         foreach ($avis_a_renvoyer as $consultation_id_avis) {
             $output->writeln(\sprintf("Renvoi de l'avis pour la consultation %s.", $consultation_id_avis));
 
-            try {
-                $this->exporterAvis($consultation_id_avis, $input, $output);
+            $result_code = $this->exporterAvis($consultation_id_avis, $input, $output);
 
-                $output->writeln('Avis renvoyé avec succès.');
-            } catch (\RuntimeException $runtimeException) {
-                $output->writeln(\sprintf('Erreur lors du renvoi : %s', $runtimeException->getMessage()));
+            if (Command::SUCCESS !== $result_code) {
+                $output->writeln(\sprintf("Erreur lors du renvoi, code d'erreur : %s", $result_code));
+
+                continue;
             }
+
+            $output->writeln('Avis renvoyé avec succès.');
         }
 
         return Command::SUCCESS;
     }
 
-    private function exporterPec(string $consultation_id, InputInterface $input, OutputInterface $output)
+    private function exporterPec(string $consultation_id, InputInterface $input, OutputInterface $output) : int
     {
         $config_path = $input->getOption('config');
 
@@ -74,10 +78,10 @@ final class RenvoiErreurs extends Command
         ]);
         $exportPecInput->setInteractive(false);
 
-        $this->getApplication()->doRun($exportPecInput, $output);
+        return $this->getApplication()->doRun($exportPecInput, $output);
     }
 
-    private function exporterAvis(string $consultation_id, InputInterface $input, OutputInterface $output)
+    private function exporterAvis(string $consultation_id, InputInterface $input, OutputInterface $output) : int
     {
         $config_path = $input->getOption('config');
 
@@ -88,6 +92,6 @@ final class RenvoiErreurs extends Command
         ]);
         $exportAvisInput->setInteractive(false);
 
-        $this->getApplication()->doRun($exportAvisInput, $output);
+        return $this->getApplication()->doRun($exportAvisInput, $output);
     }
 }
