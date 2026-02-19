@@ -2,8 +2,8 @@
 
 namespace App\Tests\Service;
 
-use App\Service\PlatauNotification;
 use PHPUnit\Framework\TestCase;
+use App\Service\PlatauNotification;
 
 final class PlatauNotificationTest extends TestCase
 {
@@ -15,7 +15,7 @@ final class PlatauNotificationTest extends TestCase
         $this->assertSame($expected_code, PlatauNotification::extractErrorCodeFromErrorMessage($error_message));
     }
 
-    public static function errorMessagesProvider(): \Generator
+    public static function errorMessagesProvider() : \Generator
     {
         yield 'erreur générique' => [
             'Erreur inconnue',
