@@ -119,6 +119,8 @@ final class ExportAvis extends Command
 
                             if (null === $contents) {
                                 $output->writeln(\sprintf('Impossible de récupérer le contenu du fichier %s', $filename));
+                                $this->prevarisc_service->changerStatutPiece($piece_jointe['ID_PIECEJOINTE'], 'on_error');
+                                $this->prevarisc_service->ajouterMessageErreurPiece($piece_jointe['ID_PIECEJOINTE'], 'Impossible de récupérer le contenu du fichier');
 
                                 continue;
                             }

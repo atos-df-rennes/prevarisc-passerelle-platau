@@ -575,7 +575,7 @@ class Prevarisc
 
             return $stable_contents;
         } catch (Flysystem\FilesystemException $filesystemException) {
-            $output->writeln("Erreur lors de la lecture du fichier $filepath : $filesystemException");
+            $output->writeln("Erreur lors de la lecture du fichier $filepath : " . $filesystemException->getMessage());
 
             return null;
         }
