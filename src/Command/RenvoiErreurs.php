@@ -5,26 +5,29 @@ namespace App\Command;
 use App\Service\Prevarisc;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
-use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 final class RenvoiErreurs extends Command
 {
     private Prevarisc $prevarisc_service;
 
-    public function __construct(Prevarisc $prevarisc_service) {
+    public function __construct(Prevarisc $prevarisc_service)
+    {
         parent::__construct();
         $this->prevarisc_service = $prevarisc_service;
     }
 
-    protected function configure() {
+    protected function configure()
+    {
         $this->setName('renvoi-erreurs')
-            ->setDescription("Renvoie les pièces et consultations suite à une erreur (principalement pour code erreur 9 sur pièce).")
+            ->setDescription('Renvoie les pièces et consultations suite à une erreur (principalement pour code erreur 9 sur pièce).')
             ->addOption('config', 'c', InputOption::VALUE_REQUIRED, 'Chemin vers le fichier de configuration');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output): int {
+    protected function execute(InputInterface $input, OutputInterface $output) : int
+    {
         $output->writeln(\sprintf('[%s] Recherche des éléments à renvoyer.', (new \DateTime())->format('d-m-Y H:i:s')));
 
         $pecs_a_renvoyer = $this->prevarisc_service->recupererPecsARenvoyer();
@@ -34,7 +37,7 @@ final class RenvoiErreurs extends Command
         $output->writeln(\sprintf('%d avis à renvoyer.', \count($avis_a_renvoyer)));
 
         foreach ($pecs_a_renvoyer as $consultation_id_pec) {
-            $output->writeln(\sprintf("Renvoi de la prise en compte métier pour la consultation %s.", $consultation_id_pec));
+            $output->writeln(\sprintf('Renvoi de la prise en compte métier pour la consultation %s.', $consultation_id_pec));
 
             try {
                 $this->exporterPec($consultation_id_pec, $input, $output);
@@ -65,9 +68,9 @@ final class RenvoiErreurs extends Command
         $config_path = $input->getOption('config');
 
         $exportPecInput = new ArrayInput([
-           'command' => 'export-pec',
-           '--consultation-id' => $consultation_id,
-           '--config' => $config_path
+            'command' => 'export-pec',
+            '--consultation-id' => $consultation_id,
+            '--config' => $config_path,
         ]);
         $exportPecInput->setInteractive(false);
 
@@ -81,7 +84,7 @@ final class RenvoiErreurs extends Command
         $exportAvisInput = new ArrayInput([
             'command' => 'export-avis',
             '--consultation-id' => $consultation_id,
-            '--config' => $config_path
+            '--config' => $config_path,
         ]);
         $exportAvisInput->setInteractive(false);
 

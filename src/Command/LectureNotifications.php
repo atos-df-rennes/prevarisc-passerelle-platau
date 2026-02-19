@@ -206,7 +206,7 @@ final class LectureNotifications extends Command
                             break;
                         case 85:
                             $error_message = $notification['txErreur'] ?? 'Erreur inconnue';
-                            $output->writeln($this->logMessage('Echec du versement du document : ' . $error_message));
+                            $output->writeln($this->logMessage('Echec du versement du document : '.$error_message));
 
                             // Extraire le code d'erreur si présent dans le message
                             $error_code = self::extractErrorCodeFromErrorMessage($error_message);
@@ -217,7 +217,7 @@ final class LectureNotifications extends Command
                                 break;
                             }
 
-                            $output->writeln($this->logMessage("CODE 9 détecté : La pièce va être marquée pour renvoi."));
+                            $output->writeln($this->logMessage('CODE 9 détecté : La pièce va être marquée pour renvoi.'));
 
                             $consultation_associee = $this->prevarisc_service->recupererConsultationDePiece($identifiant_element_concerne);
                             if (false === $consultation_associee) {
@@ -296,7 +296,7 @@ final class LectureNotifications extends Command
      *
      * Renvoie null sinon.
      */
-    private static function extractErrorCodeFromErrorMessage(string $error_message): ?int
+    private static function extractErrorCodeFromErrorMessage(string $error_message) : ?int
     {
         if (preg_match('/code[:\s]*(\d+)/i', $error_message, $matches)) {
             return (int) $matches[1];
@@ -313,15 +313,15 @@ final class LectureNotifications extends Command
      *
      * En cas d'impossibilité d'identification, renvoie null.
      */
-    private static function identifierObjetMetier(array $consultation_associee): ?string
+    private static function identifierObjetMetier(array $consultation_associee) : ?string
     {
         // On regarde en priorité si un avis a été envoyé.
-        if ($consultation_associee['STATUT_AVIS'] === 'treated' || $consultation_associee['STATUT_AVIS'] === 'in_error') {
+        if ('treated' === $consultation_associee['STATUT_AVIS'] || 'in_error' === $consultation_associee['STATUT_AVIS']) {
             return 'AVIS';
         }
 
         // Sinon la pec.
-        if ($consultation_associee['STATUT_PEC'] === 'taken_into_account' || $consultation_associee['STATUT_PEC'] === 'in_error') {
+        if ('taken_into_account' === $consultation_associee['STATUT_PEC'] || 'in_error' === $consultation_associee['STATUT_PEC']) {
             return 'PEC';
         }
 
