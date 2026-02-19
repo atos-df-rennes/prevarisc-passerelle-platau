@@ -10,6 +10,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Schema\Column;
 use App\ValueObjects\DateReponse;
 use Doctrine\DBAL\Query\QueryBuilder;
+use Symfony\Component\Console\Output\OutputInterface;
 
 class Prevarisc
 {
@@ -532,7 +533,7 @@ class Prevarisc
     /**
      * Récupère la pièce jointe sur le serveur.
      */
-    public function recupererFichierPhysique(int $piece_jointe_id, string $piece_jointe_extension) : ?string
+    public function recupererFichierPhysique(OutputInterface $output, int $piece_jointe_id, string $piece_jointe_extension) : ?string
     {
         $filepath = "{$piece_jointe_id}{$piece_jointe_extension}";
 
@@ -547,7 +548,7 @@ class Prevarisc
             $temp_file = tempnam(sys_get_temp_dir(), 'platau_');
 
             if (false === $temp_file) {
-                error_log('Erreur lors de la création du fichier temporaire');
+                $output->writeln('Erreur lors de la création du fichier temporaire');
 
                 return null;
             }
@@ -555,7 +556,7 @@ class Prevarisc
             $temp_file_contents = file_put_contents($temp_file, $contents);
 
             if (false === $temp_file_contents) {
-                error_log('Erreur lors de la copie du contenu dans le fichier temporaire');
+                $output->writeln('Erreur lors de la copie du contenu dans le fichier temporaire');
 
                 return null;
             }
@@ -566,14 +567,14 @@ class Prevarisc
             unlink($temp_file);
 
             if (false === $stable_contents) {
-                error_log('Erreur lors de la lecture du fichier temporaire');
+                $output->writeln('Erreur lors de la lecture du fichier temporaire');
 
                 return null;
             }
 
             return $stable_contents;
         } catch (Flysystem\FilesystemException $filesystemException) {
-            error_log("Erreur lors de la lecture du fichier $filepath : $filesystemException");
+            $output->writeln("Erreur lors de la lecture du fichier $filepath : $filesystemException");
 
             return null;
         }
