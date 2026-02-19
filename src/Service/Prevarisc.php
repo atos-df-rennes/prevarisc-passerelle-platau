@@ -754,7 +754,7 @@ class Prevarisc
      * Cette méthode étant utilisée pour les renvois de pièces en erreur,
      * on utilise l'identifiant Plat'AU de la pièce concernée.
      */
-    public function recupererConsultationDePiece(string $id_platau_piece): ?array
+    public function recupererConsultationDePiece(string $id_platau_piece) : ?array
     {
         $informations_consultation = $this->db->createQueryBuilder()
             ->select('pc.ID_PLATAU', 'pc.STATUT_AVIS', 'pc.STATUT_PEC')
