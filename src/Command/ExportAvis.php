@@ -115,7 +115,15 @@ final class ExportAvis extends Command
 
                         foreach ($pieces_to_export as $piece_jointe) {
                             $filename = $piece_jointe['NOM_PIECEJOINTE'].$piece_jointe['EXTENSION_PIECEJOINTE'];
-                            $contents = $this->prevarisc_service->recupererFichierPhysique($piece_jointe['ID_PIECEJOINTE'], $piece_jointe['EXTENSION_PIECEJOINTE']);
+                            $contents = $this->prevarisc_service->recupererFichierPhysique($output, $piece_jointe['ID_PIECEJOINTE'], $piece_jointe['EXTENSION_PIECEJOINTE']);
+
+                            if (null === $contents) {
+                                $output->writeln(\sprintf('Impossible de récupérer le contenu du fichier %s', $filename));
+                                $this->prevarisc_service->changerStatutPiece($piece_jointe['ID_PIECEJOINTE'], 'on_error');
+                                $this->prevarisc_service->ajouterMessageErreurPiece($piece_jointe['ID_PIECEJOINTE'], 'Impossible de récupérer le contenu du fichier');
+
+                                continue;
+                            }
 
                             try {
                                 $pieces[] = $this->piece_service->uploadDocument($filename, $contents, 9); // Type document 9 = Document lié à un avis

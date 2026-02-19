@@ -10,6 +10,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Schema\Column;
 use App\ValueObjects\DateReponse;
 use Doctrine\DBAL\Query\QueryBuilder;
+use Symfony\Component\Console\Output\OutputInterface;
 
 class Prevarisc
 {
@@ -532,9 +533,52 @@ class Prevarisc
     /**
      * Récupère la pièce jointe sur le serveur.
      */
-    public function recupererFichierPhysique(int $piece_jointe_id, string $piece_jointe_extension) : string
+    public function recupererFichierPhysique(OutputInterface $output, int $piece_jointe_id, string $piece_jointe_extension) : ?string
     {
-        return $this->filesystem->read("{$piece_jointe_id}{$piece_jointe_extension}");
+        $filepath = "{$piece_jointe_id}{$piece_jointe_extension}";
+
+        try {
+            $contents = $this->filesystem->read($filepath);
+
+            /**
+             * Copie temporaire en local du fichier.
+             * Permet de stabiliser la lecture d'un fichier depuis un filesystem Windows
+             * monté sur la machine Linux via la FSTAB.
+             */
+            $temp_file = tempnam(sys_get_temp_dir(), 'platau_');
+
+            if (false === $temp_file) {
+                $output->writeln('Erreur lors de la création du fichier temporaire');
+
+                return null;
+            }
+
+            $temp_file_contents = file_put_contents($temp_file, $contents);
+
+            if (false === $temp_file_contents) {
+                $output->writeln('Erreur lors de la copie du contenu dans le fichier temporaire');
+                unlink($temp_file);
+
+                return null;
+            }
+
+            // On relit le fichier depuis la copie locale et non le fichier du filesystem Windows.
+            clearstatcache(true, $temp_file);
+            $stable_contents = file_get_contents($temp_file);
+            unlink($temp_file);
+
+            if (false === $stable_contents) {
+                $output->writeln('Erreur lors de la lecture du fichier temporaire');
+
+                return null;
+            }
+
+            return $stable_contents;
+        } catch (Flysystem\FilesystemException $filesystemException) {
+            $output->writeln("Erreur lors de la lecture du fichier $filepath : ".$filesystemException->getMessage());
+
+            return null;
+        }
     }
 
     /**
@@ -684,6 +728,51 @@ class Prevarisc
         ;
 
         return array_map(static fn ($result) => $result['ID_PLATAU'], $results);
+    }
+
+    /**
+     * Récupère les dossiers Prevarisc étant indiqués comme à renvoyer ou en erreur et ayant une pec renseignée.
+     */
+    public function recupererPecsARenvoyer() : array
+    {
+        /** @var array{ID_PLATAU: string}[] $results */
+        $results = $this->db->createQueryBuilder()
+            ->select('d.ID_PLATAU')
+            ->from('dossier', 'd')
+            ->join('d', 'platauconsultation', 'pc', 'd.ID_PLATAU = pc.ID_PLATAU')
+            ->where("pc.STATUT_PEC IN ('to_export', 'in_error')")
+            ->andWhere('d.INCOMPLET_DOSSIER IS NOT NULL')
+            ->executeQuery()
+            ->fetchAllAssociative()
+        ;
+
+        return array_map(static fn ($result) => $result['ID_PLATAU'], $results);
+    }
+
+    /**
+     * Récupère les informations de consultation Plat'AU du dossier lié à la pièce jointe.
+     * Cette méthode étant utilisée pour les renvois de pièces en erreur,
+     * on utilise l'identifiant Plat'AU de la pièce concernée.
+     */
+    public function recupererConsultationDePiece(string $id_platau_piece) : ?array
+    {
+        $informations_consultation = $this->db->createQueryBuilder()
+            ->select('pc.ID_PLATAU', 'pc.STATUT_AVIS', 'pc.STATUT_PEC')
+            ->from('platauconsultation', 'pc')
+            ->join('pc', 'dossier', 'd', 'd.ID_PLATAU = pc.ID_PLATAU')
+            ->join('d', 'dossierpj', 'dpj', 'dpj.ID_DOSSIER = d.ID_DOSSIER')
+            ->join('dpj', 'piecejointe', 'pj', 'pj.ID_PIECEJOINTE = dpj.ID_PIECEJOINTE')
+            ->where('pj.ID_PLATAU = :id_platau')
+            ->setParameter('id_platau', $id_platau_piece)
+            ->executeQuery()
+            ->fetchAssociative()
+        ;
+
+        if (false === $informations_consultation) {
+            return null;
+        }
+
+        return $informations_consultation;
     }
 
     /**

@@ -40,5 +40,6 @@ final class Console extends Application
         $this->add(new Command\DetailsConsultation($container->get('service.platau.consultation')));
         $this->add(new Command\DetailsAvis($container->get('service.platau.avis')));
         $this->add(new Command\LectureNotifications($container->get('service.platau.notification'), $container->get('service.prevarisc'), $container->get('service.platau.consultation'), $container->get('service.platau.piece'), $container->get('service.platau.acteur'), $container->get('service.platau.nomenclature')));
+        $this->add(new Command\RenvoiErreurs($container->get('service.prevarisc')));
     }
 }

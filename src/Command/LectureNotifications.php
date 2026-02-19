@@ -205,10 +205,42 @@ final class LectureNotifications extends Command
 
                             break;
                         case 85:
-                            $output->writeln($this->logMessage('Echec du versement du document.'));
+                            $error_message = $notification['txErreur'] ?? 'Erreur inconnue';
+                            $output->writeln($this->logMessage('Echec du versement du document : '.$error_message));
 
-                            $this->prevarisc_service->changerStatutPiece($identifiant_element_concerne, 'on_error', 'ID_PLATAU');
-                            $this->prevarisc_service->ajouterMessageErreurPiece($identifiant_element_concerne, $notification['txErreur'], 'ID_PLATAU');
+                            // Extraire le code d'erreur si présent dans le message
+                            $error_code = PlatauNotification::extractErrorCodeFromErrorMessage($error_message);
+                            if (9 !== $error_code) {
+                                $this->prevarisc_service->changerStatutPiece($identifiant_element_concerne, 'on_error', 'ID_PLATAU');
+                                $this->prevarisc_service->ajouterMessageErreurPiece($identifiant_element_concerne, $notification['txErreur'], 'ID_PLATAU');
+
+                                break;
+                            }
+
+                            $output->writeln($this->logMessage('CODE 9 détecté : La pièce va être marquée pour renvoi.'));
+
+                            $consultation_associee = $this->prevarisc_service->recupererConsultationDePiece($identifiant_element_concerne);
+                            if (null === $consultation_associee) {
+                                $output->writeln($this->logMessage(\sprintf("Impossible d'identifier la consultation associée à la pièce %s.", $identifiant_element_concerne)));
+                                $this->prevarisc_service->changerStatutPiece($identifiant_element_concerne, 'on_error', 'ID_PLATAU');
+                                $this->prevarisc_service->ajouterMessageErreurPiece($identifiant_element_concerne, "Impossible d'identifier la consultation associée", 'ID_PLATAU');
+
+                                break;
+                            }
+
+                            $objet_metier = PlatauNotification::identifierObjetMetier($consultation_associee);
+                            if (null === $objet_metier) {
+                                $output->writeln($this->logMessage(\sprintf("Impossible d'identifier l'objet métier associé au renvoi de la pièce %s.", $identifiant_element_concerne)));
+                                $this->prevarisc_service->changerStatutPiece($identifiant_element_concerne, 'on_error', 'ID_PLATAU');
+                                $this->prevarisc_service->ajouterMessageErreurPiece($identifiant_element_concerne, "Impossible d'identifier l'objet métier associé", 'ID_PLATAU');
+
+                                break;
+                            }
+
+                            $this->prevarisc_service->setMetadonneesEnvoi($consultation_associee['ID_PLATAU'], $objet_metier, 'to_export')->executeStatement();
+                            $this->prevarisc_service->changerStatutPiece($identifiant_element_concerne, 'to_be_exported', 'ID_PLATAU');
+
+                            $output->writeln($this->logMessage(\sprintf("La pièce %s a été marquée pour renvoi. La consultation associée %s a été marquée pour renvoi avec l'objet métier %s", $identifiant_element_concerne, $consultation_associee['ID_PLATAU'], $objet_metier)));
 
                             break;
                         default:
