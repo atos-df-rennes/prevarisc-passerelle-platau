@@ -753,10 +753,8 @@ class Prevarisc
      * Récupère les informations de consultation Plat'AU du dossier lié à la pièce jointe.
      * Cette méthode étant utilisée pour les renvois de pièces en erreur,
      * on utilise l'identifiant Plat'AU de la pièce concernée.
-     *
-     * @return false|array
      */
-    public function recupererConsultationDePiece(string $id_platau_piece)
+    public function recupererConsultationDePiece(string $id_platau_piece): ?array
     {
         $informations_consultation = $this->db->createQueryBuilder()
             ->select('pc.ID_PLATAU', 'pc.STATUT_AVIS', 'pc.STATUT_PEC')
@@ -769,6 +767,10 @@ class Prevarisc
             ->executeQuery()
             ->fetchAssociative()
         ;
+
+        if (false === $informations_consultation) {
+            return null;
+        }
 
         return $informations_consultation;
     }

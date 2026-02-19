@@ -220,7 +220,7 @@ final class LectureNotifications extends Command
                             $output->writeln($this->logMessage('CODE 9 détecté : La pièce va être marquée pour renvoi.'));
 
                             $consultation_associee = $this->prevarisc_service->recupererConsultationDePiece($identifiant_element_concerne);
-                            if (false === $consultation_associee) {
+                            if (null === $consultation_associee) {
                                 $output->writeln($this->logMessage(\sprintf("Impossible d'identifier la consultation associée à la pièce %s.", $identifiant_element_concerne)));
                                 $this->prevarisc_service->changerStatutPiece($identifiant_element_concerne, 'on_error', 'ID_PLATAU');
                                 $this->prevarisc_service->ajouterMessageErreurPiece($identifiant_element_concerne, "Impossible d'identifier la consultation associée", 'ID_PLATAU');
