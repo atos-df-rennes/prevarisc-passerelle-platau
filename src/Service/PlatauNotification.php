@@ -40,7 +40,7 @@ final class PlatauNotification extends PlatauAbstract
      */
     public static function extractErrorCodeFromErrorMessage(string $error_message) : ?int
     {
-        if (preg_match('/code[:\s]*(\d+)/i', $error_message, $matches)) {
+        if (preg_match('/code (\d+)/i', $error_message, $matches)) {
             return (int) $matches[1];
         }
 
