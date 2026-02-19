@@ -222,6 +222,8 @@ final class LectureNotifications extends Command
                             $consultation_associee = $this->prevarisc_service->recupererConsultationDePiece($identifiant_element_concerne);
                             if (false === $consultation_associee) {
                                 $output->writeln($this->logMessage(\sprintf("Impossible d'identifier la consultation associée à la pièce %s.", $identifiant_element_concerne)));
+                                $this->prevarisc_service->changerStatutPiece($identifiant_element_concerne, 'on_error', 'ID_PLATAU');
+                                $this->prevarisc_service->ajouterMessageErreurPiece($identifiant_element_concerne, "Impossible d'identifier la consultation associée", 'ID_PLATAU');
 
                                 break;
                             }
@@ -229,6 +231,8 @@ final class LectureNotifications extends Command
                             $objet_metier = PlatauNotification::identifierObjetMetier($consultation_associee);
                             if (null === $objet_metier) {
                                 $output->writeln($this->logMessage(\sprintf("Impossible d'identifier l'objet métier associé au renvoi de la pièce %s.", $identifiant_element_concerne)));
+                                $this->prevarisc_service->changerStatutPiece($identifiant_element_concerne, 'on_error', 'ID_PLATAU');
+                                $this->prevarisc_service->ajouterMessageErreurPiece($identifiant_element_concerne, "Impossible d'identifier l'objet métier associé", 'ID_PLATAU');
 
                                 break;
                             }
