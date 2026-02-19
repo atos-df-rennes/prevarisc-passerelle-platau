@@ -729,6 +729,30 @@ class Prevarisc
     }
 
     /**
+     * Récupère les informations de consultation Plat'AU du dossier lié à la pièce jointe.
+     * Cette méthode étant utilisée pour les renvois de pièces en erreur,
+     * on utilise l'identifiant Plat'AU de la pièce concernée.
+     *
+     * @return false|array
+     */
+    public function recupererConsultationDePiece(string $id_platau_piece)
+    {
+        $informations_consultation = $this->db->createQueryBuilder()
+            ->select('pc.ID_PLATAU', 'pc.STATUT_AVIS', 'pc.STATUT_PEC')
+            ->from('platauconsultation', 'pc')
+            ->join('pc', 'dossier', 'd', 'd.ID_PLATAU = pc.ID_PLATAU')
+            ->join('d', 'dossierpj', 'dpj', 'dpj.ID_DOSSIER = d.ID_DOSSIER')
+            ->join('dpj', 'piecejointe', 'pj', 'pj.ID_PIECEJOINTE = dpj.ID_PIECEJOINTE')
+            ->where('pj.ID_PLATAU = :id_platau')
+            ->setParameter('id_platau', $id_platau_piece)
+            ->executeQuery()
+            ->fetchAssociative()
+        ;
+
+        return $informations_consultation;
+    }
+
+    /**
      * Correspondance entre une nature de dossier PlatAU et Prevarisc.
      * On lui donne un ID PlatAU et il nous ressort un ID Prevarisc.
      * Si l'ID Prevarisc correspondant n'existe pas, la fonction lève une exception.
