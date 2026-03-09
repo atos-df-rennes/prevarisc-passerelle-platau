@@ -9,7 +9,7 @@ final class DateParser
      * Retourne null si la date est nulle ou si le parsing échoue,
      * contrairement à DateTime::createFromFormat qui peut retourner false.
      */
-    public function parse(string $format, ?string $date): ?\DateTime
+    public function parse(string $format, ?string $date) : ?\DateTime
     {
         if (null === $date) {
             return null;
