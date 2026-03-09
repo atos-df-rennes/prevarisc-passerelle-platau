@@ -2,6 +2,7 @@
 
 namespace App\Command;
 
+use App\Service\DateParser;
 use App\Service\PlatauAvis;
 use App\Service\PlatauPiece;
 use App\ValueObjects\Auteur;
@@ -18,16 +19,18 @@ final class ExportAvis extends Command
     private PlatauConsultationService $consultation_service;
     private PlatauPiece $piece_service;
     private PlatauAvis $avis_service;
+    private DateParser $date_parser;
 
     /**
      * Initialisation de la commande.
      */
-    public function __construct(PrevariscService $prevarisc_service, PlatauConsultationService $consultation_service, PlatauPiece $piece_service, PlatauAvis $avis_service)
+    public function __construct(PrevariscService $prevarisc_service, PlatauConsultationService $consultation_service, PlatauPiece $piece_service, PlatauAvis $avis_service, DateParser $date_parser)
     {
         $this->prevarisc_service    = $prevarisc_service;
         $this->consultation_service = $consultation_service;
         $this->piece_service        = $piece_service;
         $this->avis_service         = $avis_service;
+        $this->date_parser          = $date_parser;
         parent::__construct();
     }
 
@@ -150,7 +153,7 @@ final class ExportAvis extends Command
 
                         if ('to_export' === $dossier['STATUT_AVIS']) {
                             $avis       = $this->avis_service->getAvisForConsultation($consultation_id);
-                            $date_envoi = null !== $dossier['DATE_AVIS'] ? \DateTime::createFromFormat('Y-m-d', $dossier['DATE_AVIS']) : \DateTime::createFromFormat('Y-m-d', $avis['dtAvis']);
+                            $date_envoi = null !== $dossier['DATE_AVIS'] ? $this->date_parser->parse('Y-m-d', $dossier['DATE_AVIS']) : $this->date_parser->parse('Y-m-d', $avis['dtAvis']);
                         }
 
                         $avis_verse = $this->consultation_service->versementAvis(
