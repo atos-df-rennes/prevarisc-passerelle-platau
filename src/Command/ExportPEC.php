@@ -2,6 +2,7 @@
 
 namespace App\Command;
 
+use App\Service\DateParser;
 use App\Service\PlatauPiece;
 use App\ValueObjects\Auteur;
 use App\Service\Prevarisc as PrevariscService;
@@ -16,15 +17,17 @@ final class ExportPEC extends Command
     private PrevariscService $prevarisc_service;
     private PlatauConsultationService $consultation_service;
     private PlatauPiece $piece_service;
+    private DateParser $date_parser;
 
     /**
      * Initialisation de la commande.
      */
-    public function __construct(PrevariscService $prevarisc_service, PlatauConsultationService $consultation_service, PlatauPiece $piece_service)
+    public function __construct(PrevariscService $prevarisc_service, PlatauConsultationService $consultation_service, PlatauPiece $piece_service, DateParser $date_parser)
     {
         $this->prevarisc_service    = $prevarisc_service;
         $this->consultation_service = $consultation_service;
         $this->piece_service        = $piece_service;
+        $this->date_parser          = $date_parser;
         parent::__construct();
     }
 
@@ -125,14 +128,14 @@ final class ExportPEC extends Command
                         $output->writeln("Notification de la Prise En Compte Négative de la consultation $consultation_id au service instructeur ...");
                         $documentsManquants = $this->prevarisc_service->recupererDocumentsManquants($dossier['ID_DOSSIER']);
 
-                        // Si cela concerne un premier envoi de PEC alors on place la date de la PEC Prevarisc, sinon la date du lancement de la commande
+                        // Si cela concerne un premier envoi de PEC alors on place la date de la PEC Prevarisc, sinon null (envoiPEC utilisera la date courante)
                         $pec_versee = $this->consultation_service->envoiPEC(
                             $consultation_id,
                             false,
                             $delai_reponse,
                             $documentsManquants,
                             $pieces,
-                            'to_export' === $dossier['STATUT_PEC'] ? \DateTime::createFromFormat('Y-m-d', $dossier['DATE_PEC']) : null,
+                            'to_export' === $dossier['STATUT_PEC'] ? $this->date_parser->parse('Y-m-d', $dossier['DATE_PEC']) : null,
                             new Auteur($auteur['PRENOM_UTILISATEURINFORMATIONS'], $auteur['NOM_UTILISATEURINFORMATIONS'], $auteur['MAIL_UTILISATEURINFORMATIONS'], $auteur['TELFIXE_UTILISATEURINFORMATIONS'], $auteur['TELPORTABLE_UTILISATEURINFORMATIONS']),
                         );
 
@@ -164,14 +167,14 @@ final class ExportPEC extends Command
                     } elseif ('0' === (string) $dossier['INCOMPLET_DOSSIER']) {
                         $output->writeln("Notification de la Prise En Compte Positive de la consultation $consultation_id au service instructeur ...");
 
-                        // Si cela concerne un premier envoi de PEC alors on place la date de la PEC Prevarisc, sinon la date du lancement de la commande
+                        // Si cela concerne un premier envoi de PEC alors on place la date de la PEC Prevarisc, sinon null (envoiPEC utilisera la date courante)
                         $pec_versee = $this->consultation_service->envoiPEC(
                             $consultation_id,
                             true,
                             $delai_reponse,
                             null,
                             $pieces,
-                            'to_export' === $dossier['STATUT_PEC'] ? \DateTime::createFromFormat('Y-m-d', $dossier['DATE_PEC']) : new \DateTime(),
+                            'to_export' === $dossier['STATUT_PEC'] ? $this->date_parser->parse('Y-m-d', $dossier['DATE_PEC']) : null,
                             new Auteur($auteur['PRENOM_UTILISATEURINFORMATIONS'], $auteur['NOM_UTILISATEURINFORMATIONS'], $auteur['MAIL_UTILISATEURINFORMATIONS'], $auteur['TELFIXE_UTILISATEURINFORMATIONS'], $auteur['TELPORTABLE_UTILISATEURINFORMATIONS']),
                         );
 
