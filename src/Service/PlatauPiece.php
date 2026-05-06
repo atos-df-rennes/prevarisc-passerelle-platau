@@ -27,7 +27,6 @@ final class PlatauPiece extends PlatauAbstract
         $syncplicity_folder_id = (string) $file['VirtualFolderId'];
 
         $hash_sha512 = hash('sha512', $file_contents);
-        error_log(\sprintf('[PLATAU_HASH_DEBUG] Fichier "%s" uploadé : taille=%d octets, sha256_syncplicity=%s, sha512_platau=%s', $filename, strlen($file_contents), hash('sha256', $file_contents), $hash_sha512));
 
         $document = [
             'fileId' => $syncplicity_file_id,

@@ -117,7 +117,13 @@ final class ExportAvis extends Command
                         $pieces_to_export = $this->prevarisc_service->recupererPiecesAvecStatut($dossier['ID_DOSSIER'], 'to_be_exported');
 
                         foreach ($pieces_to_export as $piece_jointe) {
-                            $filename = $piece_jointe['NOM_PIECEJOINTE'].$piece_jointe['EXTENSION_PIECEJOINTE'];
+                            $filename            = $piece_jointe['NOM_PIECEJOINTE'].$piece_jointe['EXTENSION_PIECEJOINTE'];
+                            // Le nom utilisé sur Syncplicity doit être unique par pièce jointe pour éviter
+                            // l'écrasement : Syncplicity réutilise le même data_file_id pour un même nom de
+                            // fichier dans le même dossier virtuel. Sans unicité, Plat'AU récupère toujours
+                            // la dernière version uploadée, causant des erreurs de hash (code 10) ou de
+                            // fichier introuvable (code 9) pour toutes les consultations sauf la dernière.
+                            $syncplicity_filename = $piece_jointe['NOM_PIECEJOINTE'].'_'.$piece_jointe['ID_PIECEJOINTE'].$piece_jointe['EXTENSION_PIECEJOINTE'];
                             $contents = $this->prevarisc_service->recupererFichierPhysique($output, $piece_jointe['ID_PIECEJOINTE'], $piece_jointe['EXTENSION_PIECEJOINTE']);
 
                             if (null === $contents) {
@@ -129,7 +135,7 @@ final class ExportAvis extends Command
                             }
 
                             try {
-                                $pieces[] = $this->piece_service->uploadDocument($filename, $contents, 9); // Type document 9 = Document lié à un avis
+                                $pieces[] = $this->piece_service->uploadDocument($syncplicity_filename, $contents, 9); // Type document 9 = Document lié à un avis
                                 $this->prevarisc_service->changerStatutPiece($piece_jointe['ID_PIECEJOINTE'], 'awaiting_status');
                             } catch (\Exception $e) {
                                 $this->prevarisc_service->changerStatutPiece($piece_jointe['ID_PIECEJOINTE'], 'on_error');

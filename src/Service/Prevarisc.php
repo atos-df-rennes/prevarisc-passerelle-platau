@@ -540,8 +540,6 @@ class Prevarisc
         try {
             $contents = $this->filesystem->read($filepath);
 
-            $output->writeln(\sprintf('[HASH_DEBUG] Fichier %s lu depuis le filesystem : taille=%d octets, sha512=%s', $filepath, strlen($contents), hash('sha512', $contents)));
-
             /**
              * Copie temporaire en local du fichier.
              * Permet de stabiliser la lecture d'un fichier depuis un filesystem Windows
@@ -574,8 +572,6 @@ class Prevarisc
 
                 return null;
             }
-
-            $output->writeln(\sprintf('[HASH_DEBUG] Fichier %s après copie locale : taille=%d octets, sha512=%s', $filepath, strlen($stable_contents), hash('sha512', $stable_contents)));
 
             return $stable_contents;
         } catch (Flysystem\FilesystemException $filesystemException) {
