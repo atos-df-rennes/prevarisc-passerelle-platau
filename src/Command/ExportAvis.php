@@ -13,11 +13,9 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use App\Service\PlatauConsultation as PlatauConsultationService;
 
-final class ExportAvis extends Command
+final class ExportAvis extends AbstractExportCommand
 {
-    private PrevariscService $prevarisc_service;
     private PlatauConsultationService $consultation_service;
-    private PlatauPiece $piece_service;
     private PlatauAvis $avis_service;
     private DateParser $date_parser;
 
@@ -26,12 +24,10 @@ final class ExportAvis extends Command
      */
     public function __construct(PrevariscService $prevarisc_service, PlatauConsultationService $consultation_service, PlatauPiece $piece_service, PlatauAvis $avis_service, DateParser $date_parser)
     {
-        $this->prevarisc_service    = $prevarisc_service;
+        parent::__construct($prevarisc_service, $piece_service);
         $this->consultation_service = $consultation_service;
-        $this->piece_service        = $piece_service;
         $this->avis_service         = $avis_service;
         $this->date_parser          = $date_parser;
-        parent::__construct();
     }
 
     /**
@@ -113,36 +109,7 @@ final class ExportAvis extends Command
                     $prescriptions = $this->prevarisc_service->getPrescriptions($dossier['ID_DOSSIER']);
 
                     // On recherche les pièces jointes en attente d'envoi vers Plat'AU associées au dossier Prevarisc
-                    if ($this->piece_service->getSyncplicity()) {
-                        $pieces_to_export = $this->prevarisc_service->recupererPiecesAvecStatut($dossier['ID_DOSSIER'], 'to_be_exported');
-
-                        foreach ($pieces_to_export as $piece_jointe) {
-                            $filename            = $piece_jointe['NOM_PIECEJOINTE'].$piece_jointe['EXTENSION_PIECEJOINTE'];
-                            // Le nom utilisé sur Syncplicity doit être unique par pièce jointe pour éviter
-                            // l'écrasement : Syncplicity réutilise le même data_file_id pour un même nom de
-                            // fichier dans le même dossier virtuel. Sans unicité, Plat'AU récupère toujours
-                            // la dernière version uploadée, causant des erreurs de hash (code 10) ou de
-                            // fichier introuvable (code 9) pour toutes les consultations sauf la dernière.
-                            $syncplicity_filename = $piece_jointe['NOM_PIECEJOINTE'].'_'.$piece_jointe['ID_PIECEJOINTE'].$piece_jointe['EXTENSION_PIECEJOINTE'];
-                            $contents = $this->prevarisc_service->recupererFichierPhysique($output, $piece_jointe['ID_PIECEJOINTE'], $piece_jointe['EXTENSION_PIECEJOINTE']);
-
-                            if (null === $contents) {
-                                $output->writeln(\sprintf('Impossible de récupérer le contenu du fichier %s', $filename));
-                                $this->prevarisc_service->changerStatutPiece($piece_jointe['ID_PIECEJOINTE'], 'on_error');
-                                $this->prevarisc_service->ajouterMessageErreurPiece($piece_jointe['ID_PIECEJOINTE'], 'Impossible de récupérer le contenu du fichier');
-
-                                continue;
-                            }
-
-                            try {
-                                $pieces[] = $this->piece_service->uploadDocument($syncplicity_filename, $contents, 9); // Type document 9 = Document lié à un avis
-                                $this->prevarisc_service->changerStatutPiece($piece_jointe['ID_PIECEJOINTE'], 'awaiting_status');
-                            } catch (\Exception $e) {
-                                $this->prevarisc_service->changerStatutPiece($piece_jointe['ID_PIECEJOINTE'], 'on_error');
-                                $this->prevarisc_service->ajouterMessageErreurPiece($piece_jointe['ID_PIECEJOINTE'], $e->getMessage());
-                            }
-                        }
-                    }
+                    ['pieces' => $pieces, 'pieces_to_export' => $pieces_to_export] = $this->uploaderPiecesJointes($dossier['ID_DOSSIER'], 9, $output);
 
                     // On verse l'avis de commission Prevarisc (défavorable, favorable ou sans avis) dans Plat'AU
                     $avis_dossier_commission = $dossier['AVIS_DOSSIER_COMMISSION'];
