@@ -102,7 +102,8 @@ final class ExportPEC extends Command
                         $pieces_to_export = $this->prevarisc_service->recupererPiecesAvecStatut($dossier['ID_DOSSIER'], 'to_be_exported');
 
                         foreach ($pieces_to_export as $piece_jointe) {
-                            $filename = $piece_jointe['NOM_PIECEJOINTE'].$piece_jointe['EXTENSION_PIECEJOINTE'];
+                            $filename             = $piece_jointe['NOM_PIECEJOINTE'].$piece_jointe['EXTENSION_PIECEJOINTE'];
+                            $syncplicity_filename = $piece_jointe['NOM_PIECEJOINTE'].'_'.$piece_jointe['ID_PIECEJOINTE'].$piece_jointe['EXTENSION_PIECEJOINTE'];
                             $contents = $this->prevarisc_service->recupererFichierPhysique($output, $piece_jointe['ID_PIECEJOINTE'], $piece_jointe['EXTENSION_PIECEJOINTE']);
 
                             if (null === $contents) {
@@ -114,7 +115,7 @@ final class ExportPEC extends Command
                             }
 
                             try {
-                                $pieces[] = $this->piece_service->uploadDocument($filename, $contents, 47); // Type document 47 = Document lié à une prise en compte métier
+                                $pieces[] = $this->piece_service->uploadDocument($syncplicity_filename, $contents, 47); // Type document 47 = Document lié à une prise en compte métier
                                 $this->prevarisc_service->changerStatutPiece($piece_jointe['ID_PIECEJOINTE'], 'awaiting_status');
                             } catch (\Exception $e) {
                                 $this->prevarisc_service->changerStatutPiece($piece_jointe['ID_PIECEJOINTE'], 'on_error');
