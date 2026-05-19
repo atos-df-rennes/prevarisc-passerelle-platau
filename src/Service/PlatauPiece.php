@@ -26,13 +26,15 @@ final class PlatauPiece extends PlatauAbstract
         \assert(\array_key_exists('VirtualFolderId', $file));
         $syncplicity_folder_id = (string) $file['VirtualFolderId'];
 
+        $hash_sha512 = hash('sha512', $file_contents);
+
         $document = [
             'fileId' => $syncplicity_file_id,
             'folderId' => $syncplicity_folder_id,
             'dtProduction' => (new \DateTime())->format('Y-m-d'),
             'idActeurProducteur' => (string) $this->getConfig()['PLATAU_ID_ACTEUR_APPELANT'],
             'algoHash' => 'SHA-512',
-            'hash' => hash('sha512', $file_contents),
+            'hash' => $hash_sha512,
             'nomTypeDocument' => $type_document,  // Nomenclature TYPE_DOCUMENT
             'nomTypeProducteurDoc' => 1,  // Nomenclature NATURE_PIECE. Toujours à 1 : "Personne jouant un rôle dans un dossier"
         ];
