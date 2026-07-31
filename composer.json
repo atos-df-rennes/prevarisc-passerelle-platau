@@ -23,7 +23,8 @@
         "kdubuc/php-cs-fixer-rules": "^1.0",
         "vimeo/psalm": "^6.0",
         "friendsofphp/php-cs-fixer": "^3.75",
-        "phpunit/phpunit": "^10.5"
+        "phpunit/phpunit": "^10.5",
+        "rector/rector": "^2.5"
     },
     "license": "CeCILL-B",
     "autoload": {
