@@ -14,7 +14,7 @@ class Personne
         private readonly ?array $noms,
         private readonly ?string $libDenomination,
         private readonly ?string $libRaisonSociale,
-        private readonly ?array $roles
+        private readonly ?array $roles,
     ) {
     }
 

@@ -142,40 +142,40 @@ class Prevarisc
         return
             // Colonne 'ID_PLATAU' dans la table 'dossiers'
 
-                \in_array('ID_PLATAU', array_map(static fn(Column $column) => $column->getName(), $this->db->createSchemaManager()->listTableColumns('dossier')))
+                \in_array('ID_PLATAU', array_map(static fn (Column $column) => $column->getName(), $this->db->createSchemaManager()->listTableColumns('dossier')))
             // Colonne 'ID_PLATAU' dans la table 'piecejointe'
 
-                && \in_array('ID_PLATAU', array_map(static fn(Column $column) => $column->getName(), $this->db->createSchemaManager()->listTableColumns('piecejointe')))
+                && \in_array('ID_PLATAU', array_map(static fn (Column $column) => $column->getName(), $this->db->createSchemaManager()->listTableColumns('piecejointe')))
             // Colonne 'MESSAGE_ERREUR' dans la table 'piecejointe'
 
-                && \in_array('MESSAGE_ERREUR', array_map(static fn(Column $column) => $column->getName(), $this->db->createSchemaManager()->listTableColumns('piecejointe')))
+                && \in_array('MESSAGE_ERREUR', array_map(static fn (Column $column) => $column->getName(), $this->db->createSchemaManager()->listTableColumns('piecejointe')))
             // Colonne 'TYPE' dans la table 'piecejointe'
 
-                && \in_array('TYPE', array_map(static fn(Column $column) => $column->getName(), $this->db->createSchemaManager()->listTableColumns('piecejointe')))
+                && \in_array('TYPE', array_map(static fn (Column $column) => $column->getName(), $this->db->createSchemaManager()->listTableColumns('piecejointe')))
             // Colonne 'SOUS_TYPE' dans la table 'piecejointe'
 
-                && \in_array('SOUS_TYPE', array_map(static fn(Column $column) => $column->getName(), $this->db->createSchemaManager()->listTableColumns('piecejointe')))
+                && \in_array('SOUS_TYPE', array_map(static fn (Column $column) => $column->getName(), $this->db->createSchemaManager()->listTableColumns('piecejointe')))
             // Colonne 'NATURE' dans la table 'piecejointe'
 
-                && \in_array('NATURE', array_map(static fn(Column $column) => $column->getName(), $this->db->createSchemaManager()->listTableColumns('piecejointe')))
+                && \in_array('NATURE', array_map(static fn (Column $column) => $column->getName(), $this->db->createSchemaManager()->listTableColumns('piecejointe')))
             // Colonne 'DATE_DEPOT' dans la table 'piecejointe'
 
-                && \in_array('DATE_DEPOT', array_map(static fn(Column $column) => $column->getName(), $this->db->createSchemaManager()->listTableColumns('piecejointe')))
+                && \in_array('DATE_DEPOT', array_map(static fn (Column $column) => $column->getName(), $this->db->createSchemaManager()->listTableColumns('piecejointe')))
             // Colonne 'STATUT_PEC' dans la table 'platauconsultation'
 
-                && \in_array('STATUT_PEC', array_map(static fn(Column $column) => $column->getName(), $this->db->createSchemaManager()->listTableColumns('platauconsultation')))
+                && \in_array('STATUT_PEC', array_map(static fn (Column $column) => $column->getName(), $this->db->createSchemaManager()->listTableColumns('platauconsultation')))
             // Colonne 'DATE_PEC' dans la table 'platauconsultation'
 
-                && \in_array('DATE_PEC', array_map(static fn(Column $column) => $column->getName(), $this->db->createSchemaManager()->listTableColumns('platauconsultation')))
+                && \in_array('DATE_PEC', array_map(static fn (Column $column) => $column->getName(), $this->db->createSchemaManager()->listTableColumns('platauconsultation')))
             // Colonne 'STATUT_AVIS' dans la table 'platauconsultation'
 
-                && \in_array('STATUT_AVIS', array_map(static fn(Column $column) => $column->getName(), $this->db->createSchemaManager()->listTableColumns('platauconsultation')))
+                && \in_array('STATUT_AVIS', array_map(static fn (Column $column) => $column->getName(), $this->db->createSchemaManager()->listTableColumns('platauconsultation')))
             // Colonne 'DATE_AVIS' dans la table 'platauconsultation'
 
-                && \in_array('DATE_AVIS', array_map(static fn(Column $column) => $column->getName(), $this->db->createSchemaManager()->listTableColumns('platauconsultation')))
+                && \in_array('DATE_AVIS', array_map(static fn (Column $column) => $column->getName(), $this->db->createSchemaManager()->listTableColumns('platauconsultation')))
             // Colonne 'DATE_REPONSE_ATTENDUE' dans la table 'platauconsultation'
 
-                && \in_array('DATE_REPONSE_ATTENDUE', array_map(static fn(Column $column) => $column->getName(), $this->db->createSchemaManager()->listTableColumns('platauconsultation')))
+                && \in_array('DATE_REPONSE_ATTENDUE', array_map(static fn (Column $column) => $column->getName(), $this->db->createSchemaManager()->listTableColumns('platauconsultation')))
             // Présence de la table 'piecejointestatut'
             && \in_array('piecejointestatut', $this->db->createSchemaManager()->listTableNames())
             // Présence de la table 'platauconsultation'
@@ -351,7 +351,7 @@ class Prevarisc
         $prescriptions = $results->fetchAllAssociative();
 
         // On parse les prescriptions
-        $prescriptions = array_map(static fn($prescription) => [
+        $prescriptions = array_map(static fn ($prescription) => [
             'type' => $prescription['TYPE_PRESCRIPTION_DOSSIER'], // 1 = Rappels Réglementaires, 2 = Exploitation, 3 = Recommandations
             'libelle' => $prescription['LIBELLE_PRESCRIPTION_DOSSIER'] ?? $prescription['PRESCRIPTIONTYPE_LIBELLE'],
             'article' => $prescription['ARTICLE'] ?? $prescription['TYPE_ARTICLE'],

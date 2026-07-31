@@ -14,7 +14,7 @@ class Consultation
         private readonly ?string $dtEmission,
         private readonly ?string $dtConsultation,
         private readonly ?string $txObjetDeLaConsultation,
-        private readonly NomTypeConsultation $nomTypeConsultation
+        private readonly NomTypeConsultation $nomTypeConsultation,
     ) {
     }
 

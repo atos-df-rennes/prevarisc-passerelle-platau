@@ -11,7 +11,7 @@ class Auteur
         private readonly ?string $nomAuteur,
         private readonly ?string $emailAuteur,
         ?string $telephone_fixe,
-        ?string $telephone_portable
+        ?string $telephone_portable,
     ) {
         $this->telephoneAuteur = '' !== $telephone_fixe ? $telephone_fixe : $telephone_portable;
     }

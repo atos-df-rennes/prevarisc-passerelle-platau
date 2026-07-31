@@ -21,7 +21,7 @@ final class ExportPEC extends AbstractExportCommand
         PrevariscService $prevarisc_service,
         private readonly PlatauConsultationService $consultation_service,
         PlatauPiece $piece_service,
-        private readonly DateParser $date_parser
+        private readonly DateParser $date_parser,
     ) {
         parent::__construct($prevarisc_service, $piece_service);
     }

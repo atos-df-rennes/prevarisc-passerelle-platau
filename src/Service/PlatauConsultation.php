@@ -161,8 +161,8 @@ final class PlatauConsultation extends PlatauAbstract
         // Définition de la DLR à envoyer
         // Correspond à la date d'instruction donnée dans la consultation si aucune date limite est donnée
         if (null === $date_limite_reponse_interval) {
-            $delai_reponse            = (string) $consultation->getDelaiDeReponse();
-            $type_date_limite_reponse = $consultation->getNomTypeDelai()->getLibNom();
+            $delai_reponse                = (string) $consultation->getDelaiDeReponse();
+            $type_date_limite_reponse     = $consultation->getNomTypeDelai()->getLibNom();
             $date_limite_reponse_interval = match ($type_date_limite_reponse) {
                 'Jours calendaires' => new \DateInterval("P{$delai_reponse}D"),
                 'Mois' => new \DateInterval("P{$delai_reponse}M"),

@@ -19,7 +19,7 @@ class Dossier
         private readonly ?string $suffixeNoLocal,
         private readonly NomTypeDossier $nomTypeDossier,
         private array $consultations,
-        private readonly ?array $personnes
+        private readonly ?array $personnes,
     ) {
     }
 
@@ -95,7 +95,7 @@ class Dossier
                 return false;
             }
 
-            $hasRolePetitionnaire = array_filter($roles, static fn(Role $role) => self::ROLE_PETITIONNAIRE === $role->getNomRole()->getIdNom());
+            $hasRolePetitionnaire = array_filter($roles, static fn (Role $role) => self::ROLE_PETITIONNAIRE === $role->getNomRole()->getIdNom());
 
             return [] !== $hasRolePetitionnaire;
         });
