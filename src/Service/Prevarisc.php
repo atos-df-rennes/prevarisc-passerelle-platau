@@ -743,7 +743,7 @@ class Prevarisc
     public static function correspondanceNaturePrevarisc(int $platau_nature_id) : int
     {
         switch ($platau_nature_id) {
-            case 1: return 62; // Certificat d’urbanisme d’information (CUa)
+            case 1: // Certificat d’urbanisme d’information (CUa)
             case 2: return 62; // Certificat d’urbanisme opérationnel (CUb)
             case 3: return 30; // Déclaration préalable (DP)
             case 4: return 1; // Permis de construire (PC)
