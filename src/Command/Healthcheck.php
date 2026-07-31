@@ -42,7 +42,7 @@ final class Healthcheck extends Command
         $output->writeln('Syncplicity : '.($this->healthcheck_service->getSyncplicity() ? 'Activé' : 'Non activé'));
 
         // On vérifie la santé de Plat'AU
-        if (true !== $this->healthcheck_service->healthcheck()) {
+        if (!$this->healthcheck_service->healthcheck()) {
             throw new \Exception("Plat'AU non fonctionnel actuellement.");
         }
 
