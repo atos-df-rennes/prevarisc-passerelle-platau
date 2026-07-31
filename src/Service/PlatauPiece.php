@@ -28,7 +28,7 @@ final class PlatauPiece extends PlatauAbstract
 
         $hash_sha512 = hash('sha512', $file_contents);
 
-        $document = [
+        return [
             'fileId' => $syncplicity_file_id,
             'folderId' => $syncplicity_folder_id,
             'dtProduction' => (new \DateTime())->format('Y-m-d'),
@@ -38,8 +38,6 @@ final class PlatauPiece extends PlatauAbstract
             'nomTypeDocument' => $type_document,  // Nomenclature TYPE_DOCUMENT
             'nomTypeProducteurDoc' => 1,  // Nomenclature NATURE_PIECE. Toujours à 1 : "Personne jouant un rôle dans un dossier"
         ];
-
-        return $document;
     }
 
     /*

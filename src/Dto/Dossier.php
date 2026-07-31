@@ -88,7 +88,7 @@ class Dossier
     {
         $personnes = $this->personnes ?? [];
 
-        $demandeurs = array_filter($personnes, static function (Personne $personne): bool {
+        return array_filter($personnes, static function (Personne $personne): bool {
             $roles = $personne->getRoles();
 
             if (null === $roles) {
@@ -99,8 +99,6 @@ class Dossier
 
             return [] !== $hasRolePetitionnaire;
         });
-
-        return $demandeurs;
     }
 
     /**
@@ -142,9 +140,8 @@ class Dossier
             if ([] !== $noms && [] !== $prenoms) {
                 $nom_complet .= ' ';
             }
-            $nom_complet .= implode(' ', $prenoms);
 
-            return $nom_complet;
+            return $nom_complet . implode(' ', $prenoms);
         }, $demandeurs);
 
         return implode(' / ', $demandeurs_names);

@@ -41,9 +41,7 @@ final class PlatauActeur extends PlatauAbstract
             throw new \Exception("L'enrôlement ne s'est pas correctement passé (absence d'idActeur dans la réponse)");
         }
 
-        $acteur_id = (string) $service_consultable_cree['idActeur'];
-
-        return $acteur_id;
+        return (string) $service_consultable_cree['idActeur'];
     }
 
     /**

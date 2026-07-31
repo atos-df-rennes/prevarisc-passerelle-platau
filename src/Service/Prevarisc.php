@@ -83,9 +83,7 @@ class Prevarisc
             ->setParameter(0, $dossier_id)
             ->executeQuery();
 
-        $auteur = $results->fetchAssociative();
-
-        return $auteur;
+        return $results->fetchAssociative();
     }
 
     public function recupererDocumentsManquants(string $dossier_id) : ?string
