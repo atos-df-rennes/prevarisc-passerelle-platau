@@ -56,7 +56,7 @@ final class PlatauPiece extends PlatauAbstract
         // On lance la requête HTTP de récupération
         return $http_client->request('GET', (string) $piece['url'], [
             'headers' => [
-                'Authorization' => 'Bearer '.(string) $piece['token'],
+                'Authorization' => 'Bearer '.$piece['token'],
             ],
         ]);
     }

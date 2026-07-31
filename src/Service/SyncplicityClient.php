@@ -118,7 +118,7 @@ class SyncplicityClient
         // On envoie le fichier en multipart en utilisant les informations du ticket upload
         $response = $http_client->request('POST', 'v2/mime/files', [
             'query' => [
-                'filepath' => (string) $ticket_pre_upload['Folder_Name'].'/'.urlencode($file_name),
+                'filepath' => $ticket_pre_upload['Folder_Name'].'/'.urlencode($file_name),
             ],
             'headers' => [
                 'AppKey' => $ticket_pre_upload['AppKey'],
