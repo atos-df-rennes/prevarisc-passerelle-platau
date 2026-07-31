@@ -100,10 +100,8 @@ final class PlatauConsultation extends PlatauAbstract
 
     /**
      * Récupération des informations d'une consultation avec les informations du dossier.
-     *
-     * @return Information|array
      */
-    public function getConsultation(string $consultation_id, array $params = [], bool $as_array = false)
+    public function getConsultation(string $consultation_id, array $params = [], bool $as_array = false): Information|array
     {
         // On recherche la consultation demandée
         if ($as_array) {

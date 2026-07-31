@@ -26,7 +26,7 @@ class PlatauClient extends PlatauAbstract
     /**
      * Initialisation et utilisation d'un service Platau.
      */
-    public function __get(string $name)
+    public function __get(string $name): mixed
     {
         /** @var class-string<PlatauAbstract>|null $class_name */
         $class_name = \array_key_exists($name, self::$class_map) ? self::$class_map[$name] : null;
