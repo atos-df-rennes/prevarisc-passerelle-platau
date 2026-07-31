@@ -15,19 +15,17 @@ use App\Service\PlatauConsultation as PlatauConsultationService;
 
 final class ExportAvis extends AbstractExportCommand
 {
-    private PlatauConsultationService $consultation_service;
-    private PlatauAvis $avis_service;
-    private DateParser $date_parser;
-
     /**
      * Initialisation de la commande.
      */
-    public function __construct(PrevariscService $prevarisc_service, PlatauConsultationService $consultation_service, PlatauPiece $piece_service, PlatauAvis $avis_service, DateParser $date_parser)
-    {
+    public function __construct(
+        PrevariscService $prevarisc_service,
+        private readonly PlatauConsultationService $consultation_service,
+        PlatauPiece $piece_service,
+        private readonly PlatauAvis $avis_service,
+        private readonly DateParser $date_parser
+    ) {
         parent::__construct($prevarisc_service, $piece_service);
-        $this->consultation_service = $consultation_service;
-        $this->avis_service         = $avis_service;
-        $this->date_parser          = $date_parser;
     }
 
     /**

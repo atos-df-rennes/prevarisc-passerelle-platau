@@ -17,8 +17,8 @@ class SyncplicityClient
     public const SYNCPLICITY_URL        = 'https://api.piste.gouv.fr/syncplicity/upload/';
     public const PISTE_ACCESS_TOKEN_URL = 'https://oauth.piste.gouv.fr/api/oauth/token';
 
-    private HttpClient $http_client;
-    private array $config;
+    private readonly HttpClient $http_client;
+    private readonly array $config;
 
     /**
      * Création d'une nouvelle instance du client Syncplicity (https://developer.syncplicity.com/documentation/api_docs).

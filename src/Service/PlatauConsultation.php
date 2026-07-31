@@ -163,16 +163,14 @@ final class PlatauConsultation extends PlatauAbstract
         if (null === $date_limite_reponse_interval) {
             $delai_reponse            = (string) $consultation->getDelaiDeReponse();
             $type_date_limite_reponse = $consultation->getNomTypeDelai()->getLibNom();
-            switch ($type_date_limite_reponse) {
-                case 'Jours calendaires': $date_limite_reponse_interval = new \DateInterval("P{$delai_reponse}D");
-                    break;
-                case 'Mois': $date_limite_reponse_interval              = new \DateInterval("P{$delai_reponse}M");
-                    break;
-                default: throw new \Exception('Type de la date de réponse attendue inconnu : '.($type_date_limite_reponse ?? 'vide'));
-            }
+            $date_limite_reponse_interval = match ($type_date_limite_reponse) {
+                'Jours calendaires' => new \DateInterval("P{$delai_reponse}D"),
+                'Mois' => new \DateInterval("P{$delai_reponse}M"),
+                default => throw new \Exception('Type de la date de réponse attendue inconnu : '.($type_date_limite_reponse ?? 'vide')),
+            };
         }
 
-        $date_envoi          = $date_envoi ?? (new \DateTime());
+        $date_envoi ??= new \DateTime();
         $date_limite_reponse = $date_envoi->add($date_limite_reponse_interval);
 
         $pec_metier_options = [
@@ -228,7 +226,7 @@ final class PlatauConsultation extends PlatauAbstract
             0 === \count($prescriptions) ? 'RAS' : implode(', ', $libelles),
         ]);
 
-        $date_envoi = $date_envoi ?? (new \DateTime());
+        $date_envoi ??= new \DateTime();
 
         $avis_options = [
             'idConsultation' => $consultation_id,

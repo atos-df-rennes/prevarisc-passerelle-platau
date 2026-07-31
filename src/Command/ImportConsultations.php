@@ -17,18 +17,11 @@ use App\Service\PlatauConsultation as PlatauConsultationService;
  */
 final class ImportConsultations extends Command
 {
-    private PrevariscService $prevarisc_service;
-    private PlatauConsultationService $consultation_service;
-    private PlatauActeurService $acteur_service;
-
     /**
      * Initialisation de la commande.
      */
-    public function __construct(PrevariscService $prevarisc_service, PlatauConsultationService $consultation_service, PlatauActeurService $acteur_service)
+    public function __construct(private readonly PrevariscService $prevarisc_service, private readonly PlatauConsultationService $consultation_service, private readonly PlatauActeurService $acteur_service)
     {
-        $this->prevarisc_service    = $prevarisc_service;
-        $this->acteur_service       = $acteur_service;
-        $this->consultation_service = $consultation_service;
         parent::__construct();
     }
 

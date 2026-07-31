@@ -6,50 +6,21 @@ class Dossier
 {
     private const ROLE_PETITIONNAIRE = 1;
 
-    private ?string $idDossier;
-
-    private ?string $idServiceInstructeur;
-
-    private int $noVersion;
-
-    private ?string $txDescriptifGlobal;
-
-    private ?string $noLocal;
-
-    private ?string $suffixeNoLocal;
-
-    private NomTypeDossier $nomTypeDossier;
-
-    /** @var Consultation[] */
-    private array $consultations;
-
-    /** @var Personne[]|null */
-    private ?array $personnes;
-
     /**
      * @param Consultation[]  $consultations
      * @param Personne[]|null $personnes
      */
     public function __construct(
-        ?string $idDossier,
-        ?string $idServiceInstructeur,
-        int $noVersion,
-        ?string $txDescriptifGlobal,
-        ?string $noLocal,
-        ?string $suffixeNoLocal,
-        NomTypeDossier $nomTypeDossier,
-        array $consultations,
-        ?array $personnes,
+        private readonly ?string $idDossier,
+        private readonly ?string $idServiceInstructeur,
+        private readonly int $noVersion,
+        private readonly ?string $txDescriptifGlobal,
+        private readonly ?string $noLocal,
+        private readonly ?string $suffixeNoLocal,
+        private readonly NomTypeDossier $nomTypeDossier,
+        private array $consultations,
+        private readonly ?array $personnes
     ) {
-        $this->idDossier            = $idDossier;
-        $this->idServiceInstructeur = $idServiceInstructeur;
-        $this->noVersion            = $noVersion;
-        $this->txDescriptifGlobal   = $txDescriptifGlobal;
-        $this->noLocal              = $noLocal;
-        $this->suffixeNoLocal       = $suffixeNoLocal;
-        $this->nomTypeDossier       = $nomTypeDossier;
-        $this->consultations        = $consultations;
-        $this->personnes            = $personnes;
     }
 
     public function getIdDossier() : ?string
@@ -124,9 +95,7 @@ class Dossier
                 return false;
             }
 
-            $hasRolePetitionnaire = array_filter($roles, static function (Role $role) {
-                return self::ROLE_PETITIONNAIRE === $role->getNomRole()->getIdNom();
-            });
+            $hasRolePetitionnaire = array_filter($roles, static fn(Role $role) => self::ROLE_PETITIONNAIRE === $role->getNomRole()->getIdNom());
 
             return [] !== $hasRolePetitionnaire;
         });
@@ -166,8 +135,8 @@ class Dossier
                 $noms = [];
             }
 
-            $prenoms = array_map('trim', $prenoms);
-            $noms    = array_map('trim', $noms);
+            $prenoms = array_map(trim(...), $prenoms);
+            $noms    = array_map(trim(...), $noms);
 
             $nom_complet = implode(' ', $noms);
             if ([] !== $noms && [] !== $prenoms) {

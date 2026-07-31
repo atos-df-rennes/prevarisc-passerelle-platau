@@ -9,13 +9,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 abstract class AbstractExportCommand extends Command
 {
-    protected PrevariscService $prevarisc_service;
-    protected PlatauPiece $piece_service;
-
-    public function __construct(PrevariscService $prevarisc_service, PlatauPiece $piece_service)
+    public function __construct(protected PrevariscService $prevarisc_service, protected PlatauPiece $piece_service)
     {
-        $this->prevarisc_service = $prevarisc_service;
-        $this->piece_service     = $piece_service;
         parent::__construct();
     }
 

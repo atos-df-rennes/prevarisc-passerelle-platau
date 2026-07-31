@@ -20,8 +20,8 @@ abstract class PlatauAbstract
     public const PLATAU_URL             = 'https://api.piste.gouv.fr/mtes/platau/v13/dau/';
     public const PISTE_ACCESS_TOKEN_URL = 'https://oauth.piste.gouv.fr/api/oauth/token';
 
-    private HttpClient $http_client;
-    private array $config;
+    private readonly HttpClient $http_client;
+    private readonly array $config;
     private ?SyncplicityClient $syncplicity = null;
 
     /**

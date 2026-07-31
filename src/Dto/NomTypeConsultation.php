@@ -4,11 +4,8 @@ namespace App\Dto;
 
 class NomTypeConsultation
 {
-    private ?string $libNom;
-
-    public function __construct(?string $libNom)
+    public function __construct(private readonly ?string $libNom)
     {
-        $this->libNom = $libNom;
     }
 
     public function getLibNom() : ?string

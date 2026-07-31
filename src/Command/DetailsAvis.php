@@ -12,11 +12,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 final class DetailsAvis extends Command
 {
-    private PlatauAvis $avis_service;
-
-    public function __construct(PlatauAvis $avis_service)
+    public function __construct(private readonly PlatauAvis $avis_service)
     {
-        $this->avis_service = $avis_service;
         parent::__construct();
     }
 

@@ -4,11 +4,8 @@ namespace App\Dto;
 
 class Information
 {
-    private Dossier $dossier;
-
-    public function __construct(Dossier $dossier)
+    public function __construct(private readonly Dossier $dossier)
     {
-        $this->dossier = $dossier;
     }
 
     public function getDossier() : Dossier
