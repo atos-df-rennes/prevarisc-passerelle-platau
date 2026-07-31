@@ -2,15 +2,14 @@
 
 namespace App\Tests\Service;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use App\Service\PlatauNotification;
 
 final class PlatauNotificationTest extends TestCase
 {
-    /**
-     * @dataProvider errorMessagesProvider
-     */
-    public function testExtractErrorCodeFromErrorMessage(string $error_message, ?int $expected_code)
+    #[DataProvider('errorMessagesProvider')]
+    public function testExtractErrorCodeFromErrorMessage(string $error_message, ?int $expected_code): void
     {
         $this->assertSame($expected_code, PlatauNotification::extractErrorCodeFromErrorMessage($error_message));
     }
@@ -43,9 +42,7 @@ final class PlatauNotificationTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider objetMetierProvider
-     */
+    #[DataProvider('objetMetierProvider')]
     public function testIdentifierObjetMetier(array $informations_consultation, ?string $expected_objet_metier) : void
     {
         $this->assertSame($expected_objet_metier, PlatauNotification::identifierObjetMetier($informations_consultation));
