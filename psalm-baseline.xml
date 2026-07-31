@@ -19,9 +19,5 @@
     <InternalMethod>
       <code><![CDATA[connect]]></code>
     </InternalMethod>
-    <PossiblyFalseArgument>
-      <code><![CDATA[$filename]]></code>
-      <code><![CDATA[$legacy_filename]]></code>
-    </PossiblyFalseArgument>
   </file>
 </files>

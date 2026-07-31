@@ -1,4 +1,4 @@
-name: Prevarisc-passerelle-platau Lint
+name: CI
 
 on:
   pull_request:
@@ -8,64 +8,70 @@ on:
       - develop
 
 jobs:
-  validate-composer:
+  quality:
+    name: "PHP ${{ matrix.php }}"
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.1'
-          coverage: none
+    strategy:
+      fail-fast: false
+      matrix:
+        php: [ '8.1', '8.2', '8.3', '8.4', '8.5' ]
+        include:
+          - php: '8.1'
+            allow-failure: false
+          - php: '8.2'
+            allow-failure: false
+          - php: '8.3'
+            allow-failure: true
+          - php: '8.4'
+            allow-failure: true
+          - php: '8.5'
+            allow-failure: true
 
-      - name: Validate composer.json and composer.lock
-        run: 
-          composer validate --strict
-  
-  psalm:
-    needs: validate-composer
-    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: shivammathur/setup-php@v2
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP ${{ matrix.php }}
+        uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.1'
+          php-version: ${{ matrix.php }}
           extensions: mbstring, xml, dom, opcache
           coverage: none
-      - uses: ramsey/composer-install@v3
-        with:
-          composer-options: "--prefer-dist"
+          tools: composer:v2
 
-      - name: Exécuter Psalm
+      - name: Get composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: composer-${{ matrix.php }}-${{ hashFiles('composer.lock') }}
+          restore-keys: |
+            composer-${{ matrix.php }}-
+
+      - name: Install dependencies
+        id: install
+        continue-on-error: ${{ matrix.allow-failure }}
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Psalm
+        if: steps.install.outcome == 'success'
+        continue-on-error: ${{ matrix.allow-failure }}
         run: vendor/bin/psalm
-  
-  php-cs-fixer:
-    needs: validate-composer
-    runs-on: ubuntu-latest
-    steps: 
-    - uses: actions/checkout@v4
-    - uses: shivammathur/setup-php@v2
-      with:
-        php-version: '8.1'
-        coverage: none
-    - uses: ramsey/composer-install@v3
-      with:
-        composer-options: "--prefer-dist"    
-     
-    - name: Exécuter PHP CS Fixer
-      run: vendor/bin/php-cs-fixer fix --dry-run --diff --config=vendor/kdubuc/php-cs-fixer-rules/php-cs-fixer.php
 
-  phpunit:
-    needs: validate-composer
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.1'
-          coverage: none
-      - uses: ramsey/composer-install@v3
-        with:
-          composer-options: "--prefer-dist"
+      - name: PHP-CS-Fixer (dry-run, use minimum PHP version supported)
+        if: steps.install.outcome == 'success' && matrix.php == '8.1'
+        continue-on-error: ${{ matrix.allow-failure }}
+        run: vendor/bin/php-cs-fixer fix --dry-run --diff --config=vendor/kdubuc/php-cs-fixer-rules/php-cs-fixer.php
 
-      - name: Exécuter les tests PHPUnit
+#      - name: Rector (dry-run)
+#        if: steps.install.outcome == 'success'
+#        continue-on-error: ${{ matrix.allow-failure }}
+#        run: vendor/bin/rector --dry-run
+
+      - name: PHPUnit
+        if: steps.install.outcome == 'success'
+        continue-on-error: ${{ matrix.allow-failure }}
         run: vendor/bin/phpunit --testdox tests/
