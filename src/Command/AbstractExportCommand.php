@@ -31,7 +31,7 @@ abstract class AbstractExportCommand extends Command
         $pieces_to_export = [];
 
         if (!$this->piece_service->getSyncplicity()) {
-            return compact('pieces', 'pieces_to_export');
+            return ['pieces' => $pieces, 'pieces_to_export' => $pieces_to_export];
         }
 
         $pieces_to_export = $this->prevarisc_service->recupererPiecesAvecStatut($dossier_id, 'to_be_exported');
@@ -58,6 +58,6 @@ abstract class AbstractExportCommand extends Command
             }
         }
 
-        return compact('pieces', 'pieces_to_export');
+        return ['pieces' => $pieces, 'pieces_to_export' => $pieces_to_export];
     }
 }

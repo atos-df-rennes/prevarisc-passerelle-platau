@@ -13,9 +13,8 @@ final class EnrolerActeur extends Command
     /**
      * Initialisation de la commande.
      */
-    public function __construct(PlatauActeurService $acteur_service)
+    public function __construct(public PlatauActeurService $acteur_service)
     {
-        $this->acteur_service = $acteur_service;
         parent::__construct();
     }
 
