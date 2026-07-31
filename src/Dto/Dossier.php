@@ -88,7 +88,7 @@ class Dossier
     {
         $personnes = $this->personnes ?? [];
 
-        $demandeurs = array_filter($personnes, static function (Personne $personne) {
+        $demandeurs = array_filter($personnes, static function (Personne $personne): bool {
             $roles = $personne->getRoles();
 
             if (null === $roles) {
@@ -120,7 +120,7 @@ class Dossier
             return null;
         }
 
-        $demandeurs_names = array_map(static function (Personne $personne) {
+        $demandeurs_names = array_map(static function (Personne $personne): string {
             $prenoms = $personne->getPrenoms();
             $noms    = $personne->getNoms();
 
