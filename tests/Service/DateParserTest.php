@@ -8,8 +8,7 @@ use PHPUnit\Framework\TestCase;
 
 final class DateParserTest extends TestCase
 {
-    /** @var DateParser */
-    private $date_parser;
+    private DateParser $date_parser;
 
     protected function setUp() : void
     {

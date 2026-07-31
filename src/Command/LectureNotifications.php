@@ -26,7 +26,7 @@ final class LectureNotifications extends Command
         parent::__construct();
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('lecture-notifications')
             ->setDescription("Lit les notifications qui n'ont pas encore été consommées.")

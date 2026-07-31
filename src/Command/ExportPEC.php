@@ -29,7 +29,7 @@ final class ExportPEC extends AbstractExportCommand
     /**
      * Configuration de la commande.
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('export-pec')
             ->setDescription("Exporte des Prises En Compte métier sur Plat'AU.")

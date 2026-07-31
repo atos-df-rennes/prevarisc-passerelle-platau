@@ -16,7 +16,7 @@ final class RenvoiErreurs extends Command
         parent::__construct();
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('renvoi-erreurs')
             ->setDescription('Renvoie les pièces et consultations suite à une erreur (principalement pour code erreur 9 sur pièce).')

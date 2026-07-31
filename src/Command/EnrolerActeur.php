@@ -22,7 +22,7 @@ final class EnrolerActeur extends Command
     /**
      * Configuration de la commande.
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('enroler-acteur')
             ->setDescription("Enrôlement d'un nouvel acteur dans Plat'AU")

@@ -31,7 +31,7 @@ final class ExportAvis extends AbstractExportCommand
     /**
      * Configuration de la commande.
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('export-avis')
             ->setDescription("Exporte un avis Prevarisc sur Plat'AU.")

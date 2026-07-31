@@ -17,7 +17,7 @@ final class DetailsConsultation extends Command
         parent::__construct();
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('details-consultation')
             ->setDescription("Affiche les détails d'une consultation.")

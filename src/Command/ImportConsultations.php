@@ -28,7 +28,7 @@ final class ImportConsultations extends Command
     /**
      * Configuration de la commande.
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('import')
             ->setDescription('Détecte et importe de nouvelles consultations dans Prevarisc.')

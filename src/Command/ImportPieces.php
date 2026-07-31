@@ -28,7 +28,7 @@ final class ImportPieces extends Command
     /**
      * Configuration de la commande.
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('import-pieces')
             ->setDescription('Détecte et importe / met à jour des pièces relatives aux consultations importées dans Prevarisc.')
