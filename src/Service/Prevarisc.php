@@ -351,7 +351,7 @@ class Prevarisc
         $prescriptions = $results->fetchAllAssociative();
 
         // On parse les prescriptions
-        $prescriptions = array_map(static fn ($prescription) => [
+        $prescriptions = array_map(static fn ($prescription): array => [
             'type' => $prescription['TYPE_PRESCRIPTION_DOSSIER'], // 1 = Rappels Réglementaires, 2 = Exploitation, 3 = Recommandations
             'libelle' => $prescription['LIBELLE_PRESCRIPTION_DOSSIER'] ?? $prescription['PRESCRIPTIONTYPE_LIBELLE'],
             'article' => $prescription['ARTICLE'] ?? $prescription['TYPE_ARTICLE'],
@@ -689,7 +689,7 @@ class Prevarisc
             ->fetchAllAssociative()
         ;
 
-        return array_map(static fn ($result) => $result['ID_PLATAU'], $results);
+        return array_map(static fn ($result): string => $result['ID_PLATAU'], $results);
     }
 
     /**
@@ -708,7 +708,7 @@ class Prevarisc
             ->fetchAllAssociative()
         ;
 
-        return array_map(static fn ($result) => $result['ID_PLATAU'], $results);
+        return array_map(static fn ($result): string => $result['ID_PLATAU'], $results);
     }
 
     /**

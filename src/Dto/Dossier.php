@@ -95,7 +95,7 @@ class Dossier
                 return false;
             }
 
-            $hasRolePetitionnaire = array_filter($roles, static fn (Role $role) => self::ROLE_PETITIONNAIRE === $role->getNomRole()->getIdNom());
+            $hasRolePetitionnaire = array_filter($roles, static fn (Role $role): bool => self::ROLE_PETITIONNAIRE === $role->getNomRole()->getIdNom());
 
             return [] !== $hasRolePetitionnaire;
         });

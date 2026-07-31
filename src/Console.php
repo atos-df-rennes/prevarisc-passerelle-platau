@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Service\DateParser;
 use UMA\DIC\Container;
 use Symfony\Component\Console\Application;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -29,7 +30,7 @@ final class Console extends Application
             $container->register(new ServiceProvider\Syncplicity($config['syncplicity.options']));
         }
         $container->register(new ServiceProvider\Platau($config['platau.options']));
-        $container->set('service.date_parser', static fn () => new Service\DateParser());
+        $container->set('service.date_parser', static fn (): DateParser => new DateParser());
 
         // Enregistrement des commandes disponibles
         $this->add(new Command\Healthcheck($container->get('service.platau.healthcheck'), $container->get('service.prevarisc')));
