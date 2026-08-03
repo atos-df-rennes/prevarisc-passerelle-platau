@@ -6,10 +6,6 @@ class Dossier
 {
     private const ROLE_PETITIONNAIRE = 1;
 
-    /**
-     * @param Consultation[]  $consultations
-     * @param Personne[]|null $personnes
-     */
     public function __construct(
         private readonly ?string $idDossier,
         private readonly ?string $idServiceInstructeur,
@@ -18,7 +14,9 @@ class Dossier
         private readonly ?string $noLocal,
         private readonly ?string $suffixeNoLocal,
         private readonly NomTypeDossier $nomTypeDossier,
+        /** @var Consultation[] */
         private array $consultations,
+        /** @var Personne[]|null */
         private readonly ?array $personnes,
     ) {
     }

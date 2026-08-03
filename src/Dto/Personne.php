@@ -4,16 +4,14 @@ namespace App\Dto;
 
 class Personne
 {
-    /**
-     * @param string[]|null $prenoms
-     * @param string[]|null $noms
-     * @param Role[]|null   $roles
-     */
     public function __construct(
+        /** @var string[]|null */
         private readonly ?array $prenoms,
+        /** @var string[]|null */
         private readonly ?array $noms,
         private readonly ?string $libDenomination,
         private readonly ?string $libRaisonSociale,
+        /** @var Role[]|null */
         private readonly ?array $roles,
     ) {
     }
