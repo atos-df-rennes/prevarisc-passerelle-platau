@@ -14,12 +14,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php: [ '8.2', '8.3', '8.4', '8.5' ]
+        php: [ '8.3', '8.4', '8.5' ]
         include:
-          - php: '8.2'
-            allow-failure: false
           - php: '8.3'
-            allow-failure: true
+            allow-failure: false
           - php: '8.4'
             allow-failure: true
           - php: '8.5'
@@ -60,7 +58,7 @@ jobs:
         run: vendor/bin/psalm
 
       - name: PHP-CS-Fixer (dry-run, use minimum PHP version supported)
-        if: steps.install.outcome == 'success' && matrix.php == '8.2'
+        if: steps.install.outcome == 'success' && matrix.php == '8.3'
         continue-on-error: ${{ matrix.allow-failure }}
         run: vendor/bin/php-cs-fixer fix --dry-run --diff --config=vendor/kdubuc/php-cs-fixer-rules/php-cs-fixer.php
 
