@@ -3,8 +3,8 @@
 namespace App\Tests\Service;
 
 use App\Service\DateParser;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 final class DateParserTest extends TestCase
 {

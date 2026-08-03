@@ -26,12 +26,12 @@ class PlatauClient extends PlatauAbstract
     /**
      * Initialisation et utilisation d'un service Platau.
      */
-    public function __get(string $name): mixed
+    public function __get(string $name) : mixed
     {
         /** @var class-string<PlatauAbstract>|null $class_name */
         $class_name = self::$class_map[$name] ?? null;
 
-        \assert(null !== $class_name, sprintf('Service %s inconnu', $name));
+        \assert(null !== $class_name, \sprintf('Service %s inconnu', $name));
 
         $service = new $class_name($this->getConfig());
 

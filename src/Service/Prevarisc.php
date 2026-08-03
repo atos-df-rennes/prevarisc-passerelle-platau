@@ -56,7 +56,7 @@ class Prevarisc
 
         // Si la requête vers la base de donnée n'a rien donné, alors on lève une exception.
         if (false === $dossier) {
-            throw new \Exception(sprintf("La consultation %s n'existe pas dans Prevarisc.", $consultation_id));
+            throw new \Exception(\sprintf("La consultation %s n'existe pas dans Prevarisc.", $consultation_id));
         }
 
         return $dossier;
@@ -350,7 +350,7 @@ class Prevarisc
         $prescriptions = $results->fetchAllAssociative();
 
         // On parse les prescriptions
-        $prescriptions = array_map(static fn (array $prescription): array => [
+        $prescriptions = array_map(static fn (array $prescription) : array => [
             'type' => $prescription['TYPE_PRESCRIPTION_DOSSIER'], // 1 = Rappels Réglementaires, 2 = Exploitation, 3 = Recommandations
             'libelle' => $prescription['LIBELLE_PRESCRIPTION_DOSSIER'] ?? $prescription['PRESCRIPTIONTYPE_LIBELLE'],
             'article' => $prescription['ARTICLE'] ?? $prescription['TYPE_ARTICLE'],
@@ -496,7 +496,7 @@ class Prevarisc
      */
     public function recupererFichierPhysique(OutputInterface $output, int $piece_jointe_id, string $piece_jointe_extension) : ?string
     {
-        $filepath = sprintf('%d%s', $piece_jointe_id, $piece_jointe_extension);
+        $filepath = \sprintf('%d%s', $piece_jointe_id, $piece_jointe_extension);
 
         try {
             $contents = $this->filesystem->read($filepath);
@@ -536,7 +536,7 @@ class Prevarisc
 
             return $stable_contents;
         } catch (Flysystem\FilesystemException $filesystemException) {
-            $output->writeln(sprintf('Erreur lors de la lecture du fichier %s : ', $filepath).$filesystemException->getMessage());
+            $output->writeln(\sprintf('Erreur lors de la lecture du fichier %s : ', $filepath).$filesystemException->getMessage());
 
             return null;
         }
@@ -565,7 +565,7 @@ class Prevarisc
         ;
 
         if (false === $id_statut) {
-            throw new \Exception(sprintf('Statut %s inconnu', $statut));
+            throw new \Exception(\sprintf('Statut %s inconnu', $statut));
         }
 
         $query_builder
@@ -688,7 +688,7 @@ class Prevarisc
             ->fetchAllAssociative()
         ;
 
-        return array_map(static fn (array $result): string => $result['ID_PLATAU'], $results);
+        return array_map(static fn (array $result) : string => $result['ID_PLATAU'], $results);
     }
 
     /**
@@ -707,7 +707,7 @@ class Prevarisc
             ->fetchAllAssociative()
         ;
 
-        return array_map(static fn (array $result): string => $result['ID_PLATAU'], $results);
+        return array_map(static fn (array $result) : string => $result['ID_PLATAU'], $results);
     }
 
     /**

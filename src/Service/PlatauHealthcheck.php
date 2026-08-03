@@ -21,12 +21,13 @@ final class PlatauHealthcheck extends PlatauAbstract
         $healthcheck_results = json_decode($response->getBody()->__toString(), true, 512, \JSON_THROW_ON_ERROR);
         \assert(\is_array($healthcheck_results));
 
-        $status = array_filter($healthcheck_results, static fn ($key): bool => \in_array($key, ['etatGeneral', 'etatBdd']), \ARRAY_FILTER_USE_KEY);
+        /** @var array<string, bool> $status */
+        $status = array_filter($healthcheck_results, static fn ($key) : bool => \in_array($key, ['etatGeneral', 'etatBdd']), \ARRAY_FILTER_USE_KEY);
 
         // On va vérifier si les status sont OK, sinon, on déclenche une exception
-        foreach ($status as $etat) {
+        foreach ($status as $service => $etat) {
             if (true !== $etat) {
-                throw new \Exception($etat . " de Plat'AU non fonctionnel actuellement.");
+                throw new \Exception($service." de Plat'AU non fonctionnel actuellement.");
             }
         }
 

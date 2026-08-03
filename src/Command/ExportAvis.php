@@ -32,7 +32,7 @@ final class ExportAvis extends AbstractExportCommand
     /**
      * Configuration de la commande.
      */
-    protected function configure(): void
+    protected function configure() : void
     {
         $this->setName('export-avis')
             ->setDescription("Exporte un avis Prevarisc sur Plat'AU.")
@@ -57,7 +57,7 @@ final class ExportAvis extends AbstractExportCommand
 
             $consultations_a_renvoyer = $this->prevarisc_service->recupererDossiersARenvoyer();
             $consultations_a_renvoyer = array_map(
-                fn ($consultation_id): Information|array => $this->consultation_service->getConsultation($consultation_id),
+                fn ($consultation_id) : Information|array => $this->consultation_service->getConsultation($consultation_id),
                 $consultations_a_renvoyer
             );
 
@@ -88,7 +88,7 @@ final class ExportAvis extends AbstractExportCommand
 
                     // Vérification de l'existence de la consultation dans Prevarisc ? Si non, on ignore complètement la consultation
                     if (!$this->prevarisc_service->consultationExiste($consultation_id)) {
-                        $output->writeln(sprintf("La consultation %s n'existe pas dans Prevarisc. Importez là d'abord avec la commande <import>.", $consultation_id));
+                        $output->writeln(\sprintf("La consultation %s n'existe pas dans Prevarisc. Importez là d'abord avec la commande <import>.", $consultation_id));
                         continue;
                     }
 
@@ -119,7 +119,7 @@ final class ExportAvis extends AbstractExportCommand
                         $avis_labels  = [1 => 'favorable', 2 => 'défavorable', 6 => 'sans avis'];
                         $avis_libelle = $avis_labels[$avis_dossier_commission];
 
-                        $output->writeln(sprintf("Versement d'un avis %s pour la consultation %s au service instructeur ...", $avis_libelle, $consultation_id));
+                        $output->writeln(\sprintf("Versement d'un avis %s pour la consultation %s au service instructeur ...", $avis_libelle, $consultation_id));
                         // Si cela concerne un premier envoi d'avis alors on place la date de l'avis Prevarisc, sinon la date du lancement de la commande
                         $date_envoi = new \DateTime();
 
@@ -143,7 +143,7 @@ final class ExportAvis extends AbstractExportCommand
                         foreach ($pieces_to_export as $index_piece => $piece_to_map) {
                             if (!\array_key_exists($index_piece, $avis_documents)) {
                                 $filename = $piece_to_map['NOM_PIECEJOINTE'].$piece_to_map['EXTENSION_PIECEJOINTE'];
-                                $output->writeln(sprintf("La pièce %s n'a pas été trouvée dans la liste des documents envoyés avec l'avis", $filename));
+                                $output->writeln(\sprintf("La pièce %s n'a pas été trouvée dans la liste des documents envoyés avec l'avis", $filename));
 
                                 continue;
                             }
@@ -159,7 +159,7 @@ final class ExportAvis extends AbstractExportCommand
                           ->executeStatement();
                         $output->writeln('Avis envoyé !');
                     } else {
-                        $output->writeln(sprintf("Impossible d'envoyer un avis pour la consultation %s pour le moment (en attente de l'avis de commission dans Prevarisc) ...", $consultation_id));
+                        $output->writeln(\sprintf("Impossible d'envoyer un avis pour la consultation %s pour le moment (en attente de l'avis de commission dans Prevarisc) ...", $consultation_id));
                     }
                 } catch (\Exception $e) {
                     // On passe toutes les pièces en attente de versement
@@ -173,7 +173,7 @@ final class ExportAvis extends AbstractExportCommand
                     $this->prevarisc_service->setMetadonneesEnvoi($consultation_id, 'AVIS', 'in_error')
                       ->executeStatement();
 
-                    $output->writeln('Problème lors du versement de l\'avis : ' . $e->getMessage());
+                    $output->writeln('Problème lors du versement de l\'avis : '.$e->getMessage());
                 }
             }
         }

@@ -59,7 +59,7 @@ final class PlatauActeur extends PlatauAbstract
         // Si il n'y à pas d'acteur, alors la recherche à été infructueuse, et ce n'est pas normal.
         // On lève donc une exception.
         if (0 === $acteurs->getNbResults()) {
-            throw new \Exception(sprintf("L'acteur %s n'existe pas.", $acteur_id));
+            throw new \Exception(\sprintf("L'acteur %s n'existe pas.", $acteur_id));
         }
 
         // Récupération de l'acteur recherché

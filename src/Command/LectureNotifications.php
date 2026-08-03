@@ -26,7 +26,7 @@ final class LectureNotifications extends Command
         parent::__construct();
     }
 
-    protected function configure(): void
+    protected function configure() : void
     {
         $this->setName('lecture-notifications')
             ->setDescription("Lit les notifications qui n'ont pas encore été consommées.")
@@ -84,7 +84,7 @@ final class LectureNotifications extends Command
                                     throw new \Exception(\sprintf('Aucune pièce trouvée pour le dossier %s', $idDossier));
                                 }
 
-                                $piece_notification = array_filter($pieces, static fn (array $piece): bool => $piece['idPiece'] === $identifiant_element_concerne);
+                                $piece_notification = array_filter($pieces, static fn (array $piece) : bool => $piece['idPiece'] === $identifiant_element_concerne);
 
                                 if ([] === $piece_notification) {
                                     throw new \Exception(\sprintf("La pièce %s n'a pas été trouvée dans les pièces du dossier %s", $identifiant_element_concerne, $idDossier));

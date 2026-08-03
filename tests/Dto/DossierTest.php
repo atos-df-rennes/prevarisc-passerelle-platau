@@ -3,9 +3,9 @@
 namespace App\Tests\Dto;
 
 use App\Dto\Information;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Serializer\Serializer;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\PropertyInfo\Extractor\PhpDocExtractor;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;

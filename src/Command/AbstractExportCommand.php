@@ -30,7 +30,7 @@ abstract class AbstractExportCommand extends Command
         $pieces           = [];
         $pieces_to_export = [];
 
-        if ($this->piece_service->getSyncplicity() === null) {
+        if (null === $this->piece_service->getSyncplicity()) {
             return ['pieces' => $pieces, 'pieces_to_export' => $pieces_to_export];
         }
 

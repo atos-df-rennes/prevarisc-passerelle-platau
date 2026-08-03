@@ -40,7 +40,7 @@ final class PlatauAvis extends PlatauAbstract
 
         // Si la liste des avis est vide, alors on lève une erreur (la recherche n'a rien donné)
         if (empty($avis)) {
-            throw new \Exception(sprintf("l'avis %s est introuvable selon les critères de recherche", $consultation_id));
+            throw new \Exception(\sprintf("l'avis %s est introuvable selon les critères de recherche", $consultation_id));
         }
 
         // On inverse le tableau pour récupérer l'avis le plus récent

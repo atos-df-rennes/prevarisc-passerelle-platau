@@ -21,7 +21,7 @@ final class EnrolerActeur extends Command
     /**
      * Configuration de la commande.
      */
-    protected function configure(): void
+    protected function configure() : void
     {
         $this->setName('enroler-acteur')
             ->setDescription("Enrôlement d'un nouvel acteur dans Plat'AU")
@@ -46,7 +46,7 @@ final class EnrolerActeur extends Command
         // Enrôlement Plat'AU !
         $id_acteur = $this->acteur_service->enrolerServiceConsultable($designation, $mail, $siren);
 
-        $output->writeln('Acteur enrolé ! Son identifiant Plat\'AU est : ' . $id_acteur);
+        $output->writeln('Acteur enrolé ! Son identifiant Plat\'AU est : '.$id_acteur);
 
         return Command::SUCCESS;
     }

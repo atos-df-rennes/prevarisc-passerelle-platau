@@ -28,7 +28,7 @@ final class ImportPieces extends Command
     /**
      * Configuration de la commande.
      */
-    protected function configure(): void
+    protected function configure() : void
     {
         $this->setName('import-pieces')
             ->setDescription('Détecte et importe / met à jour des pièces relatives aux consultations importées dans Prevarisc.')
@@ -71,7 +71,7 @@ final class ImportPieces extends Command
                 try {
                     // Vérification de l'existence de la consultation dans Prevarisc ? Si non, on ignore complètement la consultation
                     if (!$this->prevarisc_service->consultationExiste($consultation_id)) {
-                        $output->writeln(sprintf("La consultation %s n'existe pas dans Prevarisc. Importez là d'abord avec la commande <import>.", $consultation_id));
+                        $output->writeln(\sprintf("La consultation %s n'existe pas dans Prevarisc. Importez là d'abord avec la commande <import>.", $consultation_id));
                         continue;
                     }
 
@@ -96,9 +96,9 @@ final class ImportPieces extends Command
                     }
 
                     // La consultation est importée !
-                    $output->writeln(sprintf('Consultation %s récupérée et stockée dans Prevarisc !', $consultation_id));
+                    $output->writeln(\sprintf('Consultation %s récupérée et stockée dans Prevarisc !', $consultation_id));
                 } catch (\Exception $e) {
-                    $output->writeln('Problème lors du traitement de la consultation : ' . $e->getMessage());
+                    $output->writeln('Problème lors du traitement de la consultation : '.$e->getMessage());
                 }
             }
         }

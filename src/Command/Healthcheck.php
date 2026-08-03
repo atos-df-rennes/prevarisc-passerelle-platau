@@ -22,7 +22,7 @@ final class Healthcheck extends Command
     /**
      * Configuration de la commande.
      */
-    protected function configure(): void
+    protected function configure() : void
     {
         $this->setName('healthcheck')
             ->setDescription('Vérification de la configuration de la passerelle.')

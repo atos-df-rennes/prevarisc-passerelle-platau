@@ -17,7 +17,7 @@ final class DetailsAvis extends Command
         parent::__construct();
     }
 
-    protected function configure(): void
+    protected function configure() : void
     {
         $this->setName('details-avis')
             ->setDescription("Affiche les détails d'un avis.")

@@ -195,7 +195,7 @@ abstract class PlatauAbstract
                     'consultations/recherche',
                     'dossiers/recherche',
                 ],
-                true) ? $length : 500;
+                    true) ? $length : 500;
                 $results      = [];
                 $page_debut   = (int) floor($offset / $max_per_page);
                 $page_fin     = (int) floor(($offset + $length - 1) / $max_per_page);

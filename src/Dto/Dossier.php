@@ -86,14 +86,14 @@ class Dossier
     {
         $personnes = $this->personnes ?? [];
 
-        return array_filter($personnes, static function (Personne $personne): bool {
+        return array_filter($personnes, static function (Personne $personne) : bool {
             $roles = $personne->getRoles();
 
             if (null === $roles) {
                 return false;
             }
 
-            $hasRolePetitionnaire = array_filter($roles, static fn (Role $role): bool => self::ROLE_PETITIONNAIRE === $role->getNomRole()->getIdNom());
+            $hasRolePetitionnaire = array_filter($roles, static fn (Role $role) : bool => self::ROLE_PETITIONNAIRE === $role->getNomRole()->getIdNom());
 
             return [] !== $hasRolePetitionnaire;
         });
@@ -116,7 +116,7 @@ class Dossier
             return null;
         }
 
-        $demandeurs_names = array_map(static function (Personne $personne): string {
+        $demandeurs_names = array_map(static function (Personne $personne) : string {
             $prenoms = $personne->getPrenoms();
             $noms    = $personne->getNoms();
 
@@ -140,7 +140,7 @@ class Dossier
                 $nom_complet .= ' ';
             }
 
-            return $nom_complet . implode(' ', $prenoms);
+            return $nom_complet.implode(' ', $prenoms);
         }, $demandeurs);
 
         return implode(' / ', $demandeurs_names);

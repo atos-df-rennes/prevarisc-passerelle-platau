@@ -2,9 +2,9 @@
 
 namespace App\ServiceProvider;
 
-use App\Service\SyncplicityClient;
 use UMA\DIC\Container;
 use UMA\DIC\ServiceProvider;
+use App\Service\SyncplicityClient;
 
 final class Syncplicity implements ServiceProvider
 {
@@ -20,6 +20,6 @@ final class Syncplicity implements ServiceProvider
      */
     public function provide(Container $c) : void
     {
-        $c->set(SyncplicityClient::class, fn (): SyncplicityClient => new SyncplicityClient($this->config));
+        $c->set(SyncplicityClient::class, fn () : SyncplicityClient => new SyncplicityClient($this->config));
     }
 }

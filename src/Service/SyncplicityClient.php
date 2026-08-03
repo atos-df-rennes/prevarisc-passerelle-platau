@@ -118,6 +118,8 @@ class SyncplicityClient
             'base_uri' => $ticket_pre_upload['Storage_URL'],
         ]);
 
+        \assert(\is_string($ticket_pre_upload['Folder_Name']));
+
         // On envoie le fichier en multipart en utilisant les informations du ticket upload
         $response = $http_client->request('POST', 'v2/mime/files', [
             'query' => [

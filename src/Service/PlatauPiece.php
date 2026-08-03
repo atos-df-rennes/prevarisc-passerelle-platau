@@ -50,6 +50,7 @@ final class PlatauPiece extends PlatauAbstract
 
         \assert(\array_key_exists('url', $piece));
         \assert(\array_key_exists('token', $piece));
+        \assert(\is_string($piece['token']));
 
         // On lance la requête HTTP de récupération
         return $http_client->request('GET', (string) $piece['url'], [
