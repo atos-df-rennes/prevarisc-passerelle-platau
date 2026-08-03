@@ -23,7 +23,6 @@ final class DossierTest extends TestCase
         $this->serializer  = new Serializer($normalizers);
     }
 
-    // @fixme: les objets retournés sont stdClass au lieu des types indiqués dans le DTO
     #[DataProvider('demandeurs')]
     public function testReturnsCorrectDemandeurs(string $fixtureFileName, int $expectedDemandeursCount, ?string $expectedDemandeursNames) : void
     {

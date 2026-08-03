@@ -9,7 +9,7 @@ return RectorConfig::configure()
         __DIR__.'/src',
         __DIR__.'/tests',
     ])
-     ->withPhpSets()
+    ->withPhpSets()
     ->withAttributesSets()
     ->withTypeCoverageLevel(50)
     ->withDeadCodeLevel(50)
