@@ -7,12 +7,12 @@ use UMA\DIC\Container;
 use UMA\DIC\ServiceProvider;
 use App\Service\SyncplicityClient;
 
-final class Platau implements ServiceProvider
+final readonly class Platau implements ServiceProvider
 {
     /**
      * Construction du service provider avec un tableau de configuration.
      */
-    public function __construct(private readonly array $config)
+    public function __construct(private array $config)
     {
     }
 
