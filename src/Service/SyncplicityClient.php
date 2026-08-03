@@ -14,9 +14,9 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class SyncplicityClient
 {
-    public const SYNCPLICITY_URL        = 'https://api.piste.gouv.fr/syncplicity/upload/';
+    public const string SYNCPLICITY_URL        = 'https://api.piste.gouv.fr/syncplicity/upload/';
 
-    public const PISTE_ACCESS_TOKEN_URL = 'https://oauth.piste.gouv.fr/api/oauth/token';
+    public const string PISTE_ACCESS_TOKEN_URL = 'https://oauth.piste.gouv.fr/api/oauth/token';
 
     private readonly HttpClient $http_client;
 

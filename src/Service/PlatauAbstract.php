@@ -17,9 +17,9 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 abstract class PlatauAbstract
 {
-    public const PLATAU_URL             = 'https://api.piste.gouv.fr/mtes/platau/v13/dau/';
+    public const string PLATAU_URL             = 'https://api.piste.gouv.fr/mtes/platau/v13/dau/';
 
-    public const PISTE_ACCESS_TOKEN_URL = 'https://oauth.piste.gouv.fr/api/oauth/token';
+    public const string PISTE_ACCESS_TOKEN_URL = 'https://oauth.piste.gouv.fr/api/oauth/token';
 
     private readonly HttpClient $http_client;
 

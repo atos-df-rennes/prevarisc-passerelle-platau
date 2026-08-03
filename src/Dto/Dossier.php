@@ -4,7 +4,7 @@ namespace App\Dto;
 
 class Dossier
 {
-    private const ROLE_PETITIONNAIRE = 1;
+    private const int ROLE_PETITIONNAIRE = 1;
 
     public function __construct(
         private readonly ?string $idDossier,
