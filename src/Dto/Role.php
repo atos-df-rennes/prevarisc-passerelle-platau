@@ -4,11 +4,8 @@ namespace App\Dto;
 
 class Role
 {
-    private NomRole $nomRole;
-
-    public function __construct(NomRole $nomRole)
+    public function __construct(private readonly NomRole $nomRole)
     {
-        $this->nomRole = $nomRole;
     }
 
     public function getNomRole() : NomRole

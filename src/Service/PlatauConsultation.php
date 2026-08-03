@@ -100,10 +100,8 @@ final class PlatauConsultation extends PlatauAbstract
 
     /**
      * Récupération des informations d'une consultation avec les informations du dossier.
-     *
-     * @return Information|array
      */
-    public function getConsultation(string $consultation_id, array $params = [], bool $as_array = false)
+    public function getConsultation(string $consultation_id, array $params = [], bool $as_array = false) : Information|array
     {
         // On recherche la consultation demandée
         if ($as_array) {
@@ -114,7 +112,7 @@ final class PlatauConsultation extends PlatauAbstract
 
         // Si la liste des consultations est vide, alors on lève une erreur (la recherche n'a rien donné)
         if (empty($consultations)) {
-            throw new \Exception("la consultation $consultation_id est introuvable selon les critères de recherche");
+            throw new \Exception(\sprintf('la consultation %s est introuvable selon les critères de recherche', $consultation_id));
         }
 
         // On vient récupérer la consultation qui nous interesse dans le tableau des résultats
@@ -161,18 +159,16 @@ final class PlatauConsultation extends PlatauAbstract
         // Définition de la DLR à envoyer
         // Correspond à la date d'instruction donnée dans la consultation si aucune date limite est donnée
         if (null === $date_limite_reponse_interval) {
-            $delai_reponse            = (string) $consultation->getDelaiDeReponse();
-            $type_date_limite_reponse = $consultation->getNomTypeDelai()->getLibNom();
-            switch ($type_date_limite_reponse) {
-                case 'Jours calendaires': $date_limite_reponse_interval = new \DateInterval("P{$delai_reponse}D");
-                    break;
-                case 'Mois': $date_limite_reponse_interval              = new \DateInterval("P{$delai_reponse}M");
-                    break;
-                default: throw new \Exception('Type de la date de réponse attendue inconnu : '.($type_date_limite_reponse ?? 'vide'));
-            }
+            $delai_reponse                = (string) $consultation->getDelaiDeReponse();
+            $type_date_limite_reponse     = $consultation->getNomTypeDelai()->getLibNom();
+            $date_limite_reponse_interval = match ($type_date_limite_reponse) {
+                'Jours calendaires' => new \DateInterval(\sprintf('P%sD', $delai_reponse)),
+                'Mois' => new \DateInterval(\sprintf('P%sM', $delai_reponse)),
+                default => throw new \Exception('Type de la date de réponse attendue inconnu : '.($type_date_limite_reponse ?? 'vide')),
+            };
         }
 
-        $date_envoi          = $date_envoi ?? (new \DateTime());
+        $date_envoi ??= new \DateTime();
         $date_limite_reponse = $date_envoi->add($date_limite_reponse_interval);
 
         $pec_metier_options = [
@@ -225,10 +221,10 @@ final class PlatauConsultation extends PlatauAbstract
         /** @var array<array-key, string> $libelles */
         $libelles    = array_column($prescriptions, 'libelle');
         $description = vsprintf('Avis Prevarisc. Prescriptions données : %s', [
-            0 === \count($prescriptions) ? 'RAS' : implode(', ', $libelles),
+            [] === $prescriptions ? 'RAS' : implode(', ', $libelles),
         ]);
 
-        $date_envoi = $date_envoi ?? (new \DateTime());
+        $date_envoi ??= new \DateTime();
 
         $avis_options = [
             'idConsultation' => $consultation_id,

@@ -4,16 +4,15 @@ namespace App\ValueObjects;
 
 class Auteur
 {
-    private ?string $prenomAuteur;
-    private ?string $nomAuteur;
-    private ?string $emailAuteur;
-    private ?string $telephoneAuteur;
+    private readonly ?string $telephoneAuteur;
 
-    public function __construct(?string $prenom, ?string $nom, ?string $email, ?string $telephone_fixe, ?string $telephone_portable)
-    {
-        $this->prenomAuteur    = $prenom;
-        $this->nomAuteur       = $nom;
-        $this->emailAuteur     = $email;
+    public function __construct(
+        private readonly ?string $prenomAuteur,
+        private readonly ?string $nomAuteur,
+        private readonly ?string $emailAuteur,
+        ?string $telephone_fixe,
+        ?string $telephone_portable,
+    ) {
         $this->telephoneAuteur = '' !== $telephone_fixe ? $telephone_fixe : $telephone_portable;
     }
 

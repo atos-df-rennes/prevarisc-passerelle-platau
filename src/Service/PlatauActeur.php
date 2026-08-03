@@ -41,9 +41,7 @@ final class PlatauActeur extends PlatauAbstract
             throw new \Exception("L'enrôlement ne s'est pas correctement passé (absence d'idActeur dans la réponse)");
         }
 
-        $acteur_id = (string) $service_consultable_cree['idActeur'];
-
-        return $acteur_id;
+        return (string) $service_consultable_cree['idActeur'];
     }
 
     /**
@@ -61,7 +59,7 @@ final class PlatauActeur extends PlatauAbstract
         // Si il n'y à pas d'acteur, alors la recherche à été infructueuse, et ce n'est pas normal.
         // On lève donc une exception.
         if (0 === $acteurs->getNbResults()) {
-            throw new \Exception("L'acteur $acteur_id n'existe pas.");
+            throw new \Exception(\sprintf("L'acteur %s n'existe pas.", $acteur_id));
         }
 
         // Récupération de l'acteur recherché

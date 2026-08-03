@@ -17,25 +17,18 @@ use App\Service\PlatauConsultation as PlatauConsultationService;
  */
 final class ImportPieces extends Command
 {
-    private PrevariscService $prevarisc_service;
-    private PlatauConsultationService $consultation_service;
-    private PlatauPieceService $piece_service;
-
     /**
      * Initialisation de la commande.
      */
-    public function __construct(PrevariscService $prevarisc_service, PlatauConsultationService $consultation_service, PlatauPieceService $piece_service)
+    public function __construct(private readonly PrevariscService $prevarisc_service, private readonly PlatauConsultationService $consultation_service, private readonly PlatauPieceService $piece_service)
     {
-        $this->prevarisc_service    = $prevarisc_service;
-        $this->consultation_service = $consultation_service;
-        $this->piece_service        = $piece_service;
         parent::__construct();
     }
 
     /**
      * Configuration de la commande.
      */
-    protected function configure()
+    protected function configure() : void
     {
         $this->setName('import-pieces')
             ->setDescription('Détecte et importe / met à jour des pièces relatives aux consultations importées dans Prevarisc.')
@@ -54,7 +47,7 @@ final class ImportPieces extends Command
             $output->writeln('Recherche de toutes les consultations versées (--force-non-pec) ...');
             $consultations = $this->consultation_service->rechercheConsultations(['nomEtatConsultation' => [1]]);
         } else {
-            $output->writeln('Recherche de toutes les consultations en attente d\'avis ...');
+            $output->writeln("Recherche de toutes les consultations en attente d'avis ...");
             $consultations = $this->consultation_service->rechercheConsultations(['nomEtatConsultation' => [3]]);
         }
 
@@ -78,7 +71,7 @@ final class ImportPieces extends Command
                 try {
                     // Vérification de l'existence de la consultation dans Prevarisc ? Si non, on ignore complètement la consultation
                     if (!$this->prevarisc_service->consultationExiste($consultation_id)) {
-                        $output->writeln("La consultation $consultation_id n'existe pas dans Prevarisc. Importez là d'abord avec la commande <import>.");
+                        $output->writeln(\sprintf("La consultation %s n'existe pas dans Prevarisc. Importez là d'abord avec la commande <import>.", $consultation_id));
                         continue;
                     }
 
@@ -103,9 +96,9 @@ final class ImportPieces extends Command
                     }
 
                     // La consultation est importée !
-                    $output->writeln("Consultation $consultation_id récupérée et stockée dans Prevarisc !");
+                    $output->writeln(\sprintf('Consultation %s récupérée et stockée dans Prevarisc !', $consultation_id));
                 } catch (\Exception $e) {
-                    $output->writeln("Problème lors du traitement de la consultation : {$e->getMessage()}");
+                    $output->writeln('Problème lors du traitement de la consultation : '.$e->getMessage());
                 }
             }
         }

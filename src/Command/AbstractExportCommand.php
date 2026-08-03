@@ -9,13 +9,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 abstract class AbstractExportCommand extends Command
 {
-    protected PrevariscService $prevarisc_service;
-    protected PlatauPiece $piece_service;
-
-    public function __construct(PrevariscService $prevarisc_service, PlatauPiece $piece_service)
+    public function __construct(protected PrevariscService $prevarisc_service, protected PlatauPiece $piece_service)
     {
-        $this->prevarisc_service = $prevarisc_service;
-        $this->piece_service     = $piece_service;
         parent::__construct();
     }
 
@@ -35,8 +30,8 @@ abstract class AbstractExportCommand extends Command
         $pieces           = [];
         $pieces_to_export = [];
 
-        if (!$this->piece_service->getSyncplicity()) {
-            return compact('pieces', 'pieces_to_export');
+        if (null === $this->piece_service->getSyncplicity()) {
+            return ['pieces' => $pieces, 'pieces_to_export' => $pieces_to_export];
         }
 
         $pieces_to_export = $this->prevarisc_service->recupererPiecesAvecStatut($dossier_id, 'to_be_exported');
@@ -63,6 +58,6 @@ abstract class AbstractExportCommand extends Command
             }
         }
 
-        return compact('pieces', 'pieces_to_export');
+        return ['pieces' => $pieces, 'pieces_to_export' => $pieces_to_export];
     }
 }

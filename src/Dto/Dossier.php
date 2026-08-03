@@ -6,50 +6,19 @@ class Dossier
 {
     private const ROLE_PETITIONNAIRE = 1;
 
-    private ?string $idDossier;
-
-    private ?string $idServiceInstructeur;
-
-    private int $noVersion;
-
-    private ?string $txDescriptifGlobal;
-
-    private ?string $noLocal;
-
-    private ?string $suffixeNoLocal;
-
-    private NomTypeDossier $nomTypeDossier;
-
-    /** @var Consultation[] */
-    private array $consultations;
-
-    /** @var Personne[]|null */
-    private ?array $personnes;
-
-    /**
-     * @param Consultation[]  $consultations
-     * @param Personne[]|null $personnes
-     */
     public function __construct(
-        ?string $idDossier,
-        ?string $idServiceInstructeur,
-        int $noVersion,
-        ?string $txDescriptifGlobal,
-        ?string $noLocal,
-        ?string $suffixeNoLocal,
-        NomTypeDossier $nomTypeDossier,
-        array $consultations,
-        ?array $personnes,
+        private readonly ?string $idDossier,
+        private readonly ?string $idServiceInstructeur,
+        private readonly int $noVersion,
+        private readonly ?string $txDescriptifGlobal,
+        private readonly ?string $noLocal,
+        private readonly ?string $suffixeNoLocal,
+        private readonly NomTypeDossier $nomTypeDossier,
+        /** @var Consultation[] */
+        private array $consultations,
+        /** @var Personne[]|null */
+        private readonly ?array $personnes,
     ) {
-        $this->idDossier            = $idDossier;
-        $this->idServiceInstructeur = $idServiceInstructeur;
-        $this->noVersion            = $noVersion;
-        $this->txDescriptifGlobal   = $txDescriptifGlobal;
-        $this->noLocal              = $noLocal;
-        $this->suffixeNoLocal       = $suffixeNoLocal;
-        $this->nomTypeDossier       = $nomTypeDossier;
-        $this->consultations        = $consultations;
-        $this->personnes            = $personnes;
     }
 
     public function getIdDossier() : ?string
@@ -117,21 +86,17 @@ class Dossier
     {
         $personnes = $this->personnes ?? [];
 
-        $demandeurs = array_filter($personnes, static function (Personne $personne) {
+        return array_filter($personnes, static function (Personne $personne) : bool {
             $roles = $personne->getRoles();
 
             if (null === $roles) {
                 return false;
             }
 
-            $hasRolePetitionnaire = array_filter($roles, static function (Role $role) {
-                return self::ROLE_PETITIONNAIRE === $role->getNomRole()->getIdNom();
-            });
+            $hasRolePetitionnaire = array_filter($roles, static fn (Role $role) : bool => self::ROLE_PETITIONNAIRE === $role->getNomRole()->getIdNom());
 
             return [] !== $hasRolePetitionnaire;
         });
-
-        return $demandeurs;
     }
 
     /**
@@ -151,7 +116,7 @@ class Dossier
             return null;
         }
 
-        $demandeurs_names = array_map(static function (Personne $personne) {
+        $demandeurs_names = array_map(static function (Personne $personne) : string {
             $prenoms = $personne->getPrenoms();
             $noms    = $personne->getNoms();
 
@@ -162,20 +127,20 @@ class Dossier
             if (null === $prenoms) {
                 $prenoms = [];
             }
+
             if (null === $noms) {
                 $noms = [];
             }
 
-            $prenoms = array_map('trim', $prenoms);
-            $noms    = array_map('trim', $noms);
+            $prenoms = array_map(trim(...), $prenoms);
+            $noms    = array_map(trim(...), $noms);
 
             $nom_complet = implode(' ', $noms);
             if ([] !== $noms && [] !== $prenoms) {
                 $nom_complet .= ' ';
             }
-            $nom_complet .= implode(' ', $prenoms);
 
-            return $nom_complet;
+            return $nom_complet.implode(' ', $prenoms);
         }, $demandeurs);
 
         return implode(' / ', $demandeurs_names);

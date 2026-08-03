@@ -2,6 +2,7 @@
 
 namespace App\Command;
 
+use App\Dto\Information;
 use App\Service\DateParser;
 use App\Service\PlatauAvis;
 use App\Service\PlatauPiece;
@@ -15,25 +16,23 @@ use App\Service\PlatauConsultation as PlatauConsultationService;
 
 final class ExportAvis extends AbstractExportCommand
 {
-    private PlatauConsultationService $consultation_service;
-    private PlatauAvis $avis_service;
-    private DateParser $date_parser;
-
     /**
      * Initialisation de la commande.
      */
-    public function __construct(PrevariscService $prevarisc_service, PlatauConsultationService $consultation_service, PlatauPiece $piece_service, PlatauAvis $avis_service, DateParser $date_parser)
-    {
+    public function __construct(
+        PrevariscService $prevarisc_service,
+        private readonly PlatauConsultationService $consultation_service,
+        PlatauPiece $piece_service,
+        private readonly PlatauAvis $avis_service,
+        private readonly DateParser $date_parser,
+    ) {
         parent::__construct($prevarisc_service, $piece_service);
-        $this->consultation_service = $consultation_service;
-        $this->avis_service         = $avis_service;
-        $this->date_parser          = $date_parser;
     }
 
     /**
      * Configuration de la commande.
      */
-    protected function configure()
+    protected function configure() : void
     {
         $this->setName('export-avis')
             ->setDescription("Exporte un avis Prevarisc sur Plat'AU.")
@@ -51,25 +50,25 @@ final class ExportAvis extends AbstractExportCommand
         // Sinon on récupère dans Plat'AU l'ensemble des consultations en attente d'avis (c'est à dire avec un état "Prise en compte - en cours de traitement") et celle déjà traitées
         if ($input->getOption('consultation-id')) {
             $output->writeln('Récupération de la consultation concernée ...');
-            /** @var \App\Dto\Information[] $consultations_en_attente_davis */
+            /** @var Information[] $consultations_en_attente_davis */
             $consultations_en_attente_davis = [$this->consultation_service->getConsultation($input->getOption('consultation-id'))];
         } else {
             $output->writeln('Recherche de toutes les consultations en attente d\'avis ou traitées (à renvoyer) ...');
 
             $consultations_a_renvoyer = $this->prevarisc_service->recupererDossiersARenvoyer();
             $consultations_a_renvoyer = array_map(
-                fn ($consultation_id) => $this->consultation_service->getConsultation($consultation_id),
+                fn ($consultation_id) : Information|array => $this->consultation_service->getConsultation($consultation_id),
                 $consultations_a_renvoyer
             );
 
             $consultations_en_attente_davis = $this->consultation_service->rechercheConsultations(['nomEtatConsultation' => [3]]);
-            /** @var \App\Dto\Information[] $consultations_en_attente_davis */
+            /** @var Information[] $consultations_en_attente_davis */
             $consultations_en_attente_davis = array_merge($consultations_a_renvoyer, $consultations_en_attente_davis);
         }
 
         // Si il n'existe pas de consultations en attente d'avis, on arrête le travail ici
         if (empty($consultations_en_attente_davis)) {
-            $output->writeln('Pas de consultations en attente d\'avis.');
+            $output->writeln("Pas de consultations en attente d'avis.");
 
             return Command::SUCCESS;
         }
@@ -89,7 +88,7 @@ final class ExportAvis extends AbstractExportCommand
 
                     // Vérification de l'existence de la consultation dans Prevarisc ? Si non, on ignore complètement la consultation
                     if (!$this->prevarisc_service->consultationExiste($consultation_id)) {
-                        $output->writeln("La consultation $consultation_id n'existe pas dans Prevarisc. Importez là d'abord avec la commande <import>.");
+                        $output->writeln(\sprintf("La consultation %s n'existe pas dans Prevarisc. Importez là d'abord avec la commande <import>.", $consultation_id));
                         continue;
                     }
 
@@ -120,7 +119,7 @@ final class ExportAvis extends AbstractExportCommand
                         $avis_labels  = [1 => 'favorable', 2 => 'défavorable', 6 => 'sans avis'];
                         $avis_libelle = $avis_labels[$avis_dossier_commission];
 
-                        $output->writeln("Versement d'un avis $avis_libelle pour la consultation $consultation_id au service instructeur ...");
+                        $output->writeln(\sprintf("Versement d'un avis %s pour la consultation %s au service instructeur ...", $avis_libelle, $consultation_id));
                         // Si cela concerne un premier envoi d'avis alors on place la date de l'avis Prevarisc, sinon la date du lancement de la commande
                         $date_envoi = new \DateTime();
 
@@ -144,7 +143,7 @@ final class ExportAvis extends AbstractExportCommand
                         foreach ($pieces_to_export as $index_piece => $piece_to_map) {
                             if (!\array_key_exists($index_piece, $avis_documents)) {
                                 $filename = $piece_to_map['NOM_PIECEJOINTE'].$piece_to_map['EXTENSION_PIECEJOINTE'];
-                                $output->writeln("La pièce {$filename} n'a pas été trouvée dans la liste des documents envoyés avec l'avis");
+                                $output->writeln(\sprintf("La pièce %s n'a pas été trouvée dans la liste des documents envoyés avec l'avis", $filename));
 
                                 continue;
                             }
@@ -160,7 +159,7 @@ final class ExportAvis extends AbstractExportCommand
                           ->executeStatement();
                         $output->writeln('Avis envoyé !');
                     } else {
-                        $output->writeln("Impossible d'envoyer un avis pour la consultation $consultation_id pour le moment (en attente de l'avis de commission dans Prevarisc) ...");
+                        $output->writeln(\sprintf("Impossible d'envoyer un avis pour la consultation %s pour le moment (en attente de l'avis de commission dans Prevarisc) ...", $consultation_id));
                     }
                 } catch (\Exception $e) {
                     // On passe toutes les pièces en attente de versement
@@ -174,7 +173,7 @@ final class ExportAvis extends AbstractExportCommand
                     $this->prevarisc_service->setMetadonneesEnvoi($consultation_id, 'AVIS', 'in_error')
                       ->executeStatement();
 
-                    $output->writeln("Problème lors du versement de l'avis : {$e->getMessage()}");
+                    $output->writeln('Problème lors du versement de l\'avis : '.$e->getMessage());
                 }
             }
         }

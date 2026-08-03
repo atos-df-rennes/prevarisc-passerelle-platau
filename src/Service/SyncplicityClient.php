@@ -15,10 +15,12 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 class SyncplicityClient
 {
     public const SYNCPLICITY_URL        = 'https://api.piste.gouv.fr/syncplicity/upload/';
+
     public const PISTE_ACCESS_TOKEN_URL = 'https://oauth.piste.gouv.fr/api/oauth/token';
 
-    private HttpClient $http_client;
-    private array $config;
+    private readonly HttpClient $http_client;
+
+    private readonly array $config;
 
     /**
      * Création d'une nouvelle instance du client Syncplicity (https://developer.syncplicity.com/documentation/api_docs).
@@ -38,6 +40,7 @@ class SyncplicityClient
         $resolver = new OptionsResolver();
         $resolver->setDefaults(['SYNCPLICITY_URL' => self::SYNCPLICITY_URL, 'PISTE_ACCESS_TOKEN_URL' => self::PISTE_ACCESS_TOKEN_URL]);
         $resolver->setRequired(['PISTE_CLIENT_ID', 'PISTE_CLIENT_SECRET']);
+
         $this->config = $resolver->resolve($config);
 
         // Initialisation du pipeline HTTP utilisé par Guzzle
@@ -115,10 +118,12 @@ class SyncplicityClient
             'base_uri' => $ticket_pre_upload['Storage_URL'],
         ]);
 
+        \assert(\is_string($ticket_pre_upload['Folder_Name']));
+
         // On envoie le fichier en multipart en utilisant les informations du ticket upload
         $response = $http_client->request('POST', 'v2/mime/files', [
             'query' => [
-                'filepath' => (string) $ticket_pre_upload['Folder_Name'].'/'.urlencode($file_name),
+                'filepath' => $ticket_pre_upload['Folder_Name'].'/'.urlencode($file_name),
             ],
             'headers' => [
                 'AppKey' => $ticket_pre_upload['AppKey'],

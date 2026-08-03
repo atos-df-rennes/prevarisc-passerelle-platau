@@ -11,23 +11,18 @@ use App\Service\PlatauHealthcheck as PlatauHealthcheckService;
 
 final class Healthcheck extends Command
 {
-    private PlatauHealthcheckService $healthcheck_service;
-    private PrevariscService $prevarisc_service;
-
     /**
      * Initialisation de la commande.
      */
-    public function __construct(PlatauHealthcheckService $healthcheck_service, PrevariscService $prevarisc_service)
+    public function __construct(private readonly PlatauHealthcheckService $healthcheck_service, private readonly PrevariscService $prevarisc_service)
     {
-        $this->healthcheck_service = $healthcheck_service;
-        $this->prevarisc_service   = $prevarisc_service;
         parent::__construct();
     }
 
     /**
      * Configuration de la commande.
      */
-    protected function configure()
+    protected function configure() : void
     {
         $this->setName('healthcheck')
             ->setDescription('Vérification de la configuration de la passerelle.')
@@ -47,7 +42,7 @@ final class Healthcheck extends Command
         $output->writeln('Syncplicity : '.($this->healthcheck_service->getSyncplicity() ? 'Activé' : 'Non activé'));
 
         // On vérifie la santé de Plat'AU
-        if (true !== $this->healthcheck_service->healthcheck()) {
+        if (!$this->healthcheck_service->healthcheck()) {
             throw new \Exception("Plat'AU non fonctionnel actuellement.");
         }
 

@@ -11,15 +11,12 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 final class RenvoiErreurs extends Command
 {
-    private Prevarisc $prevarisc_service;
-
-    public function __construct(Prevarisc $prevarisc_service)
+    public function __construct(private readonly Prevarisc $prevarisc_service)
     {
         parent::__construct();
-        $this->prevarisc_service = $prevarisc_service;
     }
 
-    protected function configure()
+    protected function configure() : void
     {
         $this->setName('renvoi-erreurs')
             ->setDescription('Renvoie les pièces et consultations suite à une erreur (principalement pour code erreur 9 sur pièce).')

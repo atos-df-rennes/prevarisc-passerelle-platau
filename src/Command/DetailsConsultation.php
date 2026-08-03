@@ -12,15 +12,12 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 final class DetailsConsultation extends Command
 {
-    private PlatauConsultation $consultation_service;
-
-    public function __construct(PlatauConsultation $consultation_service)
+    public function __construct(private readonly PlatauConsultation $consultation_service)
     {
-        $this->consultation_service = $consultation_service;
         parent::__construct();
     }
 
-    protected function configure()
+    protected function configure() : void
     {
         $this->setName('details-consultation')
             ->setDescription("Affiche les détails d'une consultation.")

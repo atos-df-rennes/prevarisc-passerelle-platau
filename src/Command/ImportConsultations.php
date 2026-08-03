@@ -17,25 +17,18 @@ use App\Service\PlatauConsultation as PlatauConsultationService;
  */
 final class ImportConsultations extends Command
 {
-    private PrevariscService $prevarisc_service;
-    private PlatauConsultationService $consultation_service;
-    private PlatauActeurService $acteur_service;
-
     /**
      * Initialisation de la commande.
      */
-    public function __construct(PrevariscService $prevarisc_service, PlatauConsultationService $consultation_service, PlatauActeurService $acteur_service)
+    public function __construct(private readonly PrevariscService $prevarisc_service, private readonly PlatauConsultationService $consultation_service, private readonly PlatauActeurService $acteur_service)
     {
-        $this->prevarisc_service    = $prevarisc_service;
-        $this->acteur_service       = $acteur_service;
-        $this->consultation_service = $consultation_service;
         parent::__construct();
     }
 
     /**
      * Configuration de la commande.
      */
-    protected function configure()
+    protected function configure() : void
     {
         $this->setName('import')
             ->setDescription('Détecte et importe de nouvelles consultations dans Prevarisc.')
@@ -75,7 +68,7 @@ final class ImportConsultations extends Command
                 try {
                     // La consultation existe t'elle déjà dans Prevarisc ? Si oui, on ignore complètement la consultation
                     if ($this->prevarisc_service->consultationExiste($consultation_id)) {
-                        $output->writeln("Consultation $consultation_id déjà existante dans Prevarisc");
+                        $output->writeln(\sprintf('Consultation %s déjà existante dans Prevarisc', $consultation_id));
                         continue;
                     }
 
@@ -90,9 +83,9 @@ final class ImportConsultations extends Command
                       ->executeStatement();
 
                     // La consultation est importée !
-                    $output->writeln("Consultation $consultation_id récupérée et stockée dans Prevarisc !");
+                    $output->writeln(\sprintf('Consultation %s récupérée et stockée dans Prevarisc !', $consultation_id));
                 } catch (\Exception $e) {
-                    $output->writeln("Problème lors du traitement de la consultation : {$e->getMessage()}");
+                    $output->writeln('Problème lors du traitement de la consultation : '.$e->getMessage());
                 }
             }
         }

@@ -4,36 +4,16 @@ namespace App\Dto;
 
 class Personne
 {
-    /** @var string[]|null */
-    private ?array $prenoms;
-
-    /** @var string[]|null */
-    private ?array $noms;
-
-    private ?string $libDenomination;
-
-    private ?string $libRaisonSociale;
-
-    /** @var Role[]|null */
-    private ?array $roles;
-
-    /**
-     * @param string[]|null $prenoms
-     * @param string[]|null $noms
-     * @param Role[]|null   $roles
-     */
     public function __construct(
-        ?array $prenoms,
-        ?array $noms,
-        ?string $libDenomination,
-        ?string $libRaisonSociale,
-        ?array $roles,
+        /** @var string[]|null */
+        private readonly ?array $prenoms,
+        /** @var string[]|null */
+        private readonly ?array $noms,
+        private readonly ?string $libDenomination,
+        private readonly ?string $libRaisonSociale,
+        /** @var Role[]|null */
+        private readonly ?array $roles,
     ) {
-        $this->prenoms          = $prenoms;
-        $this->noms             = $noms;
-        $this->libDenomination  = $libDenomination;
-        $this->libRaisonSociale = $libRaisonSociale;
-        $this->roles            = $roles;
     }
 
     /**

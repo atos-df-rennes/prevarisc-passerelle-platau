@@ -4,11 +4,8 @@ namespace App\Dto;
 
 class NomEtatConsultation
 {
-    private int $idNom;
-
-    public function __construct(int $idNom)
+    public function __construct(private readonly int $idNom)
     {
-        $this->idNom = $idNom;
     }
 
     public function getIdNom() : int

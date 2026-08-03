@@ -13,16 +13,15 @@ final class EnrolerActeur extends Command
     /**
      * Initialisation de la commande.
      */
-    public function __construct(PlatauActeurService $acteur_service)
+    public function __construct(public PlatauActeurService $acteur_service)
     {
-        $this->acteur_service = $acteur_service;
         parent::__construct();
     }
 
     /**
      * Configuration de la commande.
      */
-    protected function configure()
+    protected function configure() : void
     {
         $this->setName('enroler-acteur')
             ->setDescription("Enrôlement d'un nouvel acteur dans Plat'AU")
@@ -47,7 +46,7 @@ final class EnrolerActeur extends Command
         // Enrôlement Plat'AU !
         $id_acteur = $this->acteur_service->enrolerServiceConsultable($designation, $mail, $siren);
 
-        $output->writeln("Acteur enrolé ! Son identifiant Plat'AU est : $id_acteur");
+        $output->writeln('Acteur enrolé ! Son identifiant Plat\'AU est : '.$id_acteur);
 
         return Command::SUCCESS;
     }

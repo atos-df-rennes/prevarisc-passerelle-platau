@@ -15,32 +15,18 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 final class LectureNotifications extends Command
 {
-    private PlatauNotification $notification_service;
-    private Prevarisc $prevarisc_service;
-    private PlatauConsultation $consultation_service;
-    private PlatauPiece $piece_service;
-    private PlatauActeur $acteur_service;
-
-    private PlatauNomenclature $nomenclature_service;
-
     public function __construct(
-        PlatauNotification $notification_service,
-        Prevarisc $prevarisc_service,
-        PlatauConsultation $consultation_service,
-        PlatauPiece $piece_service,
-        PlatauActeur $acteur_service,
-        PlatauNomenclature $nomenclature_service,
+        private readonly PlatauNotification $notification_service,
+        private readonly Prevarisc $prevarisc_service,
+        private readonly PlatauConsultation $consultation_service,
+        private readonly PlatauPiece $piece_service,
+        private readonly PlatauActeur $acteur_service,
+        private readonly PlatauNomenclature $nomenclature_service,
     ) {
-        $this->notification_service = $notification_service;
-        $this->prevarisc_service    = $prevarisc_service;
-        $this->consultation_service = $consultation_service;
-        $this->piece_service        = $piece_service;
-        $this->acteur_service       = $acteur_service;
-        $this->nomenclature_service = $nomenclature_service;
         parent::__construct();
     }
 
-    protected function configure()
+    protected function configure() : void
     {
         $this->setName('lecture-notifications')
             ->setDescription("Lit les notifications qui n'ont pas encore été consommées.")
@@ -64,7 +50,7 @@ final class LectureNotifications extends Command
         $output->writeln($this->logMessage('Lecture des nouvelles notifications ...'));
         $notifications = $this->notification_service->rechercheNotifications($params);
 
-        if (0 === \count($notifications)) {
+        if ([] === $notifications) {
             $output->writeln($this->logMessage('Aucune nouvelle notification.'));
 
             return Command::SUCCESS;
@@ -98,7 +84,7 @@ final class LectureNotifications extends Command
                                     throw new \Exception(\sprintf('Aucune pièce trouvée pour le dossier %s', $idDossier));
                                 }
 
-                                $piece_notification = array_filter($pieces, static fn ($piece) => $piece['idPiece'] === $identifiant_element_concerne);
+                                $piece_notification = array_filter($pieces, static fn (array $piece) : bool => $piece['idPiece'] === $identifiant_element_concerne);
 
                                 if ([] === $piece_notification) {
                                     throw new \Exception(\sprintf("La pièce %s n'a pas été trouvée dans les pièces du dossier %s", $identifiant_element_concerne, $idDossier));

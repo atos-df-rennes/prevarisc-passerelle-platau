@@ -9,14 +9,11 @@ use App\Service\SyncplicityClient;
 
 final class Platau implements ServiceProvider
 {
-    private array $config;
-
     /**
      * Construction du service provider avec un tableau de configuration.
      */
-    public function __construct(array $config)
+    public function __construct(private readonly array $config)
     {
-        $this->config = $config;
     }
 
     /**

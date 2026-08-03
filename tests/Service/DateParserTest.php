@@ -4,11 +4,11 @@ namespace App\Tests\Service;
 
 use App\Service\DateParser;
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 final class DateParserTest extends TestCase
 {
-    /** @var DateParser */
-    private $date_parser;
+    private DateParser $date_parser;
 
     protected function setUp() : void
     {
@@ -20,9 +20,7 @@ final class DateParserTest extends TestCase
         self::assertNull($this->date_parser->parse('Y-m-d', null));
     }
 
-    /**
-     * @dataProvider datesValides
-     */
+    #[DataProvider('datesValides')]
     public function testRetourneDateTimeAvecDateValide(string $format, string $date, string $expected_formatted) : void
     {
         $result = $this->date_parser->parse($format, $date);
@@ -43,9 +41,7 @@ final class DateParserTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider datesInvalides
-     */
+    #[DataProvider('datesInvalides')]
     public function testRetourneNullSiDateInvalide(string $format, string $date) : void
     {
         self::assertNull($this->date_parser->parse($format, $date));

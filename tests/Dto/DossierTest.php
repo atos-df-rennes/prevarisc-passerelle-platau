@@ -5,6 +5,7 @@ namespace App\Tests\Dto;
 use App\Dto\Information;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Serializer\Serializer;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\PropertyInfo\Extractor\PhpDocExtractor;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
@@ -22,9 +23,7 @@ final class DossierTest extends TestCase
         $this->serializer  = new Serializer($normalizers);
     }
 
-    /**
-     * @dataProvider demandeurs
-     */
+    #[DataProvider('demandeurs')]
     public function testReturnsCorrectDemandeurs(string $fixtureFileName, int $expectedDemandeursCount, ?string $expectedDemandeursNames) : void
     {
         $information  = json_decode(file_get_contents($fixtureFileName));

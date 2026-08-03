@@ -14,23 +14,22 @@ use App\Service\PlatauConsultation as PlatauConsultationService;
 
 final class ExportPEC extends AbstractExportCommand
 {
-    private PlatauConsultationService $consultation_service;
-    private DateParser $date_parser;
-
     /**
      * Initialisation de la commande.
      */
-    public function __construct(PrevariscService $prevarisc_service, PlatauConsultationService $consultation_service, PlatauPiece $piece_service, DateParser $date_parser)
-    {
+    public function __construct(
+        PrevariscService $prevarisc_service,
+        private readonly PlatauConsultationService $consultation_service,
+        PlatauPiece $piece_service,
+        private readonly DateParser $date_parser,
+    ) {
         parent::__construct($prevarisc_service, $piece_service);
-        $this->consultation_service = $consultation_service;
-        $this->date_parser          = $date_parser;
     }
 
     /**
      * Configuration de la commande.
      */
-    protected function configure()
+    protected function configure() : void
     {
         $this->setName('export-pec')
             ->setDescription("Exporte des Prises En Compte métier sur Plat'AU.")
@@ -59,7 +58,7 @@ final class ExportPEC extends AbstractExportCommand
         // Si une DLR personnalisée est demandée par l'utilisateur
         $delai_reponse = null;
         if ($input->getOption('delai-reponse')) {
-            $delai_reponse = new \DateInterval("P{$input->getOption('delai-reponse')}D");
+            $delai_reponse = new \DateInterval(\sprintf('P%sD', $input->getOption('delai-reponse')));
         }
 
         // Pour chaque consultation trouvée, on va chercher dans Prevarisc si la complétion (ou non) du dossier a été indiquée.
@@ -77,7 +76,7 @@ final class ExportPEC extends AbstractExportCommand
 
                     // Vérification de l'existence de la consultation dans Prevarisc ? Si non, on ignore complètement la consultation
                     if (!$this->prevarisc_service->consultationExiste($consultation_id)) {
-                        $output->writeln("La consultation $consultation_id n'existe pas dans Prevarisc. Importez là d'abord avec la commande <import>.");
+                        $output->writeln(\sprintf("La consultation %s n'existe pas dans Prevarisc. Importez là d'abord avec la commande <import>.", $consultation_id));
                         continue;
                     }
 
@@ -98,7 +97,7 @@ final class ExportPEC extends AbstractExportCommand
 
                     // Si le dossier est déclaré incomplet, on envoie une PEC négative
                     if ('1' === (string) $dossier['INCOMPLET_DOSSIER']) {
-                        $output->writeln("Notification de la Prise En Compte Négative de la consultation $consultation_id au service instructeur ...");
+                        $output->writeln(\sprintf('Notification de la Prise En Compte Négative de la consultation %s au service instructeur ...', $consultation_id));
                         $documentsManquants = $this->prevarisc_service->recupererDocumentsManquants($dossier['ID_DOSSIER']);
 
                         // Si cela concerne un premier envoi de PEC alors on place la date de la PEC Prevarisc, sinon null (envoiPEC utilisera la date courante)
@@ -119,7 +118,7 @@ final class ExportPEC extends AbstractExportCommand
                         foreach ($pieces_to_export as $index_piece => $piece_to_map) {
                             if (!\array_key_exists($index_piece, $pec_documents)) {
                                 $filename = $piece_to_map['NOM_PIECEJOINTE'].$piece_to_map['EXTENSION_PIECEJOINTE'];
-                                $output->writeln("La pièce {$filename} n'a pas été trouvée dans la liste des documents envoyés avec la prise en compte métier");
+                                $output->writeln(\sprintf("La pièce %s n'a pas été trouvée dans la liste des documents envoyés avec la prise en compte métier", $filename));
 
                                 continue;
                             }
@@ -138,7 +137,7 @@ final class ExportPEC extends AbstractExportCommand
 
                         $output->writeln('Notification de la Prise En Compte Négative envoyée !');
                     } elseif ('0' === (string) $dossier['INCOMPLET_DOSSIER']) {
-                        $output->writeln("Notification de la Prise En Compte Positive de la consultation $consultation_id au service instructeur ...");
+                        $output->writeln(\sprintf('Notification de la Prise En Compte Positive de la consultation %s au service instructeur ...', $consultation_id));
 
                         // Si cela concerne un premier envoi de PEC alors on place la date de la PEC Prevarisc, sinon null (envoiPEC utilisera la date courante)
                         $pec_versee = $this->consultation_service->envoiPEC(
@@ -158,7 +157,7 @@ final class ExportPEC extends AbstractExportCommand
                         foreach ($pieces_to_export as $index_piece => $piece_to_map) {
                             if (!\array_key_exists($index_piece, $pec_documents)) {
                                 $filename = $piece_to_map['NOM_PIECEJOINTE'].$piece_to_map['EXTENSION_PIECEJOINTE'];
-                                $output->writeln("La pièce {$filename} n'a pas été trouvée dans la liste des documents envoyés avec la prise en compte métier");
+                                $output->writeln(\sprintf("La pièce %s n'a pas été trouvée dans la liste des documents envoyés avec la prise en compte métier", $filename));
 
                                 continue;
                             }
@@ -177,7 +176,7 @@ final class ExportPEC extends AbstractExportCommand
 
                         $output->writeln('Notification de la Prise En Compte Positive envoyée !');
                     } else {
-                        $output->writeln("Impossible d'envoyer une PEC pour la consultation $consultation_id pour le moment (en attente de l'indication de complétude du dossier dans Prevarisc) ...");
+                        $output->writeln(\sprintf("Impossible d'envoyer une PEC pour la consultation %s pour le moment (en attente de l'indication de complétude du dossier dans Prevarisc) ...", $consultation_id));
                     }
                 } catch (\Exception $e) {
                     // On passe les pièces jointes en attente de versement
@@ -191,7 +190,7 @@ final class ExportPEC extends AbstractExportCommand
                     $this->prevarisc_service->setMetadonneesEnvoi($consultation_id, 'PEC', 'in_error')
                       ->executeStatement();
 
-                    $output->writeln("Problème lors du traitement de la consultation : {$e->getMessage()}");
+                    $output->writeln('Problème lors du traitement de la consultation : '.$e->getMessage());
                 }
             }
         }

@@ -4,48 +4,18 @@ namespace App\Dto;
 
 class Consultation
 {
-    private string $idConsultation;
-
-    private ?int $delaiDeReponse;
-
-    private NomTypeDelai $nomTypeDelai;
-
-    private int $noVersion;
-
-    private NomEtatConsultation $nomEtatConsultation;
-
-    private ?string $idServiceConsultant;
-
-    private ?string $dtEmission;
-
-    private ?string $dtConsultation;
-
-    private ?string $txObjetDeLaConsultation;
-
-    private NomTypeConsultation $nomTypeConsultation;
-
     public function __construct(
-        string $idConsultation,
-        ?int $delaiDeReponse,
-        NomTypeDelai $nomTypeDelai,
-        int $noVersion,
-        NomEtatConsultation $nomEtatConsultation,
-        ?string $idServiceConsultant,
-        ?string $dtEmission,
-        ?string $dtConsultation,
-        ?string $txObjetDeLaConsultation,
-        NomTypeConsultation $nomTypeConsultation,
+        private readonly string $idConsultation,
+        private readonly ?int $delaiDeReponse,
+        private readonly NomTypeDelai $nomTypeDelai,
+        private readonly int $noVersion,
+        private readonly NomEtatConsultation $nomEtatConsultation,
+        private readonly ?string $idServiceConsultant,
+        private readonly ?string $dtEmission,
+        private readonly ?string $dtConsultation,
+        private readonly ?string $txObjetDeLaConsultation,
+        private readonly NomTypeConsultation $nomTypeConsultation,
     ) {
-        $this->idConsultation          = $idConsultation;
-        $this->delaiDeReponse          = $delaiDeReponse;
-        $this->nomTypeDelai            = $nomTypeDelai;
-        $this->noVersion               = $noVersion;
-        $this->nomEtatConsultation     = $nomEtatConsultation;
-        $this->idServiceConsultant     = $idServiceConsultant;
-        $this->dtEmission              = $dtEmission;
-        $this->dtConsultation          = $dtConsultation;
-        $this->txObjetDeLaConsultation = $txObjetDeLaConsultation;
-        $this->nomTypeConsultation     = $nomTypeConsultation;
     }
 
     public function getIdConsultation() : string

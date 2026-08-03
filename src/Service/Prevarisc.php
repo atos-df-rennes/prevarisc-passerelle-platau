@@ -14,23 +14,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class Prevarisc
 {
-    private Connection $db;
-    private int $user_platau_id;
-    private Flysystem\Filesystem $filesystem;
-
     /**
      * Construction du service Prevarisc en lui donnant une connexion SQL.
      */
-    public function __construct(Connection $db, int $user_platau_id, Flysystem\Filesystem $filesystem)
+    public function __construct(private readonly Connection $db, private readonly int $user_platau_id, private readonly Flysystem\Filesystem $filesystem)
     {
-        // Connexion à la base de données
-        $this->db = $db;
-
-        // ID utilisateur pour lequel le service se fera passer pour ajouter des dossiers dans Prevarisc
-        $this->user_platau_id = $user_platau_id;
-
-        // Composant filesystem permettant d'interargir avec les pièces jointes de Prevarisc
-        $this->filesystem = $filesystem;
     }
 
     /**
@@ -68,7 +56,7 @@ class Prevarisc
 
         // Si la requête vers la base de donnée n'a rien donné, alors on lève une exception.
         if (false === $dossier) {
-            throw new \Exception("La consultation $consultation_id n'existe pas dans Prevarisc.");
+            throw new \Exception(\sprintf("La consultation %s n'existe pas dans Prevarisc.", $consultation_id));
         }
 
         return $dossier;
@@ -95,9 +83,7 @@ class Prevarisc
             ->setParameter(0, $dossier_id)
             ->executeQuery();
 
-        $auteur = $results->fetchAssociative();
-
-        return $auteur;
+        return $results->fetchAssociative();
     }
 
     public function recupererDocumentsManquants(string $dossier_id) : ?string
@@ -129,7 +115,7 @@ class Prevarisc
             $this->recupererDossierDeConsultation($consultation_id);
 
             return true;
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             return false;
         }
     }
@@ -141,7 +127,7 @@ class Prevarisc
     {
         try {
             return $this->db->connect();
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             return false;
         }
     }
@@ -154,64 +140,40 @@ class Prevarisc
         return
             // Colonne 'ID_PLATAU' dans la table 'dossiers'
 
-                \in_array('ID_PLATAU', array_map(static function (Column $column) {
-                    return $column->getName();
-                }, $this->db->createSchemaManager()->listTableColumns('dossier')))
+                \in_array('ID_PLATAU', array_map(static fn (Column $column) => $column->getName(), $this->db->createSchemaManager()->listTableColumns('dossier')))
             // Colonne 'ID_PLATAU' dans la table 'piecejointe'
 
-                && \in_array('ID_PLATAU', array_map(static function (Column $column) {
-                    return $column->getName();
-                }, $this->db->createSchemaManager()->listTableColumns('piecejointe')))
+                && \in_array('ID_PLATAU', array_map(static fn (Column $column) => $column->getName(), $this->db->createSchemaManager()->listTableColumns('piecejointe')))
             // Colonne 'MESSAGE_ERREUR' dans la table 'piecejointe'
 
-                && \in_array('MESSAGE_ERREUR', array_map(static function (Column $column) {
-                    return $column->getName();
-                }, $this->db->createSchemaManager()->listTableColumns('piecejointe')))
+                && \in_array('MESSAGE_ERREUR', array_map(static fn (Column $column) => $column->getName(), $this->db->createSchemaManager()->listTableColumns('piecejointe')))
             // Colonne 'TYPE' dans la table 'piecejointe'
 
-                && \in_array('TYPE', array_map(static function (Column $column) {
-                    return $column->getName();
-                }, $this->db->createSchemaManager()->listTableColumns('piecejointe')))
+                && \in_array('TYPE', array_map(static fn (Column $column) => $column->getName(), $this->db->createSchemaManager()->listTableColumns('piecejointe')))
             // Colonne 'SOUS_TYPE' dans la table 'piecejointe'
 
-                && \in_array('SOUS_TYPE', array_map(static function (Column $column) {
-                    return $column->getName();
-                }, $this->db->createSchemaManager()->listTableColumns('piecejointe')))
+                && \in_array('SOUS_TYPE', array_map(static fn (Column $column) => $column->getName(), $this->db->createSchemaManager()->listTableColumns('piecejointe')))
             // Colonne 'NATURE' dans la table 'piecejointe'
 
-                && \in_array('NATURE', array_map(static function (Column $column) {
-                    return $column->getName();
-                }, $this->db->createSchemaManager()->listTableColumns('piecejointe')))
+                && \in_array('NATURE', array_map(static fn (Column $column) => $column->getName(), $this->db->createSchemaManager()->listTableColumns('piecejointe')))
             // Colonne 'DATE_DEPOT' dans la table 'piecejointe'
 
-                && \in_array('DATE_DEPOT', array_map(static function (Column $column) {
-                    return $column->getName();
-                }, $this->db->createSchemaManager()->listTableColumns('piecejointe')))
+                && \in_array('DATE_DEPOT', array_map(static fn (Column $column) => $column->getName(), $this->db->createSchemaManager()->listTableColumns('piecejointe')))
             // Colonne 'STATUT_PEC' dans la table 'platauconsultation'
 
-                && \in_array('STATUT_PEC', array_map(static function (Column $column) {
-                    return $column->getName();
-                }, $this->db->createSchemaManager()->listTableColumns('platauconsultation')))
+                && \in_array('STATUT_PEC', array_map(static fn (Column $column) => $column->getName(), $this->db->createSchemaManager()->listTableColumns('platauconsultation')))
             // Colonne 'DATE_PEC' dans la table 'platauconsultation'
 
-                && \in_array('DATE_PEC', array_map(static function (Column $column) {
-                    return $column->getName();
-                }, $this->db->createSchemaManager()->listTableColumns('platauconsultation')))
+                && \in_array('DATE_PEC', array_map(static fn (Column $column) => $column->getName(), $this->db->createSchemaManager()->listTableColumns('platauconsultation')))
             // Colonne 'STATUT_AVIS' dans la table 'platauconsultation'
 
-                && \in_array('STATUT_AVIS', array_map(static function (Column $column) {
-                    return $column->getName();
-                }, $this->db->createSchemaManager()->listTableColumns('platauconsultation')))
+                && \in_array('STATUT_AVIS', array_map(static fn (Column $column) => $column->getName(), $this->db->createSchemaManager()->listTableColumns('platauconsultation')))
             // Colonne 'DATE_AVIS' dans la table 'platauconsultation'
 
-                && \in_array('DATE_AVIS', array_map(static function (Column $column) {
-                    return $column->getName();
-                }, $this->db->createSchemaManager()->listTableColumns('platauconsultation')))
+                && \in_array('DATE_AVIS', array_map(static fn (Column $column) => $column->getName(), $this->db->createSchemaManager()->listTableColumns('platauconsultation')))
             // Colonne 'DATE_REPONSE_ATTENDUE' dans la table 'platauconsultation'
 
-                && \in_array('DATE_REPONSE_ATTENDUE', array_map(static function (Column $column) {
-                    return $column->getName();
-                }, $this->db->createSchemaManager()->listTableColumns('platauconsultation')))
+                && \in_array('DATE_REPONSE_ATTENDUE', array_map(static fn (Column $column) => $column->getName(), $this->db->createSchemaManager()->listTableColumns('platauconsultation')))
             // Présence de la table 'piecejointestatut'
             && \in_array('piecejointestatut', $this->db->createSchemaManager()->listTableNames())
             // Présence de la table 'platauconsultation'
@@ -256,6 +218,7 @@ class Prevarisc
             if (null !== $demandeurs) {
                 $nomsDemandeurs = $dossier->getDemandeursAsString($demandeurs);
             }
+
             $query_builder->setValue('DEMANDEUR_DOSSIER', $query_builder->createPositionalParameter($nomsDemandeurs));
 
             // On qualifie le dossier Plat'AU dans Prevarisc en renseignant les champs importants
@@ -337,7 +300,7 @@ class Prevarisc
 
             // On lie la nature du dossier Plat'AU avec celui de Prevarisc (avec l'aide d'une table de correspondance)
             $this->db->createQueryBuilder()->insert('dossiernature')->values([
-                'ID_NATURE' => $this->correspondanceNaturePrevarisc($dossier->getNomTypeDossier()->getIdNom()),
+                'ID_NATURE' => static::correspondanceNaturePrevarisc($dossier->getNomTypeDossier()->getIdNom()),
                 'ID_DOSSIER' => $dossier_id,
             ])->executeStatement();
 
@@ -355,9 +318,9 @@ class Prevarisc
 
             // On commit les changements
             $this->db->commit();
-        } catch (\Exception $e) {
+        } catch (\Exception $exception) {
             $this->db->rollBack();
-            throw $e;
+            throw $exception;
         }
     }
 
@@ -387,14 +350,12 @@ class Prevarisc
         $prescriptions = $results->fetchAllAssociative();
 
         // On parse les prescriptions
-        $prescriptions = array_map(static function ($prescription) {
-            return [
-                'type' => $prescription['TYPE_PRESCRIPTION_DOSSIER'], // 1 = Rappels Réglementaires, 2 = Exploitation, 3 = Recommandations
-                'libelle' => $prescription['LIBELLE_PRESCRIPTION_DOSSIER'] ?? $prescription['PRESCRIPTIONTYPE_LIBELLE'],
-                'article' => $prescription['ARTICLE'] ?? $prescription['TYPE_ARTICLE'],
-                'texte' => $prescription['TEXTE'] ?? $prescription['TYPE_TEXTE'],
-            ];
-        }, $prescriptions);
+        $prescriptions = array_map(static fn (array $prescription) : array => [
+            'type' => $prescription['TYPE_PRESCRIPTION_DOSSIER'], // 1 = Rappels Réglementaires, 2 = Exploitation, 3 = Recommandations
+            'libelle' => $prescription['LIBELLE_PRESCRIPTION_DOSSIER'] ?? $prescription['PRESCRIPTIONTYPE_LIBELLE'],
+            'article' => $prescription['ARTICLE'] ?? $prescription['TYPE_ARTICLE'],
+            'texte' => $prescription['TEXTE'] ?? $prescription['TYPE_TEXTE'],
+        ], $prescriptions);
 
         return $prescriptions;
     }
@@ -496,9 +457,9 @@ class Prevarisc
 
             // On commit les changements
             $this->db->commit();
-        } catch (\Exception $e) {
+        } catch (\Exception $exception) {
             $this->db->rollBack();
-            throw $e;
+            throw $exception;
         }
     }
 
@@ -535,7 +496,7 @@ class Prevarisc
      */
     public function recupererFichierPhysique(OutputInterface $output, int $piece_jointe_id, string $piece_jointe_extension) : ?string
     {
-        $filepath = "{$piece_jointe_id}{$piece_jointe_extension}";
+        $filepath = \sprintf('%d%s', $piece_jointe_id, $piece_jointe_extension);
 
         try {
             $contents = $this->filesystem->read($filepath);
@@ -575,7 +536,7 @@ class Prevarisc
 
             return $stable_contents;
         } catch (Flysystem\FilesystemException $filesystemException) {
-            $output->writeln("Erreur lors de la lecture du fichier $filepath : ".$filesystemException->getMessage());
+            $output->writeln(\sprintf('Erreur lors de la lecture du fichier %s : ', $filepath).$filesystemException->getMessage());
 
             return null;
         }
@@ -604,7 +565,7 @@ class Prevarisc
         ;
 
         if (false === $id_statut) {
-            throw new \Exception("Statut $statut inconnu");
+            throw new \Exception(\sprintf('Statut %s inconnu', $statut));
         }
 
         $query_builder
@@ -727,7 +688,7 @@ class Prevarisc
             ->fetchAllAssociative()
         ;
 
-        return array_map(static fn ($result) => $result['ID_PLATAU'], $results);
+        return array_map(static fn (array $result) : string => $result['ID_PLATAU'], $results);
     }
 
     /**
@@ -746,7 +707,7 @@ class Prevarisc
             ->fetchAllAssociative()
         ;
 
-        return array_map(static fn ($result) => $result['ID_PLATAU'], $results);
+        return array_map(static fn (array $result) : string => $result['ID_PLATAU'], $results);
     }
 
     /**
@@ -783,7 +744,7 @@ class Prevarisc
     public static function correspondanceNaturePrevarisc(int $platau_nature_id) : int
     {
         switch ($platau_nature_id) {
-            case 1: return 62; // Certificat d’urbanisme d’information (CUa)
+            case 1: // Certificat d’urbanisme d’information (CUa)
             case 2: return 62; // Certificat d’urbanisme opérationnel (CUb)
             case 3: return 30; // Déclaration préalable (DP)
             case 4: return 1; // Permis de construire (PC)
@@ -803,11 +764,11 @@ class Prevarisc
      */
     public function correspondanceAvisPlatau(int $avis_prevarisc, array $prescriptions) : int
     {
-        switch ($avis_prevarisc) {
-            case 1: return 0 === \count($prescriptions) ? 1 : 2; // Favorable ou Favorable avec prescriptions
-            case 2: return 3; // Défavorable
-            case 6: return 6; // Pas d'avis - à motiver dans la partie Fondement de l'avis
-            default: throw new \InvalidArgumentException(\sprintf('Avis %d inconnu', $avis_prevarisc));
-        }
+        return match ($avis_prevarisc) {
+            1 => [] === $prescriptions ? 1 : 2,
+            2 => 3,
+            6 => 6,
+            default => throw new \InvalidArgumentException(\sprintf('Avis %d inconnu', $avis_prevarisc)),
+        };
     }
 }

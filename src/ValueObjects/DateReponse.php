@@ -12,9 +12,9 @@ class DateReponse
             $date_limite_reponse_interval = null;
 
             switch ($type_date_limite_reponse) {
-                case 'Jours calendaires': $date_limite_reponse_interval = new \DateInterval("P{$delaiDeReponse}D");
+                case 'Jours calendaires': $date_limite_reponse_interval = new \DateInterval(\sprintf('P%dD', $delaiDeReponse));
                     break;
-                case 'Mois': $date_limite_reponse_interval              = new \DateInterval("P{$delaiDeReponse}M");
+                case 'Mois': $date_limite_reponse_interval              = new \DateInterval(\sprintf('P%dM', $delaiDeReponse));
                     break;
                 default:
                     break;

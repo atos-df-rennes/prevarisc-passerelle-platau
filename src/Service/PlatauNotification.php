@@ -27,9 +27,7 @@ final class PlatauNotification extends PlatauAbstract
             throw new \Exception('Un problème a eu lieu dans la récupération des résultats de recherche de notifications : le résultat est incorrect');
         }
 
-        $set = $notifications['notifications'];
-
-        return $set;
+        return $notifications['notifications'];
     }
 
     /**
