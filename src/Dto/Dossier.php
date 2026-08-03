@@ -127,6 +127,7 @@ class Dossier
             if (null === $prenoms) {
                 $prenoms = [];
             }
+
             if (null === $noms) {
                 $noms = [];
             }

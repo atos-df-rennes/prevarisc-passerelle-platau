@@ -26,7 +26,7 @@ final class PlatauHealthcheck extends PlatauAbstract
         // On va vérifier si les status sont OK, sinon, on déclenche une exception
         foreach ($status as $etat) {
             if (true !== $etat) {
-                throw new \Exception("$etat de Plat'AU non fonctionnel actuellement.");
+                throw new \Exception($etat . " de Plat'AU non fonctionnel actuellement.");
             }
         }
 

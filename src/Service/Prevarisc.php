@@ -56,7 +56,7 @@ class Prevarisc
 
         // Si la requête vers la base de donnée n'a rien donné, alors on lève une exception.
         if (false === $dossier) {
-            throw new \Exception("La consultation $consultation_id n'existe pas dans Prevarisc.");
+            throw new \Exception(sprintf("La consultation %s n'existe pas dans Prevarisc.", $consultation_id));
         }
 
         return $dossier;
@@ -218,6 +218,7 @@ class Prevarisc
             if (null !== $demandeurs) {
                 $nomsDemandeurs = $dossier->getDemandeursAsString($demandeurs);
             }
+
             $query_builder->setValue('DEMANDEUR_DOSSIER', $query_builder->createPositionalParameter($nomsDemandeurs));
 
             // On qualifie le dossier Plat'AU dans Prevarisc en renseignant les champs importants
@@ -317,9 +318,9 @@ class Prevarisc
 
             // On commit les changements
             $this->db->commit();
-        } catch (\Exception $e) {
+        } catch (\Exception $exception) {
             $this->db->rollBack();
-            throw $e;
+            throw $exception;
         }
     }
 
@@ -456,9 +457,9 @@ class Prevarisc
 
             // On commit les changements
             $this->db->commit();
-        } catch (\Exception $e) {
+        } catch (\Exception $exception) {
             $this->db->rollBack();
-            throw $e;
+            throw $exception;
         }
     }
 
@@ -495,7 +496,7 @@ class Prevarisc
      */
     public function recupererFichierPhysique(OutputInterface $output, int $piece_jointe_id, string $piece_jointe_extension) : ?string
     {
-        $filepath = "{$piece_jointe_id}{$piece_jointe_extension}";
+        $filepath = sprintf('%d%s', $piece_jointe_id, $piece_jointe_extension);
 
         try {
             $contents = $this->filesystem->read($filepath);
@@ -535,7 +536,7 @@ class Prevarisc
 
             return $stable_contents;
         } catch (Flysystem\FilesystemException $filesystemException) {
-            $output->writeln("Erreur lors de la lecture du fichier $filepath : ".$filesystemException->getMessage());
+            $output->writeln(sprintf('Erreur lors de la lecture du fichier %s : ', $filepath).$filesystemException->getMessage());
 
             return null;
         }
@@ -564,7 +565,7 @@ class Prevarisc
         ;
 
         if (false === $id_statut) {
-            throw new \Exception("Statut $statut inconnu");
+            throw new \Exception(sprintf('Statut %s inconnu', $statut));
         }
 
         $query_builder
@@ -764,7 +765,7 @@ class Prevarisc
     public function correspondanceAvisPlatau(int $avis_prevarisc, array $prescriptions) : int
     {
         return match ($avis_prevarisc) {
-            1 => 0 === \count($prescriptions) ? 1 : 2,
+            1 => [] === $prescriptions ? 1 : 2,
             2 => 3,
             6 => 6,
             default => throw new \InvalidArgumentException(\sprintf('Avis %d inconnu', $avis_prevarisc)),

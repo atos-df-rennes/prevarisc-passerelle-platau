@@ -15,9 +15,11 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 class SyncplicityClient
 {
     public const SYNCPLICITY_URL        = 'https://api.piste.gouv.fr/syncplicity/upload/';
+
     public const PISTE_ACCESS_TOKEN_URL = 'https://oauth.piste.gouv.fr/api/oauth/token';
 
     private readonly HttpClient $http_client;
+
     private readonly array $config;
 
     /**
@@ -38,6 +40,7 @@ class SyncplicityClient
         $resolver = new OptionsResolver();
         $resolver->setDefaults(['SYNCPLICITY_URL' => self::SYNCPLICITY_URL, 'PISTE_ACCESS_TOKEN_URL' => self::PISTE_ACCESS_TOKEN_URL]);
         $resolver->setRequired(['PISTE_CLIENT_ID', 'PISTE_CLIENT_SECRET']);
+
         $this->config = $resolver->resolve($config);
 
         // Initialisation du pipeline HTTP utilisé par Guzzle

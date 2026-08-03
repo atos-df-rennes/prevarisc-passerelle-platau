@@ -46,7 +46,7 @@ final class EnrolerActeur extends Command
         // Enrôlement Plat'AU !
         $id_acteur = $this->acteur_service->enrolerServiceConsultable($designation, $mail, $siren);
 
-        $output->writeln("Acteur enrolé ! Son identifiant Plat'AU est : $id_acteur");
+        $output->writeln('Acteur enrolé ! Son identifiant Plat\'AU est : ' . $id_acteur);
 
         return Command::SUCCESS;
     }

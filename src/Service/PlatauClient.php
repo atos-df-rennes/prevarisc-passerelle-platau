@@ -31,7 +31,7 @@ class PlatauClient extends PlatauAbstract
         /** @var class-string<PlatauAbstract>|null $class_name */
         $class_name = self::$class_map[$name] ?? null;
 
-        \assert(null !== $class_name, "Service $name inconnu");
+        \assert(null !== $class_name, sprintf('Service %s inconnu', $name));
 
         $service = new $class_name($this->getConfig());
 

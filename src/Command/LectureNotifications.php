@@ -50,7 +50,7 @@ final class LectureNotifications extends Command
         $output->writeln($this->logMessage('Lecture des nouvelles notifications ...'));
         $notifications = $this->notification_service->rechercheNotifications($params);
 
-        if (0 === \count($notifications)) {
+        if ([] === $notifications) {
             $output->writeln($this->logMessage('Aucune nouvelle notification.'));
 
             return Command::SUCCESS;

@@ -68,7 +68,7 @@ final class ExportAvis extends AbstractExportCommand
 
         // Si il n'existe pas de consultations en attente d'avis, on arrête le travail ici
         if (empty($consultations_en_attente_davis)) {
-            $output->writeln('Pas de consultations en attente d\'avis.');
+            $output->writeln("Pas de consultations en attente d'avis.");
 
             return Command::SUCCESS;
         }
@@ -88,7 +88,7 @@ final class ExportAvis extends AbstractExportCommand
 
                     // Vérification de l'existence de la consultation dans Prevarisc ? Si non, on ignore complètement la consultation
                     if (!$this->prevarisc_service->consultationExiste($consultation_id)) {
-                        $output->writeln("La consultation $consultation_id n'existe pas dans Prevarisc. Importez là d'abord avec la commande <import>.");
+                        $output->writeln(sprintf("La consultation %s n'existe pas dans Prevarisc. Importez là d'abord avec la commande <import>.", $consultation_id));
                         continue;
                     }
 
@@ -119,7 +119,7 @@ final class ExportAvis extends AbstractExportCommand
                         $avis_labels  = [1 => 'favorable', 2 => 'défavorable', 6 => 'sans avis'];
                         $avis_libelle = $avis_labels[$avis_dossier_commission];
 
-                        $output->writeln("Versement d'un avis $avis_libelle pour la consultation $consultation_id au service instructeur ...");
+                        $output->writeln(sprintf("Versement d'un avis %s pour la consultation %s au service instructeur ...", $avis_libelle, $consultation_id));
                         // Si cela concerne un premier envoi d'avis alors on place la date de l'avis Prevarisc, sinon la date du lancement de la commande
                         $date_envoi = new \DateTime();
 
@@ -143,7 +143,7 @@ final class ExportAvis extends AbstractExportCommand
                         foreach ($pieces_to_export as $index_piece => $piece_to_map) {
                             if (!\array_key_exists($index_piece, $avis_documents)) {
                                 $filename = $piece_to_map['NOM_PIECEJOINTE'].$piece_to_map['EXTENSION_PIECEJOINTE'];
-                                $output->writeln("La pièce {$filename} n'a pas été trouvée dans la liste des documents envoyés avec l'avis");
+                                $output->writeln(sprintf("La pièce %s n'a pas été trouvée dans la liste des documents envoyés avec l'avis", $filename));
 
                                 continue;
                             }
@@ -159,7 +159,7 @@ final class ExportAvis extends AbstractExportCommand
                           ->executeStatement();
                         $output->writeln('Avis envoyé !');
                     } else {
-                        $output->writeln("Impossible d'envoyer un avis pour la consultation $consultation_id pour le moment (en attente de l'avis de commission dans Prevarisc) ...");
+                        $output->writeln(sprintf("Impossible d'envoyer un avis pour la consultation %s pour le moment (en attente de l'avis de commission dans Prevarisc) ...", $consultation_id));
                     }
                 } catch (\Exception $e) {
                     // On passe toutes les pièces en attente de versement
@@ -173,7 +173,7 @@ final class ExportAvis extends AbstractExportCommand
                     $this->prevarisc_service->setMetadonneesEnvoi($consultation_id, 'AVIS', 'in_error')
                       ->executeStatement();
 
-                    $output->writeln("Problème lors du versement de l'avis : {$e->getMessage()}");
+                    $output->writeln('Problème lors du versement de l\'avis : ' . $e->getMessage());
                 }
             }
         }

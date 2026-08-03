@@ -112,7 +112,7 @@ final class PlatauConsultation extends PlatauAbstract
 
         // Si la liste des consultations est vide, alors on lève une erreur (la recherche n'a rien donné)
         if (empty($consultations)) {
-            throw new \Exception("la consultation $consultation_id est introuvable selon les critères de recherche");
+            throw new \Exception(sprintf('la consultation %s est introuvable selon les critères de recherche', $consultation_id));
         }
 
         // On vient récupérer la consultation qui nous interesse dans le tableau des résultats
@@ -162,8 +162,8 @@ final class PlatauConsultation extends PlatauAbstract
             $delai_reponse                = (string) $consultation->getDelaiDeReponse();
             $type_date_limite_reponse     = $consultation->getNomTypeDelai()->getLibNom();
             $date_limite_reponse_interval = match ($type_date_limite_reponse) {
-                'Jours calendaires' => new \DateInterval("P{$delai_reponse}D"),
-                'Mois' => new \DateInterval("P{$delai_reponse}M"),
+                'Jours calendaires' => new \DateInterval(sprintf('P%sD', $delai_reponse)),
+                'Mois' => new \DateInterval(sprintf('P%sM', $delai_reponse)),
                 default => throw new \Exception('Type de la date de réponse attendue inconnu : '.($type_date_limite_reponse ?? 'vide')),
             };
         }
@@ -221,7 +221,7 @@ final class PlatauConsultation extends PlatauAbstract
         /** @var array<array-key, string> $libelles */
         $libelles    = array_column($prescriptions, 'libelle');
         $description = vsprintf('Avis Prevarisc. Prescriptions données : %s', [
-            0 === \count($prescriptions) ? 'RAS' : implode(', ', $libelles),
+            [] === $prescriptions ? 'RAS' : implode(', ', $libelles),
         ]);
 
         $date_envoi ??= new \DateTime();

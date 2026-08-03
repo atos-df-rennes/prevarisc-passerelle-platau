@@ -18,10 +18,13 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 abstract class PlatauAbstract
 {
     public const PLATAU_URL             = 'https://api.piste.gouv.fr/mtes/platau/v13/dau/';
+
     public const PISTE_ACCESS_TOKEN_URL = 'https://oauth.piste.gouv.fr/api/oauth/token';
 
     private readonly HttpClient $http_client;
+
     private readonly array $config;
+
     private ?SyncplicityClient $syncplicity = null;
 
     /**
@@ -42,6 +45,7 @@ abstract class PlatauAbstract
         $resolver = new OptionsResolver();
         $resolver->setDefaults(['PLATAU_URL' => self::PLATAU_URL, 'PISTE_ACCESS_TOKEN_URL' => self::PISTE_ACCESS_TOKEN_URL, 'PLATAU_ID_ACTEUR_APPELANT' => null]);
         $resolver->setRequired(['PISTE_CLIENT_ID', 'PISTE_CLIENT_SECRET']);
+
         $this->config = $resolver->resolve($config);
 
         // Initialisation du pipeline HTTP utilisé par Guzzle
@@ -170,6 +174,7 @@ abstract class PlatauAbstract
                 if (0 === $premiere_page['nombrePages']) { // La première page pour Plat'AU est la page numéro ... 0 (erf ...)
                     return \count($premiere_page['resultats']);
                 }
+
                 $total_sans_la_derniere_page = \count($premiere_page['resultats']) * ((int) $premiere_page['nombrePages'] - 1);
                 $derniere_page               = json_decode($this->request($method, $uri, array_merge_recursive($options, ['query' => ['numeroPage' => (int) $premiere_page['nombrePages'] - 1, 'nbElementsParPage' => 100]]))->getBody()->__toString(), true, 512, \JSON_THROW_ON_ERROR);
                 \assert(\is_array($derniere_page));
@@ -189,7 +194,8 @@ abstract class PlatauAbstract
                     'lettresAuxPetitionnaires/recherche',
                     'consultations/recherche',
                     'dossiers/recherche',
-                ]) ? $length : 500;
+                ],
+                true) ? $length : 500;
                 $results      = [];
                 $page_debut   = (int) floor($offset / $max_per_page);
                 $page_fin     = (int) floor(($offset + $length - 1) / $max_per_page);

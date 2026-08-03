@@ -68,7 +68,7 @@ final class ImportConsultations extends Command
                 try {
                     // La consultation existe t'elle déjà dans Prevarisc ? Si oui, on ignore complètement la consultation
                     if ($this->prevarisc_service->consultationExiste($consultation_id)) {
-                        $output->writeln("Consultation $consultation_id déjà existante dans Prevarisc");
+                        $output->writeln(sprintf('Consultation %s déjà existante dans Prevarisc', $consultation_id));
                         continue;
                     }
 
@@ -83,9 +83,9 @@ final class ImportConsultations extends Command
                       ->executeStatement();
 
                     // La consultation est importée !
-                    $output->writeln("Consultation $consultation_id récupérée et stockée dans Prevarisc !");
+                    $output->writeln(sprintf('Consultation %s récupérée et stockée dans Prevarisc !', $consultation_id));
                 } catch (\Exception $e) {
-                    $output->writeln("Problème lors du traitement de la consultation : {$e->getMessage()}");
+                    $output->writeln('Problème lors du traitement de la consultation : ' . $e->getMessage());
                 }
             }
         }
