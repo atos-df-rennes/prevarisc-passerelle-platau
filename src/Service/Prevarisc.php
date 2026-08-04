@@ -226,16 +226,16 @@ class Prevarisc
             $query_builder->setValue('SERVICEINSTRUC_DOSSIER', $query_builder->createPositionalParameter(null !== $service_instructeur ? $service_instructeur['designationActeur'] : null));
 
             // On place des dates importantes dans Prevarisc
-            $query_builder->setValue('DATESDIS_DOSSIER', $query_builder->createPositionalParameter((new \DateTime())->format('Y-m-d H:i:s')));
+            $query_builder->setValue('DATESDIS_DOSSIER', $query_builder->createPositionalParameter(new \DateTime()->format('Y-m-d H:i:s')));
 
             $date_insertion = $consultation->getDtEmission() ?? $consultation->getDtConsultation() ?? 'now';
-            $query_builder->setValue('DATEINSERT_DOSSIER', $query_builder->createPositionalParameter((new \DateTime($date_insertion))->format('Y-m-d H:i:s')));
+            $query_builder->setValue('DATEINSERT_DOSSIER', $query_builder->createPositionalParameter(new \DateTime($date_insertion)->format('Y-m-d H:i:s')));
 
             // On associe la consultation Plat'AU avec le dossier créé
             $query_builder->setValue('ID_PLATAU', $query_builder->createPositionalParameter($consultation->getIdConsultation()));
 
             if (null !== $notification) {
-                $query_builder->setValue('DATE_NOTIFICATION', $query_builder->createPositionalParameter((new \DateTime())->format('Y-m-d H:i:s')));
+                $query_builder->setValue('DATE_NOTIFICATION', $query_builder->createPositionalParameter(new \DateTime()->format('Y-m-d H:i:s')));
             }
 
             // Objet du dossier (c'est à dire l'objet de la consultation ainsi que le descriptif global du dossier associé)
@@ -412,8 +412,8 @@ class Prevarisc
             $piece['noVersion'],
             $piece['nomNaturePiece']['libNom'],
             $piece['nomEtatPiece']['libNom'],
-            (new \DateTime($piece['dtDepot']))->format('d/m/Y à H:i'),
-            (new \DateTime($piece['dtProduction']))->format('d/m/Y à H:i'),
+            new \DateTime($piece['dtDepot'])->format('d/m/Y à H:i'),
+            new \DateTime($piece['dtProduction'])->format('d/m/Y à H:i'),
         ]);
 
         // Ajout d'un point avant l'extension
@@ -429,16 +429,16 @@ class Prevarisc
             $values = [
                 'NOM_PIECEJOINTE' => $query_builder->createPositionalParameter($filename),
                 'EXTENSION_PIECEJOINTE' => $query_builder->createPositionalParameter($extension),
-                'DATE_PIECEJOINTE' => $query_builder->createPositionalParameter((new \DateTime())->format('Y-m-d')),
+                'DATE_PIECEJOINTE' => $query_builder->createPositionalParameter(new \DateTime()->format('Y-m-d')),
                 'ID_PLATAU' => $query_builder->createPositionalParameter($piece['idPiece']),
                 'TYPE' => $query_builder->createPositionalParameter($piece['nomTypePiece']['libNom']),
                 'SOUS_TYPE' => $query_builder->createPositionalParameter($piece['libAutreTypePiece']),
                 'NATURE' => $query_builder->createPositionalParameter($piece['nomNaturePiece']['libNom']),
-                'DATE_DEPOT' => $query_builder->createPositionalParameter((new \DateTime($piece['dtDepot']))->format('Y-m-d')),
+                'DATE_DEPOT' => $query_builder->createPositionalParameter(new \DateTime($piece['dtDepot'])->format('Y-m-d')),
             ];
 
             if (null !== $notification) {
-                $values['DATE_NOTIFICATION'] = $query_builder->createPositionalParameter((new \DateTime())->format('Y-m-d H:i:s'));
+                $values['DATE_NOTIFICATION'] = $query_builder->createPositionalParameter(new \DateTime()->format('Y-m-d H:i:s'));
             }
 
             $query_builder->insert('piecejointe')->values($values)->executeStatement();
