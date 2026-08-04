@@ -12,7 +12,7 @@ use App\ValueObjects\DateReponse;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class Prevarisc
+final class Prevarisc
 {
     /**
      * Construction du service Prevarisc en lui donnant une connexion SQL.

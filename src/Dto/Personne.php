@@ -2,7 +2,7 @@
 
 namespace App\Dto;
 
-class Personne
+final class Personne
 {
     public function __construct(
         /** @var string[]|null */

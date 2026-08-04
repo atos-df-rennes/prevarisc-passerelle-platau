@@ -2,7 +2,7 @@
 
 namespace App\ValueObjects;
 
-class Auteur
+final class Auteur
 {
     private readonly ?string $telephoneAuteur;
 

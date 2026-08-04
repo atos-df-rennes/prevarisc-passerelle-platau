@@ -2,7 +2,7 @@
 
 namespace App\Dto;
 
-class Information
+final class Information
 {
     public function __construct(private readonly Dossier $dossier)
     {

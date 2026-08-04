@@ -12,7 +12,7 @@ use GuzzleHttp\HandlerStack as HttpPipeline;
 use kamermans\OAuth2\GrantType\ClientCredentials;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class SyncplicityClient
+final class SyncplicityClient
 {
     public const string SYNCPLICITY_URL        = 'https://api.piste.gouv.fr/syncplicity/upload/';
 

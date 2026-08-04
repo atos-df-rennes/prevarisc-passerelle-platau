@@ -2,7 +2,7 @@
 
 namespace App\Dto;
 
-class Consultation
+final class Consultation
 {
     public function __construct(
         private readonly string $idConsultation,

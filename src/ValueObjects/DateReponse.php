@@ -2,7 +2,7 @@
 
 namespace App\ValueObjects;
 
-class DateReponse
+final class DateReponse
 {
     private ?\DateTime $date = null;
 

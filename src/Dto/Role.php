@@ -2,7 +2,7 @@
 
 namespace App\Dto;
 
-class Role
+final class Role
 {
     public function __construct(private readonly NomRole $nomRole)
     {

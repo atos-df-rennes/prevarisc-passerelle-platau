@@ -11,7 +11,7 @@ namespace App\Service;
  * @property PlatauAvis         $avis
  * @property PlatauNomenclature $nomenclatures
  */
-class PlatauClient extends PlatauAbstract
+final class PlatauClient extends PlatauAbstract
 {
     private static array $class_map = [
         'acteurs' => PlatauActeur::class,
