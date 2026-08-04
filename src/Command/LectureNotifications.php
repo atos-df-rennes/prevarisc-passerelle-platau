@@ -249,7 +249,7 @@ final class LectureNotifications extends Command
     // Log les messsages avec la date et l'heure à la manière de Monolog.
     private function logMessage(string $message) : string
     {
-        return \sprintf('[%s] %s', (new \DateTime())->format('d-m-Y H:i:s'), $message);
+        return \sprintf('[%s] %s', new \DateTime()->format('d-m-Y H:i:s'), $message);
     }
 
     // Affiche un message d'information pour les notifications que la passerelle ne traite pas.

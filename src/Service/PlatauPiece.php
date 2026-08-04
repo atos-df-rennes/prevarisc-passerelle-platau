@@ -31,7 +31,7 @@ final class PlatauPiece extends PlatauAbstract
         return [
             'fileId' => $syncplicity_file_id,
             'folderId' => $syncplicity_folder_id,
-            'dtProduction' => (new \DateTime())->format('Y-m-d'),
+            'dtProduction' => new \DateTime()->format('Y-m-d'),
             'idActeurProducteur' => (string) $this->getConfig()['PLATAU_ID_ACTEUR_APPELANT'],
             'algoHash' => 'SHA-512',
             'hash' => $hash_sha512,

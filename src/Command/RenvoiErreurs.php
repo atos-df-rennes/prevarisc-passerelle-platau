@@ -25,7 +25,7 @@ final class RenvoiErreurs extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output) : int
     {
-        $output->writeln(\sprintf('[%s] Recherche des éléments à renvoyer.', (new \DateTime())->format('d-m-Y H:i:s')));
+        $output->writeln(\sprintf('[%s] Recherche des éléments à renvoyer.', new \DateTime()->format('d-m-Y H:i:s')));
 
         $pecs_a_renvoyer = $this->prevarisc_service->recupererPecsARenvoyer();
         $avis_a_renvoyer = $this->prevarisc_service->recupererDossiersARenvoyer();
