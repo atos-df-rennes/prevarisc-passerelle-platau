@@ -89,7 +89,7 @@ class SyncplicityClient
     public function request(string $method, string $uri = '', array $options = []) : ResponseInterface
     {
         // Suppression du leading slash car cela peut rentrer en conflit avec la base uri
-        $uri = ltrim($uri, '/');
+        $uri = mb_ltrim($uri, '/');
 
         return $this->http_client->request($method, $uri, $options);
     }

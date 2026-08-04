@@ -136,7 +136,7 @@ abstract class PlatauAbstract
     public function request(string $method, string $uri = '', array $options = []) : ResponseInterface
     {
         // Suppression du leading slash car cela peut rentrer en conflit avec la base uri
-        $uri = ltrim($uri, '/');
+        $uri = mb_ltrim($uri, '/');
 
         return $this->http_client->request($method, $uri, $options);
     }
@@ -186,7 +186,7 @@ abstract class PlatauAbstract
             },
             // A callable to get the items for the current page in the paginated list
             function (int $offset, int $length) use ($method, $uri, $options) : iterable {
-                $max_per_page = \in_array(ltrim($uri, '/'), [
+                $max_per_page = \in_array(mb_ltrim($uri, '/'), [
                     'propositionsDecisionsUrba/recherche',
                     'livraisonNumerisation/recherche',
                     'declarationsOuvertureChantier/recherche',
