@@ -2,17 +2,17 @@
 
 namespace App\Dto;
 
-class Personne
+final readonly class Personne
 {
     public function __construct(
         /** @var string[]|null */
-        private readonly ?array $prenoms,
+        private ?array $prenoms,
         /** @var string[]|null */
-        private readonly ?array $noms,
-        private readonly ?string $libDenomination,
-        private readonly ?string $libRaisonSociale,
+        private ?array $noms,
+        private ?string $libDenomination,
+        private ?string $libRaisonSociale,
         /** @var Role[]|null */
-        private readonly ?array $roles,
+        private ?array $roles,
     ) {
     }
 

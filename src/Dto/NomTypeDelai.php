@@ -2,9 +2,9 @@
 
 namespace App\Dto;
 
-class NomTypeDelai
+final readonly class NomTypeDelai
 {
-    public function __construct(private readonly ?string $libNom)
+    public function __construct(private ?string $libNom)
     {
     }
 

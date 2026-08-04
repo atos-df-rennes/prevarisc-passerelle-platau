@@ -2,7 +2,7 @@
 
 namespace App\Dto;
 
-class Dossier
+final class Dossier
 {
     private const int ROLE_PETITIONNAIRE = 1;
 

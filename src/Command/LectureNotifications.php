@@ -90,7 +90,7 @@ final class LectureNotifications extends Command
                                     throw new \Exception(\sprintf("La pièce %s n'a pas été trouvée dans les pièces du dossier %s", $identifiant_element_concerne, $idDossier));
                                 }
 
-                                $piece_notification = $piece_notification[array_key_first($piece_notification)];
+                                $piece_notification = array_first($piece_notification);
 
                                 // Téléchargement de la pièce
                                 $http_response = $this->piece_service->download($piece_notification);

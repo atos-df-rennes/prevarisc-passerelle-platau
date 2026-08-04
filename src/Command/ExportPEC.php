@@ -113,7 +113,7 @@ final class ExportPEC extends AbstractExportCommand
 
                         $pec_versee_data = json_decode($pec_versee->getBody()
                           ->getContents(), true, 512, \JSON_THROW_ON_ERROR);
-                        $pec_documents = $pec_versee_data[array_key_first($pec_versee_data)]['consultations'][0]['pecMetier']['documents'];
+                        $pec_documents = array_first($pec_versee_data)['consultations'][0]['pecMetier']['documents'];
 
                         foreach ($pieces_to_export as $index_piece => $piece_to_map) {
                             if (!\array_key_exists($index_piece, $pec_documents)) {
@@ -152,7 +152,7 @@ final class ExportPEC extends AbstractExportCommand
 
                         $pec_versee_data = json_decode($pec_versee->getBody()
                           ->getContents(), true, 512, \JSON_THROW_ON_ERROR);
-                        $pec_documents = $pec_versee_data[array_key_first($pec_versee_data)]['consultations'][0]['pecMetier']['documents'];
+                        $pec_documents = array_first($pec_versee_data)['consultations'][0]['pecMetier']['documents'];
 
                         foreach ($pieces_to_export as $index_piece => $piece_to_map) {
                             if (!\array_key_exists($index_piece, $pec_documents)) {

@@ -9,7 +9,7 @@ use Pagerfanta\Pagerfanta;
  *
  * @extends Pagerfanta<T>
  */
-class PlatauCollection extends Pagerfanta
+final class PlatauCollection extends Pagerfanta
 {
     /**
      * Iterate through large lists of resources without having to manually perform the requests to fetch subsequent pages.

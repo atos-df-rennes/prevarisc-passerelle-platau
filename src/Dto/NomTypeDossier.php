@@ -2,9 +2,9 @@
 
 namespace App\Dto;
 
-class NomTypeDossier
+final readonly class NomTypeDossier
 {
-    public function __construct(private readonly int $idNom)
+    public function __construct(private int $idNom)
     {
     }
 

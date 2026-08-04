@@ -2,14 +2,14 @@
 
 namespace App\ValueObjects;
 
-class Auteur
+final readonly class Auteur
 {
-    private readonly ?string $telephoneAuteur;
+    private ?string $telephoneAuteur;
 
     public function __construct(
-        private readonly ?string $prenomAuteur,
-        private readonly ?string $nomAuteur,
-        private readonly ?string $emailAuteur,
+        private ?string $prenomAuteur,
+        private ?string $nomAuteur,
+        private ?string $emailAuteur,
         ?string $telephone_fixe,
         ?string $telephone_portable,
     ) {
