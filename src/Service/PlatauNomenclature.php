@@ -34,7 +34,7 @@ final class PlatauNomenclature extends PlatauAbstract
             throw new \Exception(\sprintf("Aucune nomenclature trouvée pour l'identifiant %d et le code %s", $idNomenclature, $codeNomenclature));
         }
 
-        $nomenclature = $nomenclature[array_key_first($nomenclature)];
+        $nomenclature = array_first($nomenclature);
 
         if (!\array_key_exists('libNom', $nomenclature)) {
             throw new \Exception('Un problème a eu lieu dans la récupération des résultats de recherche de nomenclature : clé libNom introuvable');

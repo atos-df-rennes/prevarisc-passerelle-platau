@@ -2,9 +2,9 @@
 
 namespace App\Dto;
 
-final class NomTypeConsultation
+final readonly class NomTypeConsultation
 {
-    public function __construct(private readonly ?string $libNom)
+    public function __construct(private ?string $libNom)
     {
     }
 

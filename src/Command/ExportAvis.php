@@ -138,7 +138,7 @@ final class ExportAvis extends AbstractExportCommand
                         );
                         $avis_verse_data = json_decode($avis_verse->getBody()
                           ->getContents(), true, 512, \JSON_THROW_ON_ERROR);
-                        $avis_documents = $avis_verse_data[array_key_first($avis_verse_data)]['avis'][0]['documents'];
+                        $avis_documents = array_first($avis_verse_data)['avis'][0]['documents'];
 
                         foreach ($pieces_to_export as $index_piece => $piece_to_map) {
                             if (!\array_key_exists($index_piece, $avis_documents)) {

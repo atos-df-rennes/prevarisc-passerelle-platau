@@ -12,12 +12,12 @@ use App\ValueObjects\DateReponse;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Symfony\Component\Console\Output\OutputInterface;
 
-final class Prevarisc
+final readonly class Prevarisc
 {
     /**
      * Construction du service Prevarisc en lui donnant une connexion SQL.
      */
-    public function __construct(private readonly Connection $db, private readonly int $user_platau_id, private readonly Flysystem\Filesystem $filesystem)
+    public function __construct(private Connection $db, private int $user_platau_id, private Flysystem\Filesystem $filesystem)
     {
     }
 

@@ -2,9 +2,9 @@
 
 namespace App\Dto;
 
-final class NomEtatConsultation
+final readonly class NomEtatConsultation
 {
-    public function __construct(private readonly int $idNom)
+    public function __construct(private int $idNom)
     {
     }
 

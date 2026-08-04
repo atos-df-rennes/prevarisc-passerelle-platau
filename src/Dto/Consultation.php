@@ -2,19 +2,19 @@
 
 namespace App\Dto;
 
-final class Consultation
+final readonly class Consultation
 {
     public function __construct(
-        private readonly string $idConsultation,
-        private readonly ?int $delaiDeReponse,
-        private readonly NomTypeDelai $nomTypeDelai,
-        private readonly int $noVersion,
-        private readonly NomEtatConsultation $nomEtatConsultation,
-        private readonly ?string $idServiceConsultant,
-        private readonly ?string $dtEmission,
-        private readonly ?string $dtConsultation,
-        private readonly ?string $txObjetDeLaConsultation,
-        private readonly NomTypeConsultation $nomTypeConsultation,
+        private string $idConsultation,
+        private ?int $delaiDeReponse,
+        private NomTypeDelai $nomTypeDelai,
+        private int $noVersion,
+        private NomEtatConsultation $nomEtatConsultation,
+        private ?string $idServiceConsultant,
+        private ?string $dtEmission,
+        private ?string $dtConsultation,
+        private ?string $txObjetDeLaConsultation,
+        private NomTypeConsultation $nomTypeConsultation,
     ) {
     }
 
