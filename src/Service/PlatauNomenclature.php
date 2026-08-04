@@ -27,13 +27,14 @@ final class PlatauNomenclature extends PlatauAbstract
             throw new \Exception('Un problème a eu lieu dans la récupération des résultats de recherche de nomenclatures : le résultat est incorrect');
         }
 
-        /** @var array<int, array> $nomenclature */
-        $nomenclature = array_filter($nomenclatures, static fn (array $nomenclature) : bool => $nomenclature['idNom'] === $idNomenclature);
+        /** @var array<int, array<string, mixed>> $nomenclature */
+        $nomenclature = array_filter($nomenclatures, static fn (array $nomenclature) : bool => (int) $nomenclature['idNom'] === $idNomenclature);
 
         if ([] === $nomenclature) {
             throw new \Exception(\sprintf("Aucune nomenclature trouvée pour l'identifiant %d et le code %s", $idNomenclature, $codeNomenclature));
         }
 
+        /** @var array<string, mixed> $nomenclature */
         $nomenclature = array_first($nomenclature);
 
         if (!\array_key_exists('libNom', $nomenclature)) {
