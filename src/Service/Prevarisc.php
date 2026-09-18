@@ -159,6 +159,8 @@ final readonly class Prevarisc
             // Colonne 'DATE_DEPOT' dans la table 'piecejointe'
 
                 && \in_array('DATE_DEPOT', array_map(static fn (Column $column) => $column->getName(), $this->db->createSchemaManager()->listTableColumns('piecejointe')))
+
+                && \in_array('no_version', array_map(static fn (Column $column) => $column->getName(), $this->db->createSchemaManager()->listTableColumns('piecejointe')))
             // Colonne 'STATUT_PEC' dans la table 'platauconsultation'
 
                 && \in_array('STATUT_PEC', array_map(static fn (Column $column) => $column->getName(), $this->db->createSchemaManager()->listTableColumns('platauconsultation')))
