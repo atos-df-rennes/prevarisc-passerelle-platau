@@ -436,11 +436,16 @@ final readonly class Prevarisc
     {
         $id_platau = (string) $piece['idPiece'];
         $no_version = (int) $piece['noVersion'];
-
-        return $this->pieceJointeExisteDansDossierParIdentifiantPlatau($dossier_id, $id_platau, $no_version)
-            || $this->pieceJointeExisteDansDossierParIdentifiantPlatau($dossier_id, $id_platau)
-            || $this->pieceJointeExisteDansDossier($dossier_id, $filename)
-            || $this->pieceJointeExisteDansDossier($dossier_id, $legacy_filename);
+        if ($this->pieceJointeExisteDansDossierParIdentifiantPlatau($dossier_id, $id_platau, $no_version)) {
+            return true;
+        }
+        if ($this->pieceJointeExisteDansDossierParIdentifiantPlatau($dossier_id, $id_platau)) {
+            return true;
+        }
+        if ($this->pieceJointeExisteDansDossier($dossier_id, $filename)) {
+            return true;
+        }
+        return $this->pieceJointeExisteDansDossier($dossier_id, $legacy_filename);
     }
 
     /**
