@@ -428,9 +428,8 @@ final readonly class Prevarisc
      *
      * La vérification porte en priorité sur le couple identifiant Plat'AU + numéro de version, ce qui permet
      * de bloquer un simple retéléchargement (ex: après renommage de la pièce) sans bloquer l'import d'une
-     * nouvelle version de la même pièce. À défaut de numéro de version connu en base (pièces importées avant
-     * son ajout), on se replie sur l'identifiant Plat'AU seul, en considérant alors la pièce comme à jour. Pour
-     * les pièces importées avant l'ajout de l'identifiant Plat'AU, on se replie enfin sur le nom de fichier.
+     * nouvelle version de la même pièce. Pour les pièces importées avant l'ajout du numéro de version (ou de
+     * l'identifiant Plat'AU) en base, on se replie sur le nom de fichier ; ce cas se résorbe au fil de l'eau.
      */
     private function pieceJointeDejaImportee(int $dossier_id, array $piece, string $filename, string $legacy_filename) : bool
     {
@@ -438,10 +437,6 @@ final readonly class Prevarisc
         $no_version = (int) $piece['noVersion'];
 
         if ($this->pieceJointeExisteDansDossierParIdentifiantPlatau($dossier_id, $id_platau, $no_version)) {
-            return true;
-        }
-
-        if ($this->pieceJointeExisteDansDossierParIdentifiantPlatau($dossier_id, $id_platau)) {
             return true;
         }
 
