@@ -434,17 +434,21 @@ final readonly class Prevarisc
      */
     private function pieceJointeDejaImportee(int $dossier_id, array $piece, string $filename, string $legacy_filename) : bool
     {
-        $id_platau = (string) $piece['idPiece'];
+        $id_platau  = (string) $piece['idPiece'];
         $no_version = (int) $piece['noVersion'];
+
         if ($this->pieceJointeExisteDansDossierParIdentifiantPlatau($dossier_id, $id_platau, $no_version)) {
             return true;
         }
+
         if ($this->pieceJointeExisteDansDossierParIdentifiantPlatau($dossier_id, $id_platau)) {
             return true;
         }
+
         if ($this->pieceJointeExisteDansDossier($dossier_id, $filename)) {
             return true;
         }
+
         return $this->pieceJointeExisteDansDossier($dossier_id, $legacy_filename);
     }
 
