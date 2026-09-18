@@ -159,6 +159,8 @@ final readonly class Prevarisc
             // Colonne 'DATE_DEPOT' dans la table 'piecejointe'
 
                 && \in_array('DATE_DEPOT', array_map(static fn (Column $column) => $column->getName(), $this->db->createSchemaManager()->listTableColumns('piecejointe')))
+
+                && \in_array('no_version', array_map(static fn (Column $column) => $column->getName(), $this->db->createSchemaManager()->listTableColumns('piecejointe')))
             // Colonne 'STATUT_PEC' dans la table 'platauconsultation'
 
                 && \in_array('STATUT_PEC', array_map(static fn (Column $column) => $column->getName(), $this->db->createSchemaManager()->listTableColumns('platauconsultation')))
@@ -388,6 +390,64 @@ final readonly class Prevarisc
     }
 
     /**
+     * Vérifie si une pièce jointe existe déjà dans le dossier pour un identifiant Plat'AU (et éventuellement
+     * un numéro de version) donné.
+     */
+    public function pieceJointeExisteDansDossierParIdentifiantPlatau(int $dossier_id, string $id_platau, ?int $no_version = null) : bool
+    {
+        $query_builder = $this->db->createQueryBuilder();
+
+        $conditions = [
+            $query_builder->expr()->eq('piecejointe.ID_PLATAU', '?'),
+            $query_builder->expr()->eq('dossierpj.ID_DOSSIER', '?'),
+        ];
+
+        if (null !== $no_version) {
+            $conditions[] = $query_builder->expr()->eq('piecejointe.no_version', '?');
+        }
+
+        $query_builder
+            ->select('piecejointe.ID_PIECEJOINTE')
+            ->from('piecejointe')
+            ->leftJoin('piecejointe', 'dossierpj', 'dossierpj', 'piecejointe.ID_PIECEJOINTE = dossierpj.ID_PIECEJOINTE')
+            ->where($query_builder->expr()->and(...$conditions))
+            ->setParameter(0, $id_platau)
+            ->setParameter(1, $dossier_id);
+
+        if (null !== $no_version) {
+            $query_builder->setParameter(2, $no_version);
+        }
+
+        $piece_jointe = $query_builder->executeQuery()->fetchAssociative();
+
+        return false !== $piece_jointe && [] !== $piece_jointe;
+    }
+
+    /**
+     * Vérifie si une pièce Plat'AU a déjà été importée dans le dossier.
+     *
+     * La vérification porte en priorité sur le couple identifiant Plat'AU + numéro de version, ce qui permet
+     * de bloquer un simple retéléchargement (ex: après renommage de la pièce) sans bloquer l'import d'une
+     * nouvelle version de la même pièce. Pour les pièces importées avant l'ajout du numéro de version (ou de
+     * l'identifiant Plat'AU) en base, on se replie sur le nom de fichier ; ce cas se résorbe au fil de l'eau.
+     */
+    private function pieceJointeDejaImportee(int $dossier_id, array $piece, string $filename, string $legacy_filename) : bool
+    {
+        $id_platau  = (string) $piece['idPiece'];
+        $no_version = (int) $piece['noVersion'];
+
+        if ($this->pieceJointeExisteDansDossierParIdentifiantPlatau($dossier_id, $id_platau, $no_version)) {
+            return true;
+        }
+
+        if ($this->pieceJointeExisteDansDossier($dossier_id, $filename)) {
+            return true;
+        }
+
+        return $this->pieceJointeExisteDansDossier($dossier_id, $legacy_filename);
+    }
+
+    /**
      * Importer des pièces jointes dans un dossier.
      */
     // @fixme Retirer le paramètre $notification une fois la commande `import-pieces` supprimée
@@ -398,10 +458,7 @@ final readonly class Prevarisc
         $filename        = vsprintf('%s-v%d', [$piece['txFileName'], $piece['noVersion']]);
 
         // Si le fichier existe déjà, on ne l'importe pas
-        if (
-            $this->pieceJointeExisteDansDossier($dossier_id, $filename)
-            || $this->pieceJointeExisteDansDossier($dossier_id, $legacy_filename)
-        ) {
+        if ($this->pieceJointeDejaImportee($dossier_id, $piece, $filename, $legacy_filename)) {
             return;
         }
 
@@ -435,6 +492,7 @@ final readonly class Prevarisc
                 'SOUS_TYPE' => $query_builder->createPositionalParameter($piece['libAutreTypePiece']),
                 'NATURE' => $query_builder->createPositionalParameter($piece['nomNaturePiece']['libNom']),
                 'DATE_DEPOT' => $query_builder->createPositionalParameter(new \DateTime($piece['dtDepot'])->format('Y-m-d')),
+                'no_version' => $query_builder->createPositionalParameter($piece['noVersion']),
             ];
 
             if (null !== $notification) {

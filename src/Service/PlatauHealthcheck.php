@@ -22,7 +22,7 @@ final class PlatauHealthcheck extends PlatauAbstract
         \assert(\is_array($healthcheck_results));
 
         /** @var array<string, bool> $status */
-        $status = array_filter($healthcheck_results, static fn ($key) : bool => \in_array($key, ['etatGeneral', 'etatBdd']), \ARRAY_FILTER_USE_KEY);
+        $status = array_filter($healthcheck_results, static fn ($key) : bool => \in_array($key, ['etatGeneral', 'etatBdd'], true), \ARRAY_FILTER_USE_KEY);
 
         // On va vérifier si les status sont OK, sinon, on déclenche une exception
         foreach ($status as $service => $etat) {

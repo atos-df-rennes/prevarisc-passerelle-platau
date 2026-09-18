@@ -29,6 +29,6 @@ final class DateReponse
 
     public function date() : ?string
     {
-        return $this->date ? $this->date->format('Y-m-d') : null;
+        return $this->date instanceof \DateTime ? $this->date->format('Y-m-d') : null;
     }
 }
