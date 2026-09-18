@@ -2,8 +2,8 @@
 
 namespace App\Command;
 
-use App\Service\Prevarisc as PrevariscService;
 use App\Service\SyncplicityClient;
+use App\Service\Prevarisc as PrevariscService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputInterface;
