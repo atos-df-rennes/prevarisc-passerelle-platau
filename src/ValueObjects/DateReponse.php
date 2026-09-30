@@ -2,27 +2,21 @@
 
 namespace App\ValueObjects;
 
+use App\Service\CalculDateLimiteReponse;
+
 class DateReponse
 {
-    private ?\DateTime $date = null;
+    private ?\DateTimeImmutable $date = null;
 
     public function __construct(?string $dateEmission, ?int $delaiDeReponse, ?string $type_date_limite_reponse)
     {
         if (null !== $dateEmission && null !== $delaiDeReponse) {
-            $date_limite_reponse_interval = null;
+            $calcul_date_limite_reponse   = new CalculDateLimiteReponse();
+            $date_limite_reponse_interval = $calcul_date_limite_reponse->intervalle($delaiDeReponse, $type_date_limite_reponse);
+            $date_depart                  = \DateTimeImmutable::createFromFormat('Y-m-d', $dateEmission);
 
-            switch ($type_date_limite_reponse) {
-                case 'Jours calendaires': $date_limite_reponse_interval = new \DateInterval("P{$delaiDeReponse}D");
-                    break;
-                case 'Mois': $date_limite_reponse_interval              = new \DateInterval("P{$delaiDeReponse}M");
-                    break;
-                default:
-                    break;
-            }
-
-            if (null !== $date_limite_reponse_interval) {
-                $dateEmission          = \DateTime::createFromFormat('Y-m-d', $dateEmission);
-                $this->date            = $dateEmission->add($date_limite_reponse_interval);
+            if (null !== $date_limite_reponse_interval && false !== $date_depart) {
+                $this->date = $calcul_date_limite_reponse->dateLimiteReponse($date_depart, $date_limite_reponse_interval);
             }
         }
     }
