@@ -11,7 +11,7 @@ final class CalculDateLimiteReponseTest extends TestCase
     #[DataProvider('intervalleProvider')]
     public function testRetourneIntervalleAttendu(?int $delai, ?string $type_delai, ?string $expected_intervalle) : void
     {
-        $intervalle = (new CalculDateLimiteReponse())->intervalle($delai, $type_delai);
+        $intervalle = new CalculDateLimiteReponse()->intervalle($delai, $type_delai);
 
         if (null === $expected_intervalle) {
             self::assertNull($intervalle);

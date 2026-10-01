@@ -79,10 +79,12 @@ final class PlatauConsultationTest extends TestCase
         for ($index = 0; $index < 10; ++$index) {
             $responses[] = new Response(200, [], $pagination_response);
         }
+
         $responses[] = new Response(200, [], '{}');
 
         $handler = HandlerStack::create(new MockHandler($responses));
         $handler->push(Middleware::history($history));
+
         $http_client = new Client([
             'base_uri' => 'https://platau.test/',
             'handler' => $handler,
