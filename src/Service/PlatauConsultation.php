@@ -148,28 +148,32 @@ final class PlatauConsultation extends PlatauAbstract
     /**
      * Envoi d'une PEC sur une consultation.
      */
-    public function envoiPEC(string $consultation_id, bool $est_positive = true, ?\DateInterval $date_limite_reponse_interval = null, ?string $observations = null, array $documents = [], ?\DateTime $date_envoi = null, ?Auteur $auteur = null) : ResponseInterface
+    public function envoiPEC(string $consultation_id, bool $est_positive = true, ?\DateInterval $date_limite_reponse_interval = null, ?string $observations = null, array $documents = [], ?\DateTimeImmutable $date_envoi = null, ?Auteur $auteur = null) : ResponseInterface
     {
         // On recherche dans Plat'AU les détails de la consultation liée à la PEC
         /** @var Information $information */
-        $information  = $this->getConsultation($consultation_id);
-        $dossier      = $information->getDossier();
-        $consultation = $dossier->getConsultation();
+        $information                = $this->getConsultation($consultation_id);
+        $dossier                    = $information->getDossier();
+        $consultation               = $dossier->getConsultation();
+        $calcul_date_limite_reponse = new CalculDateLimiteReponse();
 
         // Définition de la DLR à envoyer
         // Correspond à la date d'instruction donnée dans la consultation si aucune date limite est donnée
         if (null === $date_limite_reponse_interval) {
-            $delai_reponse                = (string) $consultation->getDelaiDeReponse();
-            $type_date_limite_reponse     = $consultation->getNomTypeDelai()->getLibNom();
-            $date_limite_reponse_interval = match ($type_date_limite_reponse) {
-                'Jours calendaires' => new \DateInterval(\sprintf('P%sD', $delai_reponse)),
-                'Mois' => new \DateInterval(\sprintf('P%sM', $delai_reponse)),
-                default => throw new \Exception('Type de la date de réponse attendue inconnu : '.($type_date_limite_reponse ?? 'vide')),
-            };
+            $type_date_limite_reponse = $consultation->getNomTypeDelai()->getLibNom();
+
+            $date_limite_reponse_interval = $calcul_date_limite_reponse->intervalle(
+                $consultation->getDelaiDeReponse(),
+                $type_date_limite_reponse
+            );
+
+            if (null === $date_limite_reponse_interval) {
+                throw new \Exception('Type de la date de réponse attendue inconnu : '.($type_date_limite_reponse ?? 'vide'));
+            }
         }
 
-        $date_envoi ??= new \DateTime();
-        $date_limite_reponse = $date_envoi->add($date_limite_reponse_interval);
+        $date_envoi          ??= new \DateTimeImmutable();
+        $date_limite_reponse = $calcul_date_limite_reponse->dateLimiteReponse($date_envoi, $date_limite_reponse_interval);
 
         $pec_metier_options = [
             'dtPecMetier' => $date_envoi->format('Y-m-d'),
@@ -210,7 +214,7 @@ final class PlatauConsultation extends PlatauAbstract
     /**
      * Versement d'un avis sur une consultation.
      */
-    public function versementAvis(string $consultation_id, int $avis_rendu, array $prescriptions = [], array $documents = [], ?\DateTime $date_envoi = null, ?Auteur $auteur = null) : ResponseInterface
+    public function versementAvis(string $consultation_id, int $avis_rendu, array $prescriptions = [], array $documents = [], ?\DateTimeImmutable $date_envoi = null, ?Auteur $auteur = null) : ResponseInterface
     {
         // On recherche dans Plat'AU les détails de la consultation liée (dans les traitées et versées)
         /** @var Information $information */
@@ -224,7 +228,7 @@ final class PlatauConsultation extends PlatauAbstract
             [] === $prescriptions ? 'RAS' : implode(', ', $libelles),
         ]);
 
-        $date_envoi ??= new \DateTime();
+        $date_envoi ??= new \DateTimeImmutable();
 
         $avis_options = [
             'idConsultation' => $consultation_id,

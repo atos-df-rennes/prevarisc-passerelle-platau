@@ -121,7 +121,7 @@ final class ExportAvis extends AbstractExportCommand
 
                         $output->writeln(\sprintf("Versement d'un avis %s pour la consultation %s au service instructeur ...", $avis_libelle, $consultation_id));
                         // Si cela concerne un premier envoi d'avis alors on place la date de l'avis Prevarisc, sinon la date du lancement de la commande
-                        $date_envoi = new \DateTime();
+                        $date_envoi = new \DateTimeImmutable();
 
                         if ('to_export' === $dossier['STATUT_AVIS']) {
                             $avis       = $this->avis_service->getAvisForConsultation($consultation_id);
