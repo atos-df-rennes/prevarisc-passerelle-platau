@@ -2,9 +2,9 @@
 
 namespace App\Tests\Service;
 
+use PHPUnit\Framework\TestCase;
 use App\Service\CalculDateLimiteReponse;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\TestCase;
 
 final class CalculDateLimiteReponseTest extends TestCase
 {

@@ -62,11 +62,9 @@ final class PlatauConsultationTest extends TestCase
 
     private function createConsultationService() : PlatauConsultation
     {
-        return new PlatauConsultation([
-            'PISTE_CLIENT_ID' => 'test',
-            'PISTE_CLIENT_SECRET' => 'test',
-            'PLATAU_ID_ACTEUR_APPELANT' => 'test',
-        ]);
+        $reflection = new \ReflectionClass(PlatauConsultation::class);
+
+        return $reflection->newInstanceWithoutConstructor();
     }
 
     private function installMockHttpClient(PlatauConsultation $consultation_service, array &$history) : void
@@ -92,6 +90,11 @@ final class PlatauConsultationTest extends TestCase
 
         $http_client_property = new \ReflectionProperty(PlatauAbstract::class, 'http_client');
         $http_client_property->setValue($consultation_service, $http_client);
+
+        $config_property = new \ReflectionProperty(PlatauAbstract::class, 'config');
+        $config_property->setValue($consultation_service, [
+            'PLATAU_ID_ACTEUR_APPELANT' => 'test',
+        ]);
     }
 
     private function getSubmittedOptions(array $history, string $uri) : array

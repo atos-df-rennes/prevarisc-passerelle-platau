@@ -2,9 +2,9 @@
 
 namespace App\Tests\ValueObjects;
 
+use PHPUnit\Framework\TestCase;
 use App\ValueObjects\DateReponse;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\TestCase;
 
 final class DateReponseTest extends TestCase
 {

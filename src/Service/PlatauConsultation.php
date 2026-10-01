@@ -172,7 +172,7 @@ final class PlatauConsultation extends PlatauAbstract
             }
         }
 
-        $date_envoi          ??= new \DateTimeImmutable();
+        $date_envoi ??= new \DateTimeImmutable();
         $date_limite_reponse = $calcul_date_limite_reponse->dateLimiteReponse($date_envoi, $date_limite_reponse_interval);
 
         $pec_metier_options = [
