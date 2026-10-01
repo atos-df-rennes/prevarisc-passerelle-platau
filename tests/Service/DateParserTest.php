@@ -21,11 +21,11 @@ final class DateParserTest extends TestCase
     }
 
     #[DataProvider('datesValides')]
-    public function testRetourneDateTimeAvecDateValide(string $format, string $date, string $expected_formatted) : void
+    public function testRetourneDateTimeImmutableAvecDateValide(string $format, string $date, string $expected_formatted) : void
     {
         $result = $this->date_parser->parse($format, $date);
 
-        self::assertInstanceOf(\DateTime::class, $result);
+        self::assertInstanceOf(\DateTimeImmutable::class, $result);
         self::assertSame($expected_formatted, $result->format($format));
     }
 
