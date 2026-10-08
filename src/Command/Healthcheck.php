@@ -39,7 +39,7 @@ final class Healthcheck extends Command
         $output->writeln("Version de Plat'AU : 13");
         $output->writeln('Identifiant du client : '.$this->healthcheck_service->getConfig()['PISTE_CLIENT_ID']);
         $output->writeln("ID Acteur Plat'AU : ".$this->healthcheck_service->getConfig()['PLATAU_ID_ACTEUR_APPELANT']);
-        $output->writeln('Syncplicity : '.($this->healthcheck_service->getSyncplicity() ? 'Activé' : 'Non activé'));
+        $output->writeln('Syncplicity : '.($this->healthcheck_service->getSyncplicity() instanceof \App\Service\SyncplicityClient ? 'Activé' : 'Non activé'));
 
         // On vérifie la santé de Plat'AU
         if (!$this->healthcheck_service->healthcheck()) {

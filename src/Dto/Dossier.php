@@ -108,9 +108,7 @@ final class Dossier
      */
     public function getDemandeursAsString(?array $demandeurs = null) : ?string
     {
-        if (null === $demandeurs) {
-            $demandeurs = $this->getDemandeurs();
-        }
+        $demandeurs ??= $this->getDemandeurs();
 
         if ([] === $demandeurs) {
             return null;
@@ -124,13 +122,9 @@ final class Dossier
                 return $personne->getLibDenomination() ?? $personne->getLibRaisonSociale() ?? 'Inconnu';
             }
 
-            if (null === $prenoms) {
-                $prenoms = [];
-            }
+            $prenoms ??= [];
 
-            if (null === $noms) {
-                $noms = [];
-            }
+            $noms ??= [];
 
             $prenoms = array_map(trim(...), $prenoms);
             $noms    = array_map(trim(...), $noms);
