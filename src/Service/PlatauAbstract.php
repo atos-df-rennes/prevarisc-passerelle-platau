@@ -61,7 +61,7 @@ abstract class PlatauAbstract
                 $message = \sprintf(
                     "Un problème est survenu lors de la requête à %s : Plat'AU a répondu avec un code %s. Nous allons attendre %s secondes avant de réessayer. Ceci est l'essai numéro %s.",
                     $request->getUri()->getPath(),
-                    $response ? $response->getStatusCode() : 'xxx',
+                    $response instanceof ResponseInterface ? $response->getStatusCode() : 'xxx',
                     number_format($delay, 2),
                     $attemptNumber
                 );
