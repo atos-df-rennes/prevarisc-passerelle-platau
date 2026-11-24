@@ -82,6 +82,10 @@ final class ImportPieces extends Command
 
                     // Récupération des pièces jointes liées à la consultation
                     foreach ($this->consultation_service->getPieces($dossier_id) as $piece) {
+                        if ($this->prevarisc_service->pieceJointeDejaImportee($dossier_prevarisc['ID_DOSSIER'], $piece)) {
+                            continue;
+                        }
+
                         // Téléchargement de la pièce
                         $http_response = $this->piece_service->download($piece);
 

@@ -387,23 +387,28 @@ final readonly class Prevarisc
         return false !== $piece_jointe && [] !== $piece_jointe;
     }
 
+    public function pieceJointeDejaImportee(int $dossier_id, array $piece) : bool
+    {
+        $legacy_filename = vsprintf('PLATAU-%s-%s-v%d', [$piece['idPiece'], $piece['noPiece'], $piece['noVersion']]);
+        $filename        = vsprintf('%s-v%d', [$piece['txFileName'], $piece['noVersion']]);
+
+        return $this->pieceJointeExisteDansDossier($dossier_id, $filename)
+            || $this->pieceJointeExisteDansDossier($dossier_id, $legacy_filename);
+    }
+
     /**
      * Importer des pièces jointes dans un dossier.
      */
     // @fixme Retirer le paramètre $notification une fois la commande `import-pieces` supprimée
     public function creerPieceJointe(int $dossier_id, array $piece, string $extension, string $file_contents, ?array $notification = null) : void
     {
-        // Génération du nom du fichier
-        $legacy_filename = vsprintf('PLATAU-%s-%s-v%d', [$piece['idPiece'], $piece['noPiece'], $piece['noVersion']]);
-        $filename        = vsprintf('%s-v%d', [$piece['txFileName'], $piece['noVersion']]);
-
         // Si le fichier existe déjà, on ne l'importe pas
-        if (
-            $this->pieceJointeExisteDansDossier($dossier_id, $filename)
-            || $this->pieceJointeExisteDansDossier($dossier_id, $legacy_filename)
-        ) {
+        if ($this->pieceJointeDejaImportee($dossier_id, $piece)) {
             return;
         }
+
+        // Génération du nom du fichier
+        $filename = vsprintf('%s-v%d', [$piece['txFileName'], $piece['noVersion']]);
 
         // Génération de la description
         $description = vsprintf('Pièce de type "%s" (%s) en version %s (Pièce de nature %s avec un état %s. Elle a été déposée le %s et produite le %s.)', [
