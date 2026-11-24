@@ -431,10 +431,12 @@ final readonly class Prevarisc
      * nouvelle version de la même pièce. Pour les pièces importées avant l'ajout du numéro de version (ou de
      * l'identifiant Plat'AU) en base, on se replie sur le nom de fichier ; ce cas se résorbe au fil de l'eau.
      */
-    private function pieceJointeDejaImportee(int $dossier_id, array $piece, string $filename, string $legacy_filename) : bool
+    public function pieceJointeDejaImportee(int $dossier_id, array $piece) : bool
     {
-        $id_platau  = (string) $piece['idPiece'];
-        $no_version = (int) $piece['noVersion'];
+        $id_platau       = (string) $piece['idPiece'];
+        $no_version      = (int) $piece['noVersion'];
+        $filename        = vsprintf('%s-v%d', [$piece['txFileName'], $piece['noVersion']]);
+        $legacy_filename = vsprintf('PLATAU-%s-%s-v%d', [$piece['idPiece'], $piece['noPiece'], $piece['noVersion']]);
 
         if ($this->pieceJointeExisteDansDossierParIdentifiantPlatau($dossier_id, $id_platau, $no_version)) {
             return true;
@@ -453,14 +455,13 @@ final readonly class Prevarisc
     // @fixme Retirer le paramètre $notification une fois la commande `import-pieces` supprimée
     public function creerPieceJointe(int $dossier_id, array $piece, string $extension, string $file_contents, ?array $notification = null) : void
     {
-        // Génération du nom du fichier
-        $legacy_filename = vsprintf('PLATAU-%s-%s-v%d', [$piece['idPiece'], $piece['noPiece'], $piece['noVersion']]);
-        $filename        = vsprintf('%s-v%d', [$piece['txFileName'], $piece['noVersion']]);
-
         // Si le fichier existe déjà, on ne l'importe pas
-        if ($this->pieceJointeDejaImportee($dossier_id, $piece, $filename, $legacy_filename)) {
+        if ($this->pieceJointeDejaImportee($dossier_id, $piece)) {
             return;
         }
+
+        // Génération du nom du fichier
+        $filename = vsprintf('%s-v%d', [$piece['txFileName'], $piece['noVersion']]);
 
         // Génération de la description
         $description = vsprintf('Pièce de type "%s" (%s) en version %s (Pièce de nature %s avec un état %s. Elle a été déposée le %s et produite le %s.)', [
