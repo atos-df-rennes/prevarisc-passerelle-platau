@@ -81,26 +81,35 @@ final class ImportPieces extends Command
                     $dossier_prevarisc = $this->prevarisc_service->recupererDossierDeConsultation($consultation_id);
 
                     // Récupération des pièces jointes liées à la consultation
+                    $pieces_en_echec = 0;
                     foreach ($this->consultation_service->getPieces($dossier_id) as $piece) {
-                        if ($this->prevarisc_service->pieceJointeDejaImportee($dossier_prevarisc['ID_DOSSIER'], $piece)) {
-                            continue;
+                        try {
+                            if ($this->prevarisc_service->pieceJointeDejaImportee($dossier_prevarisc['ID_DOSSIER'], $piece)) {
+                                continue;
+                            }
+
+                            // Téléchargement de la pièce
+                            $http_response = $this->piece_service->download($piece);
+
+                            // On essaie de trouver l'extension de la pièce jointe
+                            $extension = $this->piece_service->getExtensionFromHttpResponse($http_response) ?? '???';
+
+                            // Récupération du contenu de la pièce jointe
+                            $file_contents = $http_response->getBody()->getContents();
+
+                            // Insertion dans Prevarisc
+                            $this->prevarisc_service->creerPieceJointe($dossier_prevarisc['ID_DOSSIER'], $piece, $extension, $file_contents);
+                        } catch (\Exception $e) {
+                            ++$pieces_en_echec;
+                            $output->writeln(\sprintf("Consultation %s : échec de l'import de la pièce %s (%s, version %s) : %s", $consultation_id, $piece['idPiece'] ?? '?', $piece['txFileName'] ?? '?', $piece['noVersion'] ?? '?', $e->getMessage()));
                         }
-
-                        // Téléchargement de la pièce
-                        $http_response = $this->piece_service->download($piece);
-
-                        // On essaie de trouver l'extension de la pièce jointe
-                        $extension = $this->piece_service->getExtensionFromHttpResponse($http_response) ?? '???';
-
-                        // Récupération du contenu de la pièce jointe
-                        $file_contents = $http_response->getBody()->getContents();
-
-                        // Insertion dans Prevarisc
-                        $this->prevarisc_service->creerPieceJointe($dossier_prevarisc['ID_DOSSIER'], $piece, $extension, $file_contents);
                     }
 
-                    // La consultation est importée !
-                    $output->writeln(\sprintf('Consultation %s récupérée et stockée dans Prevarisc !', $consultation_id));
+                    if (0 === $pieces_en_echec) {
+                        $output->writeln(\sprintf('Consultation %s récupérée et stockée dans Prevarisc !', $consultation_id));
+                    } else {
+                        $output->writeln(\sprintf('Consultation %s traitée avec %d pièce(s) en échec.', $consultation_id, $pieces_en_echec));
+                    }
                 } catch (\Exception $e) {
                     $output->writeln('Problème lors du traitement de la consultation : '.$e->getMessage());
                 }

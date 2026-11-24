@@ -163,16 +163,26 @@ final class LectureNotifications extends Command
                         $dossier_prevarisc = $this->prevarisc_service->recupererDossierDeConsultation($identifiant_element_concerne);
 
                         // Téléchargement des pièces initiales
-                        $pieces = $this->consultation_service->getPieces($notification['idDossier']);
+                        $pieces          = $this->consultation_service->getPieces($notification['idDossier']);
+                        $pieces_en_echec = 0;
                         foreach ($pieces as $piece) {
-                            $http_response = $this->piece_service->download($piece);
-                            $extension     = $this->piece_service->getExtensionFromHttpResponse($http_response) ?? '???';
-                            $file_contents = $http_response->getBody()->getContents();
+                            try {
+                                $http_response = $this->piece_service->download($piece);
+                                $extension     = $this->piece_service->getExtensionFromHttpResponse($http_response) ?? '???';
+                                $file_contents = $http_response->getBody()->getContents();
 
-                            $this->prevarisc_service->creerPieceJointe($dossier_prevarisc['ID_DOSSIER'], $piece, $extension, $file_contents, $notification);
+                                $this->prevarisc_service->creerPieceJointe($dossier_prevarisc['ID_DOSSIER'], $piece, $extension, $file_contents, $notification);
+                            } catch (\Exception $e) {
+                                ++$pieces_en_echec;
+                                $output->writeln($this->logMessage(\sprintf("[Offset: %d] Consultation %s : échec de l'import de la pièce %s (%s, version %s) : %s", $notification['offset'], $identifiant_element_concerne, $piece['idPiece'] ?? '?', $piece['txFileName'] ?? '?', $piece['noVersion'] ?? '?', $e->getMessage())));
+                            }
                         }
 
-                        $output->writeln($this->logMessage(\sprintf('Pièces initiales importées pour la consultation %s', $identifiant_element_concerne)));
+                        if (0 === $pieces_en_echec) {
+                            $output->writeln($this->logMessage(\sprintf('Pièces initiales importées pour la consultation %s', $identifiant_element_concerne)));
+                        } else {
+                            $output->writeln($this->logMessage(\sprintf('Pièces initiales de la consultation %s traitées avec %d pièce(s) en échec.', $identifiant_element_concerne, $pieces_en_echec)));
+                        }
                     } catch (\Exception $e) {
                         $output->writeln($this->logMessage(\sprintf('[Offset: %d] Problème lors du traitement de la consultation : %s', $notification['offset'], $e->getMessage())));
                     }
